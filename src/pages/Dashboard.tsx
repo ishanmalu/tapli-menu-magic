@@ -1,0 +1,68 @@
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { RestaurantSetup } from "@/components/dashboard/RestaurantSetup";
+import { MenuManager } from "@/components/dashboard/MenuManager";
+import { Leaf, LogOut } from "lucide-react";
+
+export default function Dashboard() {
+  const { user, loading, signOut } = useAuth();
+  const [restaurant, setRestaurant] = useState<Tables<"restaurants"> | null>(null);
+  const [loadingRest, setLoadingRest] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.from("restaurants").select("*").eq("owner_id", user.id).maybeSingle().then(({ data, error }) => {
+      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+      setRestaurant(data);
+      setLoadingRest(false);
+    });
+  }, [user]);
+
+  if (loading || loadingRest) return <div className="flex min-h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+  if (!user) return <Navigate to="/auth" replace />;
+
+  return (
+    <div className="min-h-screen bg-secondary/30">
+      {/* Header */}
+      <header className="border-b bg-card">
+        <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <Leaf className="h-4 w-4 text-primary-foreground" />
+            </div>
+            <span className="font-bold text-foreground">Tapli</span>
+          </div>
+          <div className="flex items-center gap-3">
+            {restaurant && (
+              <a
+                href={`/menu/${restaurant.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline"
+              >
+                View menu →
+              </a>
+            )}
+            <Button variant="ghost" size="sm" onClick={signOut}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-4 py-6">
+        {!restaurant ? (
+          <RestaurantSetup userId={user.id} onCreated={setRestaurant} />
+        ) : (
+          <MenuManager restaurant={restaurant} onRestaurantUpdate={setRestaurant} />
+        )}
+      </main>
+    </div>
+  );
+}

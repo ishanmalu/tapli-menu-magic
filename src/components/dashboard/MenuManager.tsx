@@ -56,8 +56,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
     const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
     if (uploadError) { toast({ title: "Upload error", description: uploadError.message, variant: "destructive" }); return; }
     const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-    const field = type === "logo" ? "logo_url" : "cover_photo_url";
-    const { data, error } = await supabase.from("restaurants").update({ [field]: publicUrl }).eq("id", restaurant.id).select().single();
+    const updatePayload = type === "logo" ? { logo_url: publicUrl } : { cover_photo_url: publicUrl };
+    const { data, error } = await supabase.from("restaurants").update(updatePayload).eq("id", restaurant.id).select().single();
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else if (data) onRestaurantUpdate(data);
   };

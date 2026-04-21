@@ -21,20 +21,30 @@ export function CategoryManager({ restaurantId, categories, onUpdate }: Props) {
   const handleAdd = async () => {
     if (!newName.trim()) return;
     setAdding(true);
-    const { error } = await supabase.from("categories").insert({
-      name: newName.trim(),
-      restaurant_id: restaurantId,
-      sort_order: categories.length,
-    });
-    setAdding(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else { setNewName(""); onUpdate(); }
+    try {
+      const { error } = await supabase.from("categories").insert({
+        name: newName.trim(),
+        restaurant_id: restaurantId,
+        sort_order: categories.length,
+      });
+      if (error) throw error;
+      setNewName("");
+      onUpdate();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("categories").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else onUpdate();
+    try {
+      const { error } = await supabase.from("categories").delete().eq("id", id);
+      if (error) throw error;
+      onUpdate();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
   };
 
   return (

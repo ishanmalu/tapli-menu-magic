@@ -27,21 +27,32 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const { toast } = useToast();
 
   const loadData = async () => {
-    const [{ data: cats }, { data: menuItems }] = await Promise.all([
-      supabase.from("categories").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
-      supabase.from("menu_items").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
-    ]);
-    setCategories(cats || []);
-    setItems(menuItems || []);
-    setLoading(false);
+    try {
+      const [{ data: cats, error: catsError }, { data: menuItems, error: itemsError }] = await Promise.all([
+        supabase.from("categories").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
+        supabase.from("menu_items").select("*").eq("restaurant_id", restaurant.id).order("sort_order"),
+      ]);
+      if (catsError) throw catsError;
+      if (itemsError) throw itemsError;
+      setCategories(cats || []);
+      setItems(menuItems || []);
+    } catch (err: any) {
+      toast({ title: "Error loading menu", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { loadData(); }, [restaurant.id]);
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase.from("menu_items").delete().eq("id", id);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else loadData();
+    try {
+      const { error } = await supabase.from("menu_items").delete().eq("id", id);
+      if (error) throw error;
+      loadData();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    }
   };
 
   const handleSave = () => {
@@ -51,15 +62,19 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   };
 
   const uploadRestaurantImage = async (file: File, type: "logo" | "cover") => {
-    const ext = file.name.split(".").pop();
-    const path = `${restaurant.id}/${type}.${ext}`;
-    const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
-    if (uploadError) { toast({ title: "Upload error", description: uploadError.message, variant: "destructive" }); return; }
-    const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-    const updatePayload = type === "logo" ? { logo_url: publicUrl } : { cover_photo_url: publicUrl };
-    const { data, error } = await supabase.from("restaurants").update(updatePayload).eq("id", restaurant.id).select().single();
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else if (data) onRestaurantUpdate(data);
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${restaurant.id}/${type}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
+      const updatePayload = type === "logo" ? { logo_url: publicUrl } : { cover_photo_url: publicUrl };
+      const { data, error } = await supabase.from("restaurants").update(updatePayload).eq("id", restaurant.id).select().single();
+      if (error) throw error;
+      if (data) onRestaurantUpdate(data);
+    } catch (err: any) {
+      toast({ title: "Upload error", description: err.message, variant: "destructive" });
+    }
   };
 
   const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || "Uncategorized";

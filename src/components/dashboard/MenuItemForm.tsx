@@ -43,38 +43,42 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    try {
+      let photoUrl = item?.photo_url || null;
+      if (photo) {
+        const ext = photo.name.split(".").pop();
+        const path = `${restaurantId}/items/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, photo);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
+        photoUrl = publicUrl;
+      }
 
-    let photoUrl = item?.photo_url || null;
-    if (photo) {
-      const ext = photo.name.split(".").pop();
-      const path = `${restaurantId}/items/${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, photo);
-      if (uploadError) { toast({ title: "Upload error", description: uploadError.message, variant: "destructive" }); setSubmitting(false); return; }
-      const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-      photoUrl = publicUrl;
+      const payload = {
+        name: name.trim(),
+        description: description.trim() || null,
+        price: parseFloat(price),
+        category_id: categoryId || null,
+        calories: calories ? parseInt(calories) : null,
+        protein: protein ? parseFloat(protein) : null,
+        allergens,
+        dietary_tags: dietaryTags,
+        is_available: isAvailable,
+        photo_url: photoUrl,
+        restaurant_id: restaurantId,
+      };
+
+      const { error } = item
+        ? await supabase.from("menu_items").update(payload).eq("id", item.id)
+        : await supabase.from("menu_items").insert(payload);
+
+      if (error) throw error;
+      onSave();
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
-
-    const payload = {
-      name: name.trim(),
-      description: description.trim() || null,
-      price: parseFloat(price),
-      category_id: categoryId || null,
-      calories: calories ? parseInt(calories) : null,
-      protein: protein ? parseFloat(protein) : null,
-      allergens,
-      dietary_tags: dietaryTags,
-      is_available: isAvailable,
-      photo_url: photoUrl,
-      restaurant_id: restaurantId,
-    };
-
-    const { error } = item
-      ? await supabase.from("menu_items").update(payload).eq("id", item.id)
-      : await supabase.from("menu_items").insert(payload);
-
-    setSubmitting(false);
-    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-    else onSave();
   };
 
   return (

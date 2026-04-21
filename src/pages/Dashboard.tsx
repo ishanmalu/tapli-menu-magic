@@ -17,11 +17,18 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("restaurants").select("*").eq("owner_id", user.id).maybeSingle().then(({ data, error }) => {
-      if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
-      setRestaurant(data);
-      setLoadingRest(false);
-    });
+    const fetchRestaurant = async () => {
+      try {
+        const { data, error } = await supabase.from("restaurants").select("*").eq("owner_id", user.id).maybeSingle();
+        if (error) throw error;
+        setRestaurant(data);
+      } catch (err: any) {
+        toast({ title: "Error", description: err.message, variant: "destructive" });
+      } finally {
+        setLoadingRest(false);
+      }
+    };
+    fetchRestaurant();
   }, [user]);
 
   if (loading || loadingRest) return <div className="flex min-h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;

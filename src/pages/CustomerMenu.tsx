@@ -2,8 +2,10 @@ import { useEffect, useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import { FoodStyleChips, FOOD_STYLE_FILTERS } from "@/components/menu/FoodStyleChips";
 import { MenuFilterBar } from "@/components/menu/MenuFilterBar";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
+import { DiscoverRestaurants } from "@/components/menu/DiscoverRestaurants";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type Restaurant = Tables<"restaurants">;
@@ -25,6 +27,7 @@ export default function CustomerMenu() {
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [calorieRange, setCalorieRange] = useState<[number, number]>([0, 2000]);
+  const [selectedFoodStyles, setSelectedFoodStyles] = useState<string[]>([]);
 
   useEffect(() => {
     if (!slug) return;
@@ -52,9 +55,14 @@ export default function CustomerMenu() {
       if (selectedDietary.length > 0 && !selectedDietary.every((d) => item.dietary_tags?.includes(d))) return false;
       // Filter by calorie range
       if (item.calories != null && (item.calories < calorieRange[0] || item.calories > calorieRange[1])) return false;
+      // Filter by food style chips
+      if (selectedFoodStyles.length > 0) {
+        const activeFilters = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));
+        if (!activeFilters.some((f) => f.match(item))) return false;
+      }
       return true;
     });
-  }, [items, excludedAllergens, selectedDietary, calorieRange]);
+  }, [items, excludedAllergens, selectedDietary, calorieRange, selectedFoodStyles]);
 
   const groupedItems = useMemo(() => {
     const groups: { category: Category | null; items: MenuItem[] }[] = [];
@@ -104,7 +112,7 @@ export default function CustomerMenu() {
     );
   }
 
-  const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || calorieRange[0] > 0 || calorieRange[1] < 2000;
+  const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || calorieRange[0] > 0 || calorieRange[1] < 2000 || selectedFoodStyles.length > 0;
 
   return (
     <div className="min-h-screen bg-background pb-8">
@@ -131,6 +139,7 @@ export default function CustomerMenu() {
         </div>
 
         {/* Filters */}
+        <FoodStyleChips selected={selectedFoodStyles} setSelected={setSelectedFoodStyles} />
         <MenuFilterBar
           allergens={ALL_ALLERGENS}
           dietaryOptions={DIETARY_OPTIONS}
@@ -163,6 +172,9 @@ export default function CustomerMenu() {
             </div>
           ))
         )}
+
+        {/* Discover other restaurants */}
+        {restaurant && <DiscoverRestaurants currentRestaurantId={restaurant.id} />}
       </div>
     </div>
   );

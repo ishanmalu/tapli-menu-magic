@@ -48,6 +48,11 @@ export default function Auth() {
       toast({ title: "Passwords don't match", description: "Please make sure both passwords are identical.", variant: "destructive" });
       return;
     }
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      toast({ title: "Weak password", description: "Must be 8+ characters with uppercase, lowercase, number, and special character.", variant: "destructive" });
+      return;
+    }
     setSubmitting(true);
     const finalRole = role === "Other" ? customRole : role;
     const { error } = await signUp(email, password, {

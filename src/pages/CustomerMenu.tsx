@@ -32,17 +32,24 @@ export default function CustomerMenu() {
   useEffect(() => {
     if (!slug) return;
     const load = async () => {
-      const { data: rest } = await supabase.from("restaurants").select("*").eq("slug", slug).single();
-      if (!rest) { setNotFound(true); setLoading(false); return; }
-      setRestaurant(rest);
+      try {
+        const { data: rest, error: restError } = await supabase.from("restaurants").select("*").eq("slug", slug).single();
+        if (restError || !rest) { setNotFound(true); return; }
+        setRestaurant(rest);
 
-      const [{ data: cats }, { data: menuItems }] = await Promise.all([
-        supabase.from("categories").select("*").eq("restaurant_id", rest.id).order("sort_order"),
-        supabase.from("menu_items").select("*").eq("restaurant_id", rest.id).eq("is_available", true).order("sort_order"),
-      ]);
-      setCategories(cats || []);
-      setItems(menuItems || []);
-      setLoading(false);
+        const [{ data: cats, error: catsError }, { data: menuItems, error: itemsError }] = await Promise.all([
+          supabase.from("categories").select("*").eq("restaurant_id", rest.id).order("sort_order"),
+          supabase.from("menu_items").select("*").eq("restaurant_id", rest.id).eq("is_available", true).order("sort_order"),
+        ]);
+        if (catsError) throw catsError;
+        if (itemsError) throw itemsError;
+        setCategories(cats || []);
+        setItems(menuItems || []);
+      } catch {
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [slug]);

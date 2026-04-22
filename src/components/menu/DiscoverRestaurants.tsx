@@ -15,12 +15,17 @@ export function DiscoverRestaurants({ currentRestaurantId }: DiscoverRestaurants
 
   useEffect(() => {
     const load = async () => {
-      const { data } = await supabase
-        .from("restaurants")
-        .select("*")
-        .neq("id", currentRestaurantId)
-        .limit(10);
-      setRestaurants(data || []);
+      try {
+        const { data, error } = await supabase
+          .from("restaurants")
+          .select("*")
+          .neq("id", currentRestaurantId)
+          .limit(10);
+        if (error) throw error;
+        setRestaurants(data || []);
+      } catch {
+        // silently fail — discover section is non-critical
+      }
     };
     load();
   }, [currentRestaurantId]);

@@ -55,39 +55,47 @@ export default function Auth() {
       return;
     }
     setSubmitting(true);
-    const finalRole = role === "Other" ? customRole : role;
-    const { error } = await signUp(email, password, {
-      first_name: firstName,
-      last_name: lastName,
-      restaurant_name: restaurantName,
-      role: finalRole,
-    });
-    setSubmitting(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else {
+    try {
+      const finalRole = role === "Other" ? customRole : role;
+      const { error } = await signUp(email, password, {
+        first_name: firstName,
+        last_name: lastName,
+        restaurant_name: restaurantName,
+        role: finalRole,
+      });
+      if (error) throw error;
       setStep("verify");
       toast({ title: "Verification code sent!", description: "Check your email for the 6-digit code." });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = await verifyOtp(email, otpCode);
-    setSubmitting(false);
-    if (error) {
-      toast({ title: "Verification failed", description: error.message, variant: "destructive" });
+    try {
+      const { error } = await verifyOtp(email, otpCode);
+      if (error) throw error;
+    } catch (err: any) {
+      toast({ title: "Verification failed", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const { error } = await signIn(email, password);
-    setSubmitting(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
+    try {
+      const { error } = await signIn(email, password);
+      if (error) throw error;
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 

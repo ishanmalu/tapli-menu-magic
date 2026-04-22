@@ -18,7 +18,7 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
     id: "high-carb",
     label: "High Carb",
     emoji: "🍞",
-    match: (item) => item.calories != null && item.calories >= 500,
+    match: (item) => item.dietary_tags?.some((t) => ["high-carb", "carb-heavy", "pasta", "rice", "bread"].includes(t)) ?? false,
   },
   {
     id: "keto",

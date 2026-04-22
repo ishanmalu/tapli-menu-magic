@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
 import tapliLogo from "@/assets/tapli-logo.png";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const RESTAURANT_ROLES = [
   "Owner",
@@ -92,6 +93,9 @@ export default function Auth() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary/30 px-4 py-8">
+      <div className="fixed top-4 right-4">
+        <ThemeToggle />
+      </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <img src={tapliLogo} alt="Tapli" className="mx-auto mb-2 h-10 w-auto" />

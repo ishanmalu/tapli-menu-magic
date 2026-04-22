@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Leaf, QrCode, Smartphone, BarChart3, ArrowRight } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Index() {
   return (
@@ -21,6 +22,7 @@ export default function Index() {
             <Link to="/auth">
               <Button size="sm">Get Started</Button>
             </Link>
+            <ThemeToggle />
           </div>
         </div>
       </nav>

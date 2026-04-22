@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
-import { Leaf } from "lucide-react";
+import tapliLogo from "@/assets/tapli-logo.png";
 
 const RESTAURANT_ROLES = [
   "Owner",
@@ -94,10 +94,7 @@ export default function Auth() {
     <div className="flex min-h-screen items-center justify-center bg-secondary/30 px-4 py-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-2 flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
-            <Leaf className="h-6 w-6 text-primary-foreground" />
-          </div>
-          <CardTitle className="text-2xl">Tapli</CardTitle>
+          <img src={tapliLogo} alt="Tapli" className="mx-auto mb-2 h-10 w-auto" />
           <CardDescription>
             {step === "verify"
               ? "Enter the verification code sent to your email"

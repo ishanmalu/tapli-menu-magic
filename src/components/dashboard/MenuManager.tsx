@@ -157,7 +157,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                   )}
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{getCategoryName(item.category_id)} · ${Number(item.price).toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground">{getCategoryName(item.category_id)} · €{Number(item.price).toFixed(2)}</p>
                   </div>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingItem(item); setShowForm(true); }}>

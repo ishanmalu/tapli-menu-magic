@@ -122,7 +122,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       </div>
       <div>
         <Label>{t("photo")}</Label>
-        <Input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+        <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
         {item?.photo_url && !photo && <img src={item.photo_url} alt="" className="h-16 w-16 rounded-md object-cover mt-2" />}
       </div>
       <div>

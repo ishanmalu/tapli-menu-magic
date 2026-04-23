@@ -99,7 +99,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               ) : (
                 <ImageIcon className="h-6 w-6 text-muted-foreground" />
               )}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "logo")} />
+              <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "logo")} />
             </label>
           </div>
           <div className="flex-1 min-w-[200px]">
@@ -110,7 +110,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               ) : (
                 <span className="text-sm text-muted-foreground">{t("uploadCover")}</span>
               )}
-              <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
+              <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
             </label>
           </div>
         </CardContent>

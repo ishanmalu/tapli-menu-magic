@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Separator } from "@/components/ui/separator";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Restaurant = Tables<"restaurants">;
 
@@ -12,6 +13,7 @@ interface DiscoverRestaurantsProps {
 
 export function DiscoverRestaurants({ currentRestaurantId }: DiscoverRestaurantsProps) {
   const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const load = async () => {
@@ -36,7 +38,7 @@ export function DiscoverRestaurants({ currentRestaurantId }: DiscoverRestaurants
     <div className="mt-12">
       <Separator className="mb-6" />
       <div className="text-center mb-4">
-        <p className="text-xs text-muted-foreground uppercase tracking-wider">Explore other menus on Tapli</p>
+        <p className="text-xs text-muted-foreground uppercase tracking-wider">{t("discoverMore")}</p>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide">
         {restaurants.map((r) => (

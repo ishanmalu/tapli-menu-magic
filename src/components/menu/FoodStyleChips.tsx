@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export interface FoodStyleFilter {
   id: string;
@@ -52,8 +53,18 @@ interface FoodStyleChipsProps {
 }
 
 export function FoodStyleChips({ selected, setSelected }: FoodStyleChipsProps) {
+  const { t } = useLanguage();
   const toggle = (id: string) =>
     setSelected(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
+
+  const labelMap: Record<string, string> = {
+    "high-protein": t("highProtein"),
+    "high-carb": t("highCarb"),
+    "keto": t("highFatKeto"),
+    "low-calorie": t("lowCalorie"),
+    "high-energy": t("highEnergy"),
+    "plant-based": t("plantBased"),
+  };
 
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
@@ -64,7 +75,7 @@ export function FoodStyleChips({ selected, setSelected }: FoodStyleChipsProps) {
           className="cursor-pointer whitespace-nowrap px-3 py-1.5 text-sm flex-shrink-0"
           onClick={() => toggle(f.id)}
         >
-          {f.emoji} {f.label}
+          {f.emoji} {labelMap[f.id] || f.label}
         </Badge>
       ))}
     </div>

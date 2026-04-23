@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Plus, X } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   restaurantId: string;
@@ -17,6 +18,7 @@ export function CategoryManager({ restaurantId, categories, onUpdate }: Props) {
   const [newName, setNewName] = useState("");
   const [adding, setAdding] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleAdd = async () => {
     if (!newName.trim()) return;
@@ -64,7 +66,7 @@ export function CategoryManager({ restaurantId, categories, onUpdate }: Props) {
           ))}
         </div>
         <div className="flex gap-2">
-          <Input placeholder="New category" value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAdd()} className="max-w-xs" />
+          <Input placeholder={t("newCategory")} value={newName} onChange={(e) => setNewName(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleAdd()} className="max-w-xs" />
           <Button size="sm" onClick={handleAdd} disabled={adding}><Plus className="h-4 w-4" /></Button>
         </div>
       </CardContent>

@@ -9,6 +9,8 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp
 import { useToast } from "@/hooks/use-toast";
 import tapliLogo from "@/assets/tapli-logo.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const RESTAURANT_ROLES = [
   "Owner",
@@ -24,6 +26,7 @@ type Step = "form" | "verify";
 
 export default function Auth() {
   const { user, loading, signIn, signUp, verifyOtp } = useAuth();
+  const { t } = useLanguage();
   const [isLogin, setIsLogin] = useState(true);
   const [step, setStep] = useState<Step>("form");
 
@@ -102,6 +105,7 @@ export default function Auth() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-secondary/30 px-4 py-8">
       <div className="fixed top-4 right-4">
+        <LanguageToggle />
         <ThemeToggle />
       </div>
       <Card className="w-full max-w-md">
@@ -109,10 +113,10 @@ export default function Auth() {
           <img src={tapliLogo} alt="Tapli" className="mx-auto mb-2 h-10 w-auto" />
           <CardDescription>
             {step === "verify"
-              ? "Enter the verification code sent to your email"
+              ? t("verifyDesc")
               : isLogin
-              ? "Sign in to manage your menu"
-              : "Create your restaurant account"}
+              ? t("signInDesc")
+              : t("createAccount")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -131,37 +135,37 @@ export default function Auth() {
                 </InputOTP>
               </div>
               <Button type="submit" className="w-full" disabled={submitting || otpCode.length < 6}>
-                {submitting ? "Verifying..." : "Verify Email"}
+                {submitting ? t("verifying") : t("verifyEmail")}
               </Button>
               <p className="text-center text-sm text-muted-foreground">
-                Didn't receive the code?{" "}
+                {t("didntReceive")}{" "}
                 <button
                   type="button"
                   onClick={() => { setStep("form"); setOtpCode(""); }}
                   className="text-primary underline-offset-4 hover:underline font-medium"
                 >
-                  Go back
+                  {t("goBack")}
                 </button>
               </p>
             </form>
           ) : isLogin ? (
             <form onSubmit={handleSignIn} className="space-y-4">
-              <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input type="password" placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
               <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Signing in..." : "Sign In"}
+                {submitting ? t("signingIn") : t("signIn")}
               </Button>
             </form>
           ) : (
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
-                <Input placeholder="First name" value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
-                <Input placeholder="Last name" value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                <Input placeholder={t("firstName")} value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
+                <Input placeholder={t("lastName")} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
               </div>
-              <Input placeholder="Restaurant name" value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} required />
+              <Input placeholder={t("restaurantName")} value={restaurantName} onChange={(e) => setRestaurantName(e.target.value)} required />
               <Select value={role} onValueChange={setRole}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Your position at the restaurant" />
+                  <SelectValue placeholder={t("yourPosition")} />
                 </SelectTrigger>
                 <SelectContent>
                   {RESTAURANT_ROLES.map((r) => (
@@ -173,19 +177,19 @@ export default function Auth() {
               {role === "Other" && (
                 <Input placeholder="Enter your position" value={customRole} onChange={(e) => setCustomRole(e.target.value)} required />
               )}
-              <Input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-              <Input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-              <Input type="password" placeholder="Confirm password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
+              <Input type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <Input type="password" placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <Input type="password" placeholder={t("confirmPassword")} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={6} />
               <Button type="submit" className="w-full" disabled={submitting}>
-                {submitting ? "Creating account..." : "Create Account"}
+                {submitting ? t("creatingAccount") : t("createAccount")}
               </Button>
             </form>
           )}
           {step === "form" && (
             <p className="mt-4 text-center text-sm text-muted-foreground">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
+              {isLogin ? t("noAccount") : t("haveAccount")}{" "}
               <button onClick={() => setIsLogin(!isLogin)} className="text-primary underline-offset-4 hover:underline font-medium">
-                {isLogin ? "Sign up" : "Sign in"}
+                {isLogin ? t("signUp") : t("signIn")}
               </button>
             </p>
           )}

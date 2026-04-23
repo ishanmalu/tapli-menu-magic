@@ -11,6 +11,8 @@ import tapliLogo from "@/assets/tapli-logo.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const RESTAURANT_ROLES = [
   "Owner",
@@ -107,6 +109,14 @@ export default function Auth() {
       <div className="fixed top-4 right-4">
         <LanguageToggle />
         <ThemeToggle />
+      </div>
+      <div className="fixed top-4 left-4">
+        <Link to="/">
+          <Button variant="ghost" size="sm" className="gap-1.5 text-muted-foreground">
+            <ArrowLeft className="h-4 w-4" />
+            Tapli
+          </Button>
+        </Link>
       </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">

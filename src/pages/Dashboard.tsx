@@ -7,13 +7,17 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { RestaurantSetup } from "@/components/dashboard/RestaurantSetup";
 import { MenuManager } from "@/components/dashboard/MenuManager";
-import { Leaf, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/components/ThemeProvider";
+import tapliLogo from "@/assets/tapli-logo.png";
+import tapliLogoDark from "@/assets/tapli-logo-dark.png";
 
 export default function Dashboard() {
   const { user, loading, signOut } = useAuth();
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [restaurant, setRestaurant] = useState<Tables<"restaurants"> | null>(null);
   const [loadingRest, setLoadingRest] = useState(true);
   const { toast } = useToast();
@@ -43,10 +47,7 @@ export default function Dashboard() {
       <header className="border-b bg-card">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <Leaf className="h-4 w-4 text-primary-foreground" />
-            </div>
-            <span className="font-bold text-foreground">Tapli</span>
+            <img src={theme === "dark" ? tapliLogoDark : tapliLogo} alt="Tapli" className="h-7 w-auto" />
           </div>
           <div className="flex items-center gap-3">
             {restaurant && (

@@ -1,12 +1,14 @@
 import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Flame, Dumbbell } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MenuItemCardProps {
   item: Tables<"menu_items">;
 }
 
 export function MenuItemCard({ item }: MenuItemCardProps) {
+  const { t } = useLanguage();
   return (
     <div className="flex gap-3 rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
       {item.photo_url && (
@@ -27,12 +29,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {item.calories != null && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Flame className="h-3 w-3" /> {item.calories} kcal
+              <Flame className="h-3 w-3" /> {item.calories} {t("kcal")}
             </span>
           )}
           {item.protein != null && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Dumbbell className="h-3 w-3" /> {Number(item.protein)}g protein
+              <Dumbbell className="h-3 w-3" /> {Number(item.protein)}g {t("protein")}
             </span>
           )}
         </div>

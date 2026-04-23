@@ -2,8 +2,11 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Leaf, QrCode, Smartphone, BarChart3, ArrowRight } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Index() {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-background">
       {/* Nav */}
@@ -17,11 +20,12 @@ export default function Index() {
           </div>
           <div className="flex items-center gap-2">
             <Link to="/auth">
-              <Button variant="ghost" size="sm">Sign In</Button>
+              <Button variant="ghost" size="sm">{t("signIn")}</Button>
             </Link>
             <Link to="/auth">
-              <Button size="sm">Get Started</Button>
+              <Button size="sm">{t("getStarted")}</Button>
             </Link>
+            <LanguageToggle />
             <ThemeToggle />
           </div>
         </div>
@@ -30,17 +34,17 @@ export default function Index() {
       {/* Hero */}
       <section className="px-4 pt-20 pb-16 text-center max-w-3xl mx-auto">
         <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm text-primary font-medium mb-6">
-          <QrCode className="h-4 w-4" /> Digital menus for modern restaurants
+          <QrCode className="h-4 w-4" /> {t("heroChip")}
         </div>
         <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-tight mb-4">
-          Your menu, one scan away
+          {t("heroTitle")}
         </h1>
         <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
-          Create beautiful digital menus with NFC and QR codes. Show allergens, calories, and dietary info. Update in real time.
+          {t("heroDesc")}
         </p>
         <Link to="/auth">
           <Button size="lg" className="gap-2 text-base px-8">
-            Start for free <ArrowRight className="h-4 w-4" />
+            {t("startFree")} <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
       </section>
@@ -49,9 +53,9 @@ export default function Index() {
       <section className="px-4 pb-20 max-w-4xl mx-auto">
         <div className="grid sm:grid-cols-3 gap-6">
           {[
-            { icon: QrCode, title: "QR & NFC Ready", desc: "Customers scan to view your menu instantly on their phone." },
-            { icon: Smartphone, title: "Mobile First", desc: "Beautiful, fast menus designed for every screen size." },
-            { icon: BarChart3, title: "Real-Time Updates", desc: "Change prices, items, or availability — reflected instantly." },
+            { icon: QrCode, title: t("featureQr"), desc: t("featureQrDesc") },
+            { icon: Smartphone, title: t("featureMobile"), desc: t("featureMobileDesc") },
+            { icon: BarChart3, title: t("featureRealtime"), desc: t("featureRealtimeDesc") },
           ].map(({ icon: Icon, title, desc }) => (
             <div key={title} className="rounded-xl border bg-card p-6 text-center">
               <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-accent">
@@ -66,7 +70,7 @@ export default function Index() {
 
       {/* Footer */}
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Tapli. Digital menus made simple.
+        © {new Date().getFullYear()} Tapli. {t("footerText")}
       </footer>
     </div>
   );

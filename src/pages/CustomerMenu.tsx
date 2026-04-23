@@ -7,6 +7,8 @@ import { MenuFilterBar } from "@/components/menu/MenuFilterBar";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { DiscoverRestaurants } from "@/components/menu/DiscoverRestaurants";
 import { Skeleton } from "@/components/ui/skeleton";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type Restaurant = Tables<"restaurants">;
 type MenuItem = Tables<"menu_items">;
@@ -17,6 +19,7 @@ const DIETARY_OPTIONS = ["vegan", "vegetarian", "gluten-free"];
 
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
+  const { t } = useLanguage();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -112,8 +115,8 @@ export default function CustomerMenu() {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground">Menu not found</h1>
-          <p className="text-muted-foreground mt-2">This restaurant doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-foreground">{t("menuNotFound")}</h1>
+          <p className="text-muted-foreground mt-2">{t("restaurantNotExist")}</p>
         </div>
       </div>
     );
@@ -123,6 +126,11 @@ export default function CustomerMenu() {
 
   return (
     <div className="min-h-screen bg-background pb-8">
+      {/* Language toggle */}
+      <div className="fixed top-3 right-3 z-50">
+        <LanguageToggle />
+      </div>
+
       {/* Cover photo */}
       {restaurant?.cover_photo_url ? (
         <div className="relative h-48 sm:h-64 w-full overflow-hidden">
@@ -160,9 +168,9 @@ export default function CustomerMenu() {
 
         {/* Menu items by category */}
         {groupedItems.length === 0 && hasFilters ? (
-          <p className="text-center text-muted-foreground py-12">No items match your filters.</p>
+          <p className="text-center text-muted-foreground py-12">{t("noMatchFilters")}</p>
         ) : groupedItems.length === 0 ? (
-          <p className="text-center text-muted-foreground py-12">No menu items yet.</p>
+          <p className="text-center text-muted-foreground py-12">{t("noMenuItems")}</p>
         ) : (
           groupedItems.map((group, i) => (
             <div key={group.category?.id || `uncategorized-${i}`} className="mb-6">

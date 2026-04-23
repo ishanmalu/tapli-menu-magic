@@ -9,9 +9,9 @@ export function LanguageToggle() {
       variant="ghost"
       size="sm"
       onClick={() => setLanguage(language === "en" ? "fi" : "en")}
-      className="font-medium text-xs px-2"
+      className="font-medium text-xs px-2 uppercase tracking-wide"
     >
-      {language === "en" ? "FI 🇫🇮" : "EN 🇬🇧"}
+      {language === "en" ? "FI" : "EN"}
     </Button>
   );
 }

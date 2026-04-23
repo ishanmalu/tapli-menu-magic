@@ -8,9 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import { RestaurantSetup } from "@/components/dashboard/RestaurantSetup";
 import { MenuManager } from "@/components/dashboard/MenuManager";
 import { Leaf, LogOut } from "lucide-react";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Dashboard() {
   const { user, loading, signOut } = useAuth();
+  const { t } = useLanguage();
   const [restaurant, setRestaurant] = useState<Tables<"restaurants"> | null>(null);
   const [loadingRest, setLoadingRest] = useState(true);
   const { toast } = useToast();
@@ -53,9 +56,10 @@ export default function Dashboard() {
                 rel="noopener noreferrer"
                 className="text-sm text-primary hover:underline"
               >
-                View menu →
+                {t("viewMenu")}
               </a>
             )}
+            <LanguageToggle />
             <Button variant="ghost" size="sm" onClick={signOut}>
               <LogOut className="h-4 w-4" />
             </Button>

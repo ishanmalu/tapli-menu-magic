@@ -9,6 +9,7 @@ import { MenuItemForm } from "@/components/dashboard/MenuItemForm";
 import { CategoryManager } from "@/components/dashboard/CategoryManager";
 import { Plus, Pencil, Trash2, ImageIcon } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 type MenuItem = Tables<"menu_items">;
 type Category = Tables<"categories">;
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
+  const { t } = useLanguage();
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
@@ -77,20 +79,20 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
     }
   };
 
-  const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || "Uncategorized";
+  const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || t("uncategorized");
 
-  if (loading) return <div className="text-center py-8 text-muted-foreground">Loading menu...</div>;
+  if (loading) return <div className="text-center py-8 text-muted-foreground">{t("loadingMenu")}</div>;
 
   return (
     <div className="space-y-6">
       {/* Restaurant branding */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Restaurant Branding</CardTitle>
+          <CardTitle className="text-lg">{t("restaurantBranding")}</CardTitle>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-4">
           <div>
-            <p className="text-sm text-muted-foreground mb-2">Logo</p>
+            <p className="text-sm text-muted-foreground mb-2">{t("logo")}</p>
             <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
               {restaurant.logo_url ? (
                 <img src={restaurant.logo_url} alt="Logo" className="h-full w-full object-cover" />
@@ -101,12 +103,12 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
             </label>
           </div>
           <div className="flex-1 min-w-[200px]">
-            <p className="text-sm text-muted-foreground mb-2">Cover Photo</p>
+            <p className="text-sm text-muted-foreground mb-2">{t("coverPhoto")}</p>
             <label className="flex h-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
               {restaurant.cover_photo_url ? (
                 <img src={restaurant.cover_photo_url} alt="Cover" className="h-full w-full object-cover" />
               ) : (
-                <span className="text-sm text-muted-foreground">Upload cover photo</span>
+                <span className="text-sm text-muted-foreground">{t("uploadCover")}</span>
               )}
               <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
             </label>
@@ -120,14 +122,14 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       {/* Menu items */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Menu Items ({items.length})</CardTitle>
+          <CardTitle className="text-lg">{t("menuItems")} ({items.length})</CardTitle>
           <Dialog open={showForm} onOpenChange={(open) => { setShowForm(open); if (!open) setEditingItem(null); }}>
             <DialogTrigger asChild>
-              <Button size="sm" className="gap-1"><Plus className="h-4 w-4" /> Add Item</Button>
+              <Button size="sm" className="gap-1"><Plus className="h-4 w-4" /> {t("addItem")}</Button>
             </DialogTrigger>
             <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>{editingItem ? "Edit Item" : "Add Menu Item"}</DialogTitle>
+                <DialogTitle>{editingItem ? t("editItem") : t("addMenuItem")}</DialogTitle>
               </DialogHeader>
               <MenuItemForm
                 restaurantId={restaurant.id}
@@ -141,7 +143,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">No menu items yet. Add your first item!</p>
+            <p className="text-center text-muted-foreground py-8">{t("noItemsYet")}</p>
           ) : (
             <div className="space-y-2">
               {items.map((item) => (

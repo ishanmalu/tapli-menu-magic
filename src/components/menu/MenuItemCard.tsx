@@ -1,12 +1,14 @@
 import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
 import { Flame, Dumbbell } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface MenuItemCardProps {
   item: Tables<"menu_items">;
 }
 
 export function MenuItemCard({ item }: MenuItemCardProps) {
+  const { t } = useLanguage();
   return (
     <div className="flex gap-3 rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
       {item.photo_url && (

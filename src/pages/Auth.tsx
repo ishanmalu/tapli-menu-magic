@@ -54,12 +54,12 @@ export default function Auth() {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      toast({ title: "Passwords don't match", description: "Please make sure both passwords are identical.", variant: "destructive" });
+      toast({ title: t("passwordsDontMatch"), description: t("passwordsMatchDesc"), variant: "destructive" });
       return;
     }
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      toast({ title: "Weak password", description: "Must be 8+ characters with uppercase, lowercase, number, and special character.", variant: "destructive" });
+      toast({ title: t("weakPassword"), description: t("weakPasswordDesc"), variant: "destructive" });
       return;
     }
     setSubmitting(true);
@@ -73,7 +73,7 @@ export default function Auth() {
       });
       if (error) throw error;
       setStep("verify");
-      toast({ title: "Verification code sent!", description: "Check your email for the 6-digit code." });
+      toast({ title: t("verificationSent"), description: t("checkEmail") });
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
@@ -88,7 +88,7 @@ export default function Auth() {
       const { error } = await verifyOtp(email, otpCode);
       if (error) throw error;
     } catch (err: any) {
-      toast({ title: "Verification failed", description: err.message, variant: "destructive" });
+      toast({ title: t("verificationFailed"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -101,7 +101,7 @@ export default function Auth() {
       const { error } = await signIn(email, password);
       if (error) throw error;
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

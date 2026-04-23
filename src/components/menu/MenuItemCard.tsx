@@ -27,12 +27,12 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {item.calories != null && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Flame className="h-3 w-3" /> {item.calories} kcal
+              <Flame className="h-3 w-3" /> {item.calories} {t("kcal")}
             </span>
           )}
           {item.protein != null && (
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Dumbbell className="h-3 w-3" /> {Number(item.protein)}g protein
+              <Dumbbell className="h-3 w-3" /> {Number(item.protein)}g {t("protein")}
             </span>
           )}
         </div>

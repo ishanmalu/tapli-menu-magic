@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const ALL_ALLERGENS = ["gluten", "dairy", "nuts", "soy", "eggs"];
 const DIETARY_OPTIONS = ["vegan", "vegetarian", "gluten-free"];
@@ -22,6 +23,7 @@ interface Props {
 }
 
 export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel }: Props) {
+  const { t } = useLanguage();
   const [name, setName] = useState(item?.name || "");
   const [description, setDescription] = useState(item?.description || "");
   const [price, setPrice] = useState(item ? String(item.price) : "");
@@ -84,22 +86,22 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label>Name *</Label>
+        <Label>{t("name")} *</Label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />
       </div>
       <div>
-        <Label>Description</Label>
+        <Label>{t("description")}</Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Price *</Label>
+          <Label>{t("price")} *</Label>
           <Input type="number" step="0.01" min="0" value={price} onChange={(e) => setPrice(e.target.value)} required />
         </div>
         <div>
-          <Label>Category</Label>
+          <Label>{t("category")}</Label>
           <Select value={categoryId} onValueChange={setCategoryId}>
-            <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+            <SelectTrigger><SelectValue placeholder={t("selectCategory")} /></SelectTrigger>
             <SelectContent>
               {categories.map((c) => (
                 <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
@@ -110,21 +112,21 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <Label>Calories</Label>
+          <Label>{t("calories")}</Label>
           <Input type="number" min="0" value={calories} onChange={(e) => setCalories(e.target.value)} />
         </div>
         <div>
-          <Label>Protein (g)</Label>
+          <Label>{t("proteinG")}</Label>
           <Input type="number" step="0.1" min="0" value={protein} onChange={(e) => setProtein(e.target.value)} />
         </div>
       </div>
       <div>
-        <Label>Photo</Label>
+        <Label>{t("photo")}</Label>
         <Input type="file" accept="image/*" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
         {item?.photo_url && !photo && <img src={item.photo_url} alt="" className="h-16 w-16 rounded-md object-cover mt-2" />}
       </div>
       <div>
-        <Label>Allergens</Label>
+        <Label>{t("allergens")}</Label>
         <div className="flex flex-wrap gap-2 mt-1">
           {ALL_ALLERGENS.map((a) => (
             <Badge key={a} variant={allergens.includes(a) ? "default" : "outline"} className="cursor-pointer capitalize" onClick={() => toggleAllergen(a)}>{a}</Badge>
@@ -132,7 +134,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         </div>
       </div>
       <div>
-        <Label>Dietary Tags</Label>
+        <Label>{t("dietaryTags")}</Label>
         <div className="flex flex-wrap gap-2 mt-1">
           {DIETARY_OPTIONS.map((d) => (
             <Badge key={d} variant={dietaryTags.includes(d) ? "default" : "outline"} className="cursor-pointer capitalize" onClick={() => toggleDietary(d)}>{d}</Badge>
@@ -141,11 +143,11 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       </div>
       <div className="flex items-center gap-2">
         <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
-        <Label>Available</Label>
+        <Label>{t("available")}</Label>
       </div>
       <div className="flex gap-2 pt-2">
-        <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? "Saving..." : item ? "Update" : "Add Item"}</Button>
-        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? t("saving") : item ? t("update") : t("addItem")}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>{t("cancel")}</Button>
       </div>
     </form>
   );

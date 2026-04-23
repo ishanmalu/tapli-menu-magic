@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Props {
   userId: string;
@@ -15,6 +16,7 @@ export function RestaurantSetup({ userId, onCreated }: Props) {
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,17 +40,17 @@ export function RestaurantSetup({ userId, onCreated }: Props) {
     <div className="flex items-center justify-center min-h-[60vh]">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Set up your restaurant</CardTitle>
-          <CardDescription>Give your restaurant a name to get started with your digital menu.</CardDescription>
+          <CardTitle>{t("setupTitle")}</CardTitle>
+          <CardDescription>{t("setupDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleCreate} className="space-y-4">
-            <Input placeholder="Restaurant name" value={name} onChange={(e) => setName(e.target.value)} required />
+            <Input placeholder={t("restaurantName")} value={name} onChange={(e) => setName(e.target.value)} required />
             <p className="text-xs text-muted-foreground">
-              Your menu will be available at: /menu/{name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "your-restaurant"}
+              {t("menuAvailableAt")} /menu/{name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "your-restaurant"}
             </p>
             <Button type="submit" className="w-full" disabled={submitting}>
-              {submitting ? "Creating..." : "Create Restaurant"}
+              {submitting ? t("creating") : t("createRestaurant")}
             </Button>
           </form>
         </CardContent>

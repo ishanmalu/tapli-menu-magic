@@ -8,9 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
 import tapliLogo from "@/assets/tapli-logo.png";
+import tapliLogoDark from "@/assets/tapli-logo-dark.png";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/components/ThemeProvider";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -29,6 +31,7 @@ type Step = "form" | "verify";
 export default function Auth() {
   const { user, loading, signIn, signUp, verifyOtp } = useAuth();
   const { t } = useLanguage();
+  const { theme } = useTheme();
   const [isLogin, setIsLogin] = useState(true);
   const [step, setStep] = useState<Step>("form");
 
@@ -122,7 +125,7 @@ export default function Auth() {
       </div>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <img src={tapliLogo} alt="Tapli" className="mx-auto mb-2 h-10 w-auto" />
+          <img src={theme === "dark" ? tapliLogoDark : tapliLogo} alt="Tapli" className="mx-auto mb-2 h-10 w-auto" />
           <CardDescription>
             {step === "verify"
               ? t("verifyDesc")

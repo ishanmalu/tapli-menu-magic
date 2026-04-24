@@ -64,6 +64,11 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   };
 
   const uploadRestaurantImage = async (file: File, type: "logo" | "cover") => {
+    const maxMB = type === "logo" ? 2 : 5;
+    if (file.size > maxMB * 1024 * 1024) {
+      toast({ title: t("uploadError"), description: t(type === "logo" ? "logoSizeError" : "coverSizeError"), variant: "destructive" });
+      return;
+    }
     try {
       const ext = file.name.split(".").pop();
       const path = `${restaurant.id}/${type}.${ext}`;
@@ -90,28 +95,52 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
         <CardHeader>
           <CardTitle className="text-lg">{t("restaurantBranding")}</CardTitle>
         </CardHeader>
-        <CardContent className="flex flex-wrap gap-4">
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">{t("logo")}</p>
-            <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
+        <CardContent className="space-y-5">
+          {/* Logo */}
+          <div className="flex gap-4 items-start">
+            <label className="flex-shrink-0 flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
               {restaurant.logo_url ? (
                 <img src={restaurant.logo_url} alt={t("logoAlt")} className="h-full w-full object-cover" />
               ) : (
-                <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                <ImageIcon className="h-7 w-7 text-muted-foreground" />
               )}
               <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "logo")} />
             </label>
+            <div className="space-y-1 pt-1">
+              <p className="text-sm font-medium text-foreground">{t("logo")}</p>
+              <p className="text-xs text-muted-foreground">{t("logoRecommended")}</p>
+              <p className="text-xs text-muted-foreground">{t("logoFormats")}</p>
+              <p className="text-xs text-muted-foreground">{t("logoMaxSize")}</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-[200px]">
-            <p className="text-sm text-muted-foreground mb-2">{t("coverPhoto")}</p>
-            <label className="flex h-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
+
+          {/* Cover photo */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <p className="text-sm font-medium text-foreground">{t("coverPhoto")}</p>
+              <p className="text-xs text-muted-foreground">{t("coverMaxSize")}</p>
+            </div>
+            <label className="relative flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden group">
               {restaurant.cover_photo_url ? (
-                <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
+                <>
+                  <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <span className="text-white text-sm font-medium">{t("changeCover")}</span>
+                  </div>
+                </>
               ) : (
-                <span className="text-sm text-muted-foreground">{t("uploadCover")}</span>
+                <div className="text-center space-y-1 px-4">
+                  <ImageIcon className="h-7 w-7 text-muted-foreground mx-auto" />
+                  <p className="text-sm text-muted-foreground">{t("uploadCover")}</p>
+                  <p className="text-xs text-muted-foreground">{t("coverRecommended")}</p>
+                  <p className="text-xs text-muted-foreground">{t("coverFormats")}</p>
+                </div>
               )}
               <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
             </label>
+            {restaurant.cover_photo_url && (
+              <p className="text-xs text-muted-foreground">{t("coverRecommended")} · {t("coverFormats")}</p>
+            )}
           </div>
         </CardContent>
       </Card>

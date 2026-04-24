@@ -39,6 +39,7 @@ export default function CustomerMenu() {
         const { data: rest, error: restError } = await supabase.from("restaurants").select("*").eq("slug", slug).single();
         if (restError || !rest) { setNotFound(true); return; }
         setRestaurant(rest);
+        document.title = `Tapli — ${rest.name}`;
 
         const [{ data: cats, error: catsError }, { data: menuItems, error: itemsError }] = await Promise.all([
           supabase.from("categories").select("*").eq("restaurant_id", rest.id).order("sort_order"),

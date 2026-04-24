@@ -1,8 +1,11 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 const NotFound = () => {
   const { t } = useLanguage();
+
+  useEffect(() => { document.title = "Tapli — Page Not Found"; }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-muted">

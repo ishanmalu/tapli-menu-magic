@@ -17,7 +17,7 @@ type Category = Tables<"categories">;
 
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
-  const { t } = useLanguage();
+  const { t, tCategory } = useLanguage();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -175,7 +175,7 @@ export default function CustomerMenu() {
             <div key={group.category?.id || `uncategorized-${i}`} className="mb-6">
               {group.category && (
                 <h2 className="text-lg font-semibold text-foreground mb-3 sticky top-0 bg-background py-2 z-10">
-                  {group.category.name}
+                  {tCategory(group.category.name)}
                 </h2>
               )}
               <div className="space-y-3">

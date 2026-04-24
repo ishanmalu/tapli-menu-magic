@@ -172,6 +172,18 @@ const translations = {
     logoAlt: "Restaurant logo",
     coverAlt: "Restaurant cover photo",
 
+    // Category name translations (Finnish DB names → display name)
+    catTarjoukset: "Offers",
+    catAlkupalat: "Appetizers",
+    catSalaattiKeitto: "Salad & Soup",
+    catPastaRisotto: "Pasta & Risotto",
+    catPizzaLasagne: "Pizza & Lasagne",
+    catLapsille: "For Kids",
+    catVegaani: "Vegan",
+    catJalkiruoat: "Desserts",
+    catJuomat: "Drinks",
+    catAlkoholi: "Alcohol",
+
     // Menu item form section headers
     freeFrom: "Free From",
     dietaryAndLifestyle: "Dietary & Lifestyle",
@@ -377,6 +389,18 @@ const translations = {
     logoAlt: "Ravintolan logo",
     coverAlt: "Ravintolan kansikuva",
 
+    // Category name translations (Finnish DB names → display name)
+    catTarjoukset: "Tarjoukset",
+    catAlkupalat: "Alkupalat",
+    catSalaattiKeitto: "Salaatti & Keitto",
+    catPastaRisotto: "Pasta & Risotto",
+    catPizzaLasagne: "Pizza & Lasagne",
+    catLapsille: "Lapsille",
+    catVegaani: "Vegaani",
+    catJalkiruoat: "Jälkiruoat",
+    catJuomat: "Juomat",
+    catAlkoholi: "Alkoholi",
+
     // Menu item form section headers
     freeFrom: "Ei sisällä",
     dietaryAndLifestyle: "Ruokavalio ja elämäntapa",
@@ -417,16 +441,32 @@ const translations = {
 
 type TranslationKey = keyof typeof translations.en;
 
+// Maps Finnish DB category names to their translation key
+const CATEGORY_KEY_MAP: Record<string, TranslationKey> = {
+  "Tarjoukset": "catTarjoukset",
+  "Alkupalat": "catAlkupalat",
+  "Salaatti & Keitto": "catSalaattiKeitto",
+  "Pasta & Risotto": "catPastaRisotto",
+  "Pizza & Lasagne": "catPizzaLasagne",
+  "Lapsille": "catLapsille",
+  "Vegaani": "catVegaani",
+  "Jälkiruoat": "catJalkiruoat",
+  "Juomat": "catJuomat",
+  "Alkoholi": "catAlkoholi",
+};
+
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: TranslationKey) => string;
+  tCategory: (name: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType>({
   language: "en",
   setLanguage: () => {},
   t: (key) => key,
+  tCategory: (name) => name,
 });
 
 export function useLanguage() {
@@ -450,8 +490,14 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translations[language][key] || translations.en[key] || key;
   };
 
+  // Translates a category name stored in the DB (always Finnish) to the current language
+  const tCategory = (name: string): string => {
+    const key = CATEGORY_KEY_MAP[name];
+    return key ? t(key) : name;
+  };
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t, tCategory }}>
       {children}
     </LanguageContext.Provider>
   );

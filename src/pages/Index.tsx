@@ -20,6 +20,9 @@ export default function Index() {
             <img src={theme === "dark" ? tapliLogoDark : tapliLogo} alt="Tapli" className="h-7 w-auto" />
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/pricing">
+              <Button variant="ghost" size="sm">{t("pricing")}</Button>
+            </Link>
             <Link to="/auth">
               <Button variant="ghost" size="sm">{t("signIn")}</Button>
             </Link>

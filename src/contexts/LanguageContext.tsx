@@ -272,12 +272,12 @@ const translations = {
     protein: "proteiini",
 
     // Food style chips
-    highProtein: "Runsas proteiini",
-    highCarb: "Runsas hiilihydraatti",
-    highFatKeto: "Runsas rasva / Keto",
+    highProtein: "Proteiinipitoinen",
+    highCarb: "Hiilihydraattipitoinen",
+    highFatKeto: "Rasvapitoinen / Keto",
     lowCalorie: "Vähäkalorinen",
-    highEnergy: "Runsas energia",
-    plantBased: "Kasvisruoka",
+    highEnergy: "Energiapitoinen",
+    plantBased: "Kasvispohjainen",
 
     // Roles
     owner: "Omistaja",

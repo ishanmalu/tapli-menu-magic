@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { PricingPlans } from "@/components/PricingPlans";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,6 +8,8 @@ import { ArrowLeft } from "lucide-react";
 
 export default function Pricing() {
   const { t } = useLanguage();
+
+  useEffect(() => { document.title = "Tapli — Pricing"; }, []);
 
   return (
     <div className="min-h-screen bg-background">

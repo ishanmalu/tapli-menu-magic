@@ -60,6 +60,10 @@ export default function Auth() {
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    document.title = isLogin ? "Tapli — Sign In" : "Tapli — Sign Up";
+  }, [isLogin]);
+
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (user) return <Navigate to="/dashboard" replace />;
 

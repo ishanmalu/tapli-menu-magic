@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { PageHeader } from "@/components/PageHeader";
 import { PricingPlans } from "@/components/PricingPlans";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -7,6 +7,8 @@ type PlanId = "monthly" | "quarterly" | "annual";
 
 export default function Upgrade() {
   const { t } = useLanguage();
+
+  useEffect(() => { document.title = "Tapli — Upgrade"; }, []);
   const [loadingPlan, setLoadingPlan] = useState<PlanId | null>(null);
 
   const handleSelect = (plan: PlanId) => {

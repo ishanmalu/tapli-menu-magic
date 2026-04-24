@@ -48,6 +48,8 @@ const translations = {
     weakPasswordDesc: "Must be 8+ characters with uppercase, lowercase, number, and special character.",
     verificationFailed: "Verification failed",
     error: "Error",
+    errorLoadingMenu: "Error loading menu",
+    uploadError: "Upload error",
 
     // Dashboard
     viewMenu: "View menu →",
@@ -163,6 +165,8 @@ const translations = {
     weakPasswordDesc: "Vähintään 8 merkkiä: iso kirjain, pieni kirjain, numero ja erikoismerkki.",
     verificationFailed: "Vahvistus epäonnistui",
     error: "Virhe",
+    errorLoadingMenu: "Virhe ruokalistan lataamisessa",
+    uploadError: "Latausvirhe",
 
     // Dashboard
     viewMenu: "Näytä ruokalista →",

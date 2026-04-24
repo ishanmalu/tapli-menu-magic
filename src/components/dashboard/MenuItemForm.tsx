@@ -77,7 +77,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       if (error) throw error;
       onSave();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }

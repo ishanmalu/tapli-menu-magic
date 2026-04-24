@@ -23,16 +23,18 @@ export function RestaurantSetup({ userId, onCreated }: Props) {
     if (!name.trim()) return;
     setSubmitting(true);
     const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    const { data, error } = await supabase
-      .from("restaurants")
-      .insert({ name: name.trim(), slug, owner_id: userId })
-      .select()
-      .single();
-    setSubmitting(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    } else if (data) {
-      onCreated(data);
+    try {
+      const { data, error } = await supabase
+        .from("restaurants")
+        .insert({ name: name.trim(), slug, owner_id: userId })
+        .select()
+        .single();
+      if (error) throw error;
+      if (data) onCreated(data);
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 

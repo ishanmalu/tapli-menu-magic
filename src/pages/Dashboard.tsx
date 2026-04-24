@@ -30,7 +30,7 @@ export default function Dashboard() {
         if (error) throw error;
         setRestaurant(data);
       } catch (err: any) {
-        toast({ title: "Error", description: err.message, variant: "destructive" });
+        toast({ title: t("error"), description: err.message, variant: "destructive" });
       } finally {
         setLoadingRest(false);
       }

@@ -16,7 +16,8 @@ import { useTheme } from "@/components/ThemeProvider";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const RESTAURANT_ROLES = [
+// Role values stored in the database — always English keys
+const RESTAURANT_ROLE_KEYS = [
   "Owner",
   "General Manager",
   "Head Chef",
@@ -24,7 +25,7 @@ const RESTAURANT_ROLES = [
   "Floor Manager",
   "Marketing Manager",
   "Operations Manager",
-];
+] as const;
 
 type Step = "form" | "verify";
 
@@ -183,9 +184,21 @@ export default function Auth() {
                   <SelectValue placeholder={t("yourPosition")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {RESTAURANT_ROLES.map((r) => (
-                    <SelectItem key={r} value={r}>{r}</SelectItem>
-                  ))}
+                  {RESTAURANT_ROLE_KEYS.map((r) => {
+                    // Map each role key to its translation key
+                    const roleTranslationKey: Record<string, string> = {
+                      "Owner": t("owner"),
+                      "General Manager": t("generalManager"),
+                      "Head Chef": t("headChef"),
+                      "Sous Chef": t("sousChef"),
+                      "Floor Manager": t("floorManager"),
+                      "Marketing Manager": t("marketingManager"),
+                      "Operations Manager": t("operationsManager"),
+                    };
+                    return (
+                      <SelectItem key={r} value={r}>{roleTranslationKey[r]}</SelectItem>
+                    );
+                  })}
                   <SelectItem value="Other">{t("other")}</SelectItem>
                 </SelectContent>
               </Select>

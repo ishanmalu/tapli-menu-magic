@@ -6,6 +6,7 @@ const translations = {
   en: {
     // Nav / Index
     signIn: "Sign In",
+    signOut: "Sign Out",
     getStarted: "Get Started",
     heroChip: "Digital menus for modern restaurants",
     heroTitle: "Your menu, one scan away",
@@ -223,6 +224,7 @@ const translations = {
   fi: {
     // Nav / Index
     signIn: "Kirjaudu",
+    signOut: "Kirjaudu ulos",
     getStarted: "Aloita",
     heroChip: "Digitaaliset ruokalistat moderneille ravintoloille",
     heroTitle: "Ruokalistasi, yhden skannauksen päässä",

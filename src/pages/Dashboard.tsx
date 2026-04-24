@@ -63,8 +63,9 @@ export default function Dashboard() {
               </a>
             )}
             <LanguageToggle />
-            <Button variant="ghost" size="sm" onClick={signOut}>
+            <Button variant="ghost" size="sm" onClick={signOut} className="gap-1.5 text-muted-foreground">
               <LogOut className="h-4 w-4" />
+              <span className="hidden sm:inline">{t("signOut")}</span>
             </Button>
           </div>
         </div>

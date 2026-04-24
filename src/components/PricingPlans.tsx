@@ -92,7 +92,7 @@ export function PricingPlans({ ctaLabel, mode, loadingPlan, onSelect }: PricingP
   ];
 
   return (
-    <div className="grid gap-6 md:grid-cols-3 items-start">
+    <div className="grid gap-6 md:grid-cols-3 items-stretch">
       {plans.map((plan) => (
         <Card
           key={plan.id}

@@ -10,9 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-
-const ALL_ALLERGENS = ["gluten", "dairy", "nuts", "soy", "eggs"];
-const DIETARY_OPTIONS = ["vegan", "vegetarian", "gluten-free"];
+import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 
 interface Props {
   restaurantId: string;
@@ -36,6 +34,38 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   const [photo, setPhoto] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
+
+  // Map each tag slug to its translated display label
+  const tagLabels: Record<string, string> = {
+    "gluten-free": t("tagGlutenFree"),
+    "dairy-free": t("tagDairyFree"),
+    "egg-free": t("tagEggFree"),
+    "fish-free": t("tagFishFree"),
+    "peanut-free": t("tagPeanutFree"),
+    "nut-free": t("tagNutFree"),
+    "soy-free": t("tagSoyFree"),
+    "shellfish-free": t("tagShellfishFree"),
+    "sesame-free": t("tagSesameFree"),
+    "celery-free": t("tagCeleryFree"),
+    "mustard-free": t("tagMustardFree"),
+    "sulphite-free": t("tagSulphiteFree"),
+    "lupin-free": t("tagLupinFree"),
+    "mollusc-free": t("tagMolluscrFree"),
+    "vegan": t("tagVegan"),
+    "vegetarian": t("tagVegetarian"),
+    "lactose-free": t("tagLactoseFree"),
+    "plant-based": t("tagPlantBased"),
+    "low-carb": t("tagLowCarb"),
+    "keto": t("tagKeto"),
+    "high-protein": t("tagHighProtein"),
+    "no-added-sugar": t("tagNoAddedSugar"),
+    "low-calorie": t("tagLowCalorie"),
+    "halal": t("tagHalal"),
+    "kosher": t("tagKosher"),
+    "no-pork": t("tagNoPork"),
+    "no-alcohol": t("tagNoAlcohol"),
+    "no-beef": t("tagNoBeef"),
+  };
 
   const toggleAllergen = (a: string) =>
     setAllergens(allergens.includes(a) ? allergens.filter((x) => x !== a) : [...allergens, a]);
@@ -125,19 +155,26 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
         {item?.photo_url && !photo && <img src={item.photo_url} alt={item.name} className="h-16 w-16 rounded-md object-cover mt-2" />}
       </div>
+      {/* Free From section — EU 14 allergens in "free from" style */}
       <div>
-        <Label>{t("allergens")}</Label>
+        <Label>{t("freeFrom")}</Label>
         <div className="flex flex-wrap gap-2 mt-1">
-          {ALL_ALLERGENS.map((a) => (
-            <Badge key={a} variant={allergens.includes(a) ? "default" : "outline"} className="cursor-pointer capitalize" onClick={() => toggleAllergen(a)}>{a}</Badge>
+          {FREE_FROM_ALLERGENS.map((a) => (
+            <Badge key={a} variant={allergens.includes(a) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(a)}>
+              {tagLabels[a] || a}
+            </Badge>
           ))}
         </div>
       </div>
+
+      {/* Dietary & Lifestyle section */}
       <div>
-        <Label>{t("dietaryTags")}</Label>
+        <Label>{t("dietaryAndLifestyle")}</Label>
         <div className="flex flex-wrap gap-2 mt-1">
-          {DIETARY_OPTIONS.map((d) => (
-            <Badge key={d} variant={dietaryTags.includes(d) ? "default" : "outline"} className="cursor-pointer capitalize" onClick={() => toggleDietary(d)}>{d}</Badge>
+          {DIETARY_LIFESTYLE_TAGS.map((d) => (
+            <Badge key={d} variant={dietaryTags.includes(d) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(d)}>
+              {tagLabels[d] || d}
+            </Badge>
           ))}
         </div>
       </div>

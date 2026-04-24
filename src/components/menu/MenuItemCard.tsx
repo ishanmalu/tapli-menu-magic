@@ -9,6 +9,24 @@ interface MenuItemCardProps {
 
 export function MenuItemCard({ item }: MenuItemCardProps) {
   const { t } = useLanguage();
+
+  // Translated display labels for all tag slugs
+  const tagLabels: Record<string, string> = {
+    "gluten-free": t("tagGlutenFree"), "dairy-free": t("tagDairyFree"),
+    "egg-free": t("tagEggFree"), "fish-free": t("tagFishFree"),
+    "peanut-free": t("tagPeanutFree"), "nut-free": t("tagNutFree"),
+    "soy-free": t("tagSoyFree"), "shellfish-free": t("tagShellfishFree"),
+    "sesame-free": t("tagSesameFree"), "celery-free": t("tagCeleryFree"),
+    "mustard-free": t("tagMustardFree"), "sulphite-free": t("tagSulphiteFree"),
+    "lupin-free": t("tagLupinFree"), "mollusc-free": t("tagMolluscrFree"),
+    "vegan": t("tagVegan"), "vegetarian": t("tagVegetarian"),
+    "lactose-free": t("tagLactoseFree"), "plant-based": t("tagPlantBased"),
+    "low-carb": t("tagLowCarb"), "keto": t("tagKeto"),
+    "high-protein": t("tagHighProtein"), "no-added-sugar": t("tagNoAddedSugar"),
+    "low-calorie": t("tagLowCalorie"), "halal": t("tagHalal"),
+    "kosher": t("tagKosher"), "no-pork": t("tagNoPork"),
+    "no-alcohol": t("tagNoAlcohol"), "no-beef": t("tagNoBeef"),
+  };
   return (
     <div className="flex gap-3 rounded-lg border bg-card p-3 transition-shadow hover:shadow-md">
       {item.photo_url && (
@@ -38,17 +56,23 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
             </span>
           )}
         </div>
+        {/* Free From badges */}
         {item.allergens && item.allergens.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {item.allergens.map((a) => (
-              <Badge key={a} variant="outline" className="text-[10px] capitalize px-1.5 py-0">{a}</Badge>
+              <Badge key={a} variant="outline" className="text-[10px] px-1.5 py-0">
+                {tagLabels[a] || a}
+              </Badge>
             ))}
           </div>
         )}
+        {/* Dietary & Lifestyle badges */}
         {item.dietary_tags && item.dietary_tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-1">
             {item.dietary_tags.map((d) => (
-              <Badge key={d} variant="secondary" className="text-[10px] capitalize px-1.5 py-0">{d}</Badge>
+              <Badge key={d} variant="secondary" className="text-[10px] px-1.5 py-0">
+                {tagLabels[d] || d}
+              </Badge>
             ))}
           </div>
         )}

@@ -23,6 +23,23 @@ export function MenuFilterBar({
   calorieRange, setCalorieRange,
 }: MenuFilterBarProps) {
   const { t } = useLanguage();
+
+  const tagLabels: Record<string, string> = {
+    "gluten-free": t("tagGlutenFree"), "dairy-free": t("tagDairyFree"),
+    "egg-free": t("tagEggFree"), "fish-free": t("tagFishFree"),
+    "peanut-free": t("tagPeanutFree"), "nut-free": t("tagNutFree"),
+    "soy-free": t("tagSoyFree"), "shellfish-free": t("tagShellfishFree"),
+    "sesame-free": t("tagSesameFree"), "celery-free": t("tagCeleryFree"),
+    "mustard-free": t("tagMustardFree"), "sulphite-free": t("tagSulphiteFree"),
+    "lupin-free": t("tagLupinFree"), "mollusc-free": t("tagMolluscrFree"),
+    "vegan": t("tagVegan"), "vegetarian": t("tagVegetarian"),
+    "lactose-free": t("tagLactoseFree"), "plant-based": t("tagPlantBased"),
+    "low-carb": t("tagLowCarb"), "keto": t("tagKeto"),
+    "high-protein": t("tagHighProtein"), "no-added-sugar": t("tagNoAddedSugar"),
+    "low-calorie": t("tagLowCalorie"), "halal": t("tagHalal"),
+    "kosher": t("tagKosher"), "no-pork": t("tagNoPork"),
+    "no-alcohol": t("tagNoAlcohol"), "no-beef": t("tagNoBeef"),
+  };
   const [open, setOpen] = useState(false);
   const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || calorieRange[0] > 0 || calorieRange[1] < 2000;
 
@@ -55,36 +72,32 @@ export function MenuFilterBar({
 
       {open && (
         <div className="mt-3 rounded-lg border bg-card p-4 space-y-4 animate-in slide-in-from-top-2">
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t("excludeAllergens")}</p>
-            <div className="flex flex-wrap gap-2">
-              {allergens.map((a) => (
-                <Badge
-                  key={a}
-                  variant={excludedAllergens.includes(a) ? "default" : "outline"}
-                  className="cursor-pointer capitalize"
-                  onClick={() => toggleAllergen(a)}
-                >
-                  {a}
-                </Badge>
-              ))}
+          {/* Free From section */}
+          {allergens.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2">{t("freeFrom")}</p>
+              <div className="flex flex-wrap gap-2">
+                {allergens.map((a) => (
+                  <Badge key={a} variant={excludedAllergens.includes(a) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(a)}>
+                    {tagLabels[a] || a}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <p className="text-sm font-medium text-foreground mb-2">{t("dietaryPreference")}</p>
-            <div className="flex flex-wrap gap-2">
-              {dietaryOptions.map((d) => (
-                <Badge
-                  key={d}
-                  variant={selectedDietary.includes(d) ? "default" : "outline"}
-                  className="cursor-pointer capitalize"
-                  onClick={() => toggleDietary(d)}
-                >
-                  {d}
-                </Badge>
-              ))}
+          )}
+          {/* Dietary & Lifestyle section */}
+          {dietaryOptions.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-foreground mb-2">{t("dietaryAndLifestyle")}</p>
+              <div className="flex flex-wrap gap-2">
+                {dietaryOptions.map((d) => (
+                  <Badge key={d} variant={selectedDietary.includes(d) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(d)}>
+                    {tagLabels[d] || d}
+                  </Badge>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
           <div>
             <p className="text-sm font-medium text-foreground mb-2">{t("caloriesRange")}: {calorieRange[0]} – {calorieRange[1]} {t("kcal")}</p>
             <Slider

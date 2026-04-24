@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
+import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
@@ -32,6 +33,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   const [dietaryTags, setDietaryTags] = useState<string[]>(item?.dietary_tags || []);
   const [isAvailable, setIsAvailable] = useState(item?.is_available ?? true);
   const [photo, setPhoto] = useState<File | null>(null);
+  const [removePhoto, setRemovePhoto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -76,7 +78,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
     e.preventDefault();
     setSubmitting(true);
     try {
-      let photoUrl = item?.photo_url || null;
+      let photoUrl = removePhoto ? null : (item?.photo_url || null);
       if (photo) {
         const ext = photo.name.split(".").pop();
         const path = `${restaurantId}/items/${Date.now()}.${ext}`;
@@ -152,8 +154,35 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       </div>
       <div>
         <Label>{t("photo")}</Label>
-        <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
-        {item?.photo_url && !photo && <img src={item.photo_url} alt={item.name} className="h-16 w-16 rounded-md object-cover mt-2" />}
+        {item?.photo_url && !photo && !removePhoto ? (
+          <div className="flex items-center gap-3 mt-1 p-2 rounded-lg border bg-muted/40">
+            <img src={item.photo_url} alt={item.name} className="h-14 w-14 rounded-md object-cover flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground truncate">{t("currentPhoto")}</p>
+              <label className="text-xs text-primary hover:underline cursor-pointer">
+                {t("changePhoto")}
+                <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+              </label>
+            </div>
+            <button
+              type="button"
+              onClick={() => setRemovePhoto(true)}
+              className="flex items-center gap-1 text-xs text-destructive hover:underline flex-shrink-0"
+            >
+              <X className="h-3 w-3" /> {t("removePhoto")}
+            </button>
+          </div>
+        ) : (
+          <>
+            {removePhoto && (
+              <p className="text-xs text-muted-foreground mb-1">
+                {t("photoWillBeRemoved")}{" "}
+                <button type="button" onClick={() => setRemovePhoto(false)} className="text-primary hover:underline">{t("undo")}</button>
+              </p>
+            )}
+            {!removePhoto && <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />}
+          </>
+        )}
       </div>
       {/* Free From section — EU 14 allergens in "free from" style */}
       <div>

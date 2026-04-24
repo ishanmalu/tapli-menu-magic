@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { MenuItemForm } from "@/components/dashboard/MenuItemForm";
 import { CategoryManager } from "@/components/dashboard/CategoryManager";
-import { Plus, Pencil, Trash2, ImageIcon } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
 
@@ -84,6 +84,17 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
     }
   };
 
+  const removeRestaurantImage = async (type: "logo" | "cover") => {
+    try {
+      const updatePayload = type === "logo" ? { logo_url: null } : { cover_photo_url: null };
+      const { data, error } = await supabase.from("restaurants").update(updatePayload).eq("id", restaurant.id).select().single();
+      if (error) throw error;
+      if (data) onRestaurantUpdate(data);
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
+
   const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || t("uncategorized");
 
   if (loading) return <div className="text-center py-8 text-muted-foreground">{t("loadingMenu")}</div>;
@@ -98,19 +109,36 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
         <CardContent className="space-y-5">
           {/* Logo */}
           <div className="flex gap-4 items-start">
-            <label className="flex-shrink-0 flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
-              {restaurant.logo_url ? (
-                <img src={restaurant.logo_url} alt={t("logoAlt")} className="h-full w-full object-cover" />
-              ) : (
-                <ImageIcon className="h-7 w-7 text-muted-foreground" />
+            <div className="relative flex-shrink-0">
+              <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
+                {restaurant.logo_url ? (
+                  <img src={restaurant.logo_url} alt={t("logoAlt")} className="h-full w-full object-cover" />
+                ) : (
+                  <ImageIcon className="h-7 w-7 text-muted-foreground" />
+                )}
+                <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "logo")} />
+              </label>
+              {restaurant.logo_url && (
+                <button
+                  type="button"
+                  onClick={() => removeRestaurantImage("logo")}
+                  className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors"
+                  title={t("removePhoto")}
+                >
+                  <X className="h-3 w-3" />
+                </button>
               )}
-              <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "logo")} />
-            </label>
+            </div>
             <div className="space-y-1 pt-1">
               <p className="text-sm font-medium text-foreground">{t("logo")}</p>
               <p className="text-xs text-muted-foreground">{t("logoRecommended")}</p>
               <p className="text-xs text-muted-foreground">{t("logoFormats")}</p>
               <p className="text-xs text-muted-foreground">{t("logoMaxSize")}</p>
+              {restaurant.logo_url && (
+                <button type="button" onClick={() => removeRestaurantImage("logo")} className="text-xs text-destructive hover:underline">
+                  {t("removePhoto")}
+                </button>
+              )}
             </div>
           </div>
 
@@ -120,24 +148,35 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               <p className="text-sm font-medium text-foreground">{t("coverPhoto")}</p>
               <p className="text-xs text-muted-foreground">{t("coverMaxSize")}</p>
             </div>
-            <label className="relative flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden group">
-              {restaurant.cover_photo_url ? (
-                <>
-                  <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">{t("changeCover")}</span>
+            <div className="relative">
+              <label className="relative flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden group">
+                {restaurant.cover_photo_url ? (
+                  <>
+                    <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <span className="text-white text-sm font-medium">{t("changeCover")}</span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center space-y-1 px-4">
+                    <ImageIcon className="h-7 w-7 text-muted-foreground mx-auto" />
+                    <p className="text-sm text-muted-foreground">{t("uploadCover")}</p>
+                    <p className="text-xs text-muted-foreground">{t("coverRecommended")}</p>
+                    <p className="text-xs text-muted-foreground">{t("coverFormats")}</p>
                   </div>
-                </>
-              ) : (
-                <div className="text-center space-y-1 px-4">
-                  <ImageIcon className="h-7 w-7 text-muted-foreground mx-auto" />
-                  <p className="text-sm text-muted-foreground">{t("uploadCover")}</p>
-                  <p className="text-xs text-muted-foreground">{t("coverRecommended")}</p>
-                  <p className="text-xs text-muted-foreground">{t("coverFormats")}</p>
-                </div>
+                )}
+                <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
+              </label>
+              {restaurant.cover_photo_url && (
+                <button
+                  type="button"
+                  onClick={() => removeRestaurantImage("cover")}
+                  className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/60 px-2 py-1 text-xs text-white hover:bg-black/80 transition-colors z-10"
+                >
+                  <X className="h-3 w-3" /> {t("removePhoto")}
+                </button>
               )}
-              <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
-            </label>
+            </div>
             {restaurant.cover_photo_url && (
               <p className="text-xs text-muted-foreground">{t("coverRecommended")} · {t("coverFormats")}</p>
             )}

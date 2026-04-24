@@ -172,17 +172,17 @@ const translations = {
     logoAlt: "Restaurant logo",
     coverAlt: "Restaurant cover photo",
 
-    // Category name translations (Finnish DB names → display name)
-    catTarjoukset: "Offers",
-    catAlkupalat: "Appetizers",
-    catSalaattiKeitto: "Salad & Soup",
+    // Category name translations (English DB names → display name)
+    catOffers: "Offers",
+    catAppetizers: "Appetizers",
+    catSaladSoup: "Salad & Soup",
     catPastaRisotto: "Pasta & Risotto",
     catPizzaLasagne: "Pizza & Lasagne",
-    catLapsille: "For Kids",
-    catVegaani: "Vegan",
-    catJalkiruoat: "Desserts",
-    catJuomat: "Drinks",
-    catAlkoholi: "Alcohol",
+    catForKids: "For Kids",
+    catVegan: "Vegan",
+    catDesserts: "Desserts",
+    catDrinks: "Drinks",
+    catAlcohol: "Alcohol",
 
     // Menu item form section headers
     freeFrom: "Free From",
@@ -389,17 +389,17 @@ const translations = {
     logoAlt: "Ravintolan logo",
     coverAlt: "Ravintolan kansikuva",
 
-    // Category name translations (Finnish DB names → display name)
-    catTarjoukset: "Tarjoukset",
-    catAlkupalat: "Alkupalat",
-    catSalaattiKeitto: "Salaatti & Keitto",
+    // Category name translations (English DB names → Finnish display name)
+    catOffers: "Tarjoukset",
+    catAppetizers: "Alkupalat",
+    catSaladSoup: "Salaatti & Keitto",
     catPastaRisotto: "Pasta & Risotto",
     catPizzaLasagne: "Pizza & Lasagne",
-    catLapsille: "Lapsille",
-    catVegaani: "Vegaani",
-    catJalkiruoat: "Jälkiruoat",
-    catJuomat: "Juomat",
-    catAlkoholi: "Alkoholi",
+    catForKids: "Lapsille",
+    catVegan: "Vegaani",
+    catDesserts: "Jälkiruoat",
+    catDrinks: "Juomat",
+    catAlcohol: "Alkoholi",
 
     // Menu item form section headers
     freeFrom: "Ei sisällä",
@@ -441,18 +441,18 @@ const translations = {
 
 type TranslationKey = keyof typeof translations.en;
 
-// Maps Finnish DB category names to their translation key
+// Maps English DB category names to their translation key
 const CATEGORY_KEY_MAP: Record<string, TranslationKey> = {
-  "Tarjoukset": "catTarjoukset",
-  "Alkupalat": "catAlkupalat",
-  "Salaatti & Keitto": "catSalaattiKeitto",
+  "Offers": "catOffers",
+  "Appetizers": "catAppetizers",
+  "Salad & Soup": "catSaladSoup",
   "Pasta & Risotto": "catPastaRisotto",
   "Pizza & Lasagne": "catPizzaLasagne",
-  "Lapsille": "catLapsille",
-  "Vegaani": "catVegaani",
-  "Jälkiruoat": "catJalkiruoat",
-  "Juomat": "catJuomat",
-  "Alkoholi": "catAlkoholi",
+  "For Kids": "catForKids",
+  "Vegan": "catVegan",
+  "Desserts": "catDesserts",
+  "Drinks": "catDrinks",
+  "Alcohol": "catAlcohol",
 };
 
 interface LanguageContextType {

@@ -39,7 +39,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       setCategories(cats || []);
       setItems(menuItems || []);
     } catch (err: any) {
-      toast({ title: "Error loading menu", description: err.message, variant: "destructive" });
+      toast({ title: t("errorLoadingMenu"), description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -53,7 +53,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       if (error) throw error;
       loadData();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
     }
   };
 
@@ -75,7 +75,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       if (error) throw error;
       if (data) onRestaurantUpdate(data);
     } catch (err: any) {
-      toast({ title: "Upload error", description: err.message, variant: "destructive" });
+      toast({ title: t("uploadError"), description: err.message, variant: "destructive" });
     }
   };
 

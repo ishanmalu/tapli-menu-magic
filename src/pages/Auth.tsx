@@ -75,7 +75,7 @@ export default function Auth() {
       setStep("verify");
       toast({ title: t("verificationSent"), description: t("checkEmail") });
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -186,11 +186,11 @@ export default function Auth() {
                   {RESTAURANT_ROLES.map((r) => (
                     <SelectItem key={r} value={r}>{r}</SelectItem>
                   ))}
-                  <SelectItem value="Other">Other</SelectItem>
+                  <SelectItem value="Other">{t("other")}</SelectItem>
                 </SelectContent>
               </Select>
               {role === "Other" && (
-                <Input placeholder="Enter your position" value={customRole} onChange={(e) => setCustomRole(e.target.value)} required />
+                <Input placeholder={t("enterPosition")} value={customRole} onChange={(e) => setCustomRole(e.target.value)} required />
               )}
               <Input type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} required />
               <Input type="password" placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />

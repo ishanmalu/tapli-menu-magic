@@ -33,7 +33,7 @@ export function CategoryManager({ restaurantId, categories, onUpdate }: Props) {
       setNewName("");
       onUpdate();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
     } finally {
       setAdding(false);
     }
@@ -45,14 +45,14 @@ export function CategoryManager({ restaurantId, categories, onUpdate }: Props) {
       if (error) throw error;
       onUpdate();
     } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Categories</CardTitle>
+        <CardTitle className="text-lg">{t("categories")}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2 mb-3">

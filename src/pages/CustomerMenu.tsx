@@ -9,13 +9,11 @@ import { DiscoverRestaurants } from "@/components/menu/DiscoverRestaurants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 
 type Restaurant = Tables<"restaurants">;
 type MenuItem = Tables<"menu_items">;
 type Category = Tables<"categories">;
-
-const ALL_ALLERGENS = ["gluten", "dairy", "nuts", "soy", "eggs"];
-const DIETARY_OPTIONS = ["vegan", "vegetarian", "gluten-free"];
 
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
@@ -60,8 +58,8 @@ export default function CustomerMenu() {
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      // Exclude items containing selected allergens
-      if (excludedAllergens.length > 0 && item.allergens?.some((a) => excludedAllergens.includes(a))) return false;
+      // Show only items that have ALL selected "free from" tags
+      if (excludedAllergens.length > 0 && !excludedAllergens.every((tag) => item.allergens?.includes(tag))) return false;
       // Filter by dietary preference
       if (selectedDietary.length > 0 && !selectedDietary.every((d) => item.dietary_tags?.includes(d))) return false;
       // Filter by calorie range
@@ -157,8 +155,8 @@ export default function CustomerMenu() {
         {/* Filters */}
         <FoodStyleChips selected={selectedFoodStyles} setSelected={setSelectedFoodStyles} />
         <MenuFilterBar
-          allergens={ALL_ALLERGENS}
-          dietaryOptions={DIETARY_OPTIONS}
+          allergens={[...FREE_FROM_ALLERGENS]}
+          dietaryOptions={[...DIETARY_LIFESTYLE_TAGS]}
           excludedAllergens={excludedAllergens}
           setExcludedAllergens={setExcludedAllergens}
           selectedDietary={selectedDietary}

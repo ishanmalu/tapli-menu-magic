@@ -171,6 +171,42 @@ const translations = {
     // Accessibility alt text
     logoAlt: "Restaurant logo",
     coverAlt: "Restaurant cover photo",
+
+    // Menu item form section headers
+    freeFrom: "Free From",
+    dietaryAndLifestyle: "Dietary & Lifestyle",
+
+    // Free From allergen tags (item is free from this allergen)
+    tagGlutenFree: "Gluten-free",
+    tagDairyFree: "Dairy-free",
+    tagEggFree: "Egg-free",
+    tagFishFree: "Fish-free",
+    tagPeanutFree: "Peanut-free",
+    tagNutFree: "Nut-free",
+    tagSoyFree: "Soy-free",
+    tagShellfishFree: "Shellfish-free",
+    tagSesameFree: "Sesame-free",
+    tagCeleryFree: "Celery-free",
+    tagMustardFree: "Mustard-free",
+    tagSulphiteFree: "Sulphite-free",
+    tagLupinFree: "Lupin-free",
+    tagMolluscrFree: "Mollusc-free",
+
+    // Dietary & lifestyle tags
+    tagVegan: "Vegan",
+    tagVegetarian: "Vegetarian",
+    tagLactoseFree: "Lactose-free",
+    tagPlantBased: "Plant-based",
+    tagLowCarb: "Low-carb",
+    tagKeto: "Keto",
+    tagHighProtein: "High-protein",
+    tagNoAddedSugar: "No added sugar",
+    tagLowCalorie: "Low-calorie",
+    tagHalal: "Halal",
+    tagKosher: "Kosher",
+    tagNoPork: "No pork",
+    tagNoAlcohol: "No alcohol",
+    tagNoBeef: "No beef",
   },
   fi: {
     // Nav / Index
@@ -340,6 +376,42 @@ const translations = {
     // Accessibility alt text
     logoAlt: "Ravintolan logo",
     coverAlt: "Ravintolan kansikuva",
+
+    // Menu item form section headers
+    freeFrom: "Ei sisällä",
+    dietaryAndLifestyle: "Ruokavalio ja elämäntapa",
+
+    // Free From allergen tags — "vapaa ainesosista" style Finnish
+    tagGlutenFree: "Gluteeniton",
+    tagDairyFree: "Maidoton",
+    tagEggFree: "Kananmunaton",
+    tagFishFree: "Kalaton",
+    tagPeanutFree: "Maapähkinätön",
+    tagNutFree: "Pähkinätön",
+    tagSoyFree: "Soijaton",
+    tagShellfishFree: "Äyriäistön",
+    tagSesameFree: "Seesaminsiemenetön",
+    tagCeleryFree: "Selleritön",
+    tagMustardFree: "Sinappiton",
+    tagSulphiteFree: "Sulfiititon",
+    tagLupinFree: "Lupiiniton",
+    tagMolluscrFree: "Nilviäistön",
+
+    // Dietary & lifestyle tags
+    tagVegan: "Vegaaninen",
+    tagVegetarian: "Kasvisruoka",
+    tagLactoseFree: "Laktoositon",
+    tagPlantBased: "Kasvipohjainen",
+    tagLowCarb: "Vähähiilihydraattinen",
+    tagKeto: "Keto",
+    tagHighProtein: "Runsasproteiininen",
+    tagNoAddedSugar: "Ei lisättyä sokeria",
+    tagLowCalorie: "Vähäkalorinen",
+    tagHalal: "Halal",
+    tagKosher: "Kosher",
+    tagNoPork: "Ei sianlihaa",
+    tagNoAlcohol: "Ei alkoholia",
+    tagNoBeef: "Ei naudanlihaa",
   },
 } as const;
 

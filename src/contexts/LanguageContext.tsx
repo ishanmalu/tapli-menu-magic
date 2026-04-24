@@ -139,12 +139,34 @@ const translations = {
     subscribeNow: "Subscribe Now",
     upgradeTitle: "Upgrade your plan",
     upgradeSubtitle: "Pick a plan to keep using Tapli without interruption.",
-    featUnlimitedMenus: "Unlimited menus",
-    featRealtimeUpdates: "Real-time updates",
+    // Monthly features
+    feat1Menu: "1 menu",
+    feat50Items: "Up to 50 menu items",
     featQrNfc: "QR & NFC support",
     featAllergenInfo: "Allergen & dietary info",
     featPhotoUploads: "Photo uploads",
     featBilingual: "Finnish & English support",
+    featRealtimeUpdates: "Real-time updates",
+    featCustomColours: "Custom menu colours",
+    // Quarterly extra features
+    feat3Menus: "Up to 3 menus",
+    featUnlimitedItems: "Unlimited menu items",
+    featItemBadges: "Menu item badges (New, Chef's Pick)",
+    featAnalytics: "Analytics & view counts",
+    featPdfExport: "PDF menu export",
+    featPrioritySupport: "Priority support",
+    // Annual extra features
+    featExtraLanguages: "Extra languages (Swedish, Estonian, Russian)",
+    featUnlimitedMenus: "Unlimited menus",
+    featTimedMenus: "Time-based menus (lunch/dinner)",
+    featCustomQr: "Custom QR code with restaurant logo",
+    featOnboarding: "Onboarding call",
+    featAccountManager: "Dedicated account manager",
+
+    // 404 page
+    pageNotFound: "Page not found",
+    pageNotFoundDesc: "Oops! The page you're looking for doesn't exist.",
+    returnHome: "Return to Home",
   },
   fi: {
     // Nav / Index
@@ -282,12 +304,34 @@ const translations = {
     subscribeNow: "Tilaa nyt",
     upgradeTitle: "Päivitä pakettisi",
     upgradeSubtitle: "Valitse paketti jatkaaksesi Taplin käyttöä keskeytyksettä.",
-    featUnlimitedMenus: "Rajattomasti ruokalistoja",
-    featRealtimeUpdates: "Reaaliaikaiset päivitykset",
+    // Monthly features
+    feat1Menu: "1 ruokalista",
+    feat50Items: "Enintään 50 tuotetta",
     featQrNfc: "QR- ja NFC-tuki",
     featAllergenInfo: "Allergeeni- ja ruokavaliotiedot",
     featPhotoUploads: "Kuvien lataus",
     featBilingual: "Suomi- ja englanninkielinen tuki",
+    featRealtimeUpdates: "Reaaliaikaiset päivitykset",
+    featCustomColours: "Mukautetut ruokalistan värit",
+    // Quarterly extra features
+    feat3Menus: "Enintään 3 ruokalistaa",
+    featUnlimitedItems: "Rajattomasti tuotteita",
+    featItemBadges: "Tuotebadget (Uusi, Kokin suosikki)",
+    featAnalytics: "Analytiikka ja katselukerrat",
+    featPdfExport: "PDF-ruokalistan vienti",
+    featPrioritySupport: "Prioriteettituki",
+    // Annual extra features
+    featExtraLanguages: "Lisäkielet (ruotsi, viro, venäjä)",
+    featUnlimitedMenus: "Rajattomasti ruokalistoja",
+    featTimedMenus: "Aikaperusteiset ruokalistat (lounas/illallinen)",
+    featCustomQr: "Mukautettu QR-koodi ravintolan logolla",
+    featOnboarding: "Käyttöönottosoitto",
+    featAccountManager: "Oma asiakasvastaava",
+
+    // 404 page
+    pageNotFound: "Sivua ei löydy",
+    pageNotFoundDesc: "Hups! Etsimääsi sivua ei ole olemassa.",
+    returnHome: "Palaa etusivulle",
   },
 } as const;
 

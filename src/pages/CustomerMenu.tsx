@@ -134,7 +134,7 @@ export default function CustomerMenu() {
       {/* Cover photo */}
       {restaurant?.cover_photo_url ? (
         <div className="relative h-48 sm:h-64 w-full overflow-hidden">
-          <img src={restaurant.cover_photo_url} alt="" className="h-full w-full object-cover" />
+          <img src={restaurant.cover_photo_url} alt={restaurant.name} className="h-full w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
         </div>
       ) : (

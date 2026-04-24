@@ -32,6 +32,17 @@ type Step = "form" | "verify";
 export default function Auth() {
   const { user, loading, signIn, signUp, verifyOtp } = useAuth();
   const { t } = useLanguage();
+
+  // Role labels mapped to translations — values stored in DB stay English, display is translated
+  const roleLabels: Record<string, string> = {
+    "Owner": t("owner"),
+    "General Manager": t("generalManager"),
+    "Head Chef": t("headChef"),
+    "Sous Chef": t("sousChef"),
+    "Floor Manager": t("floorManager"),
+    "Marketing Manager": t("marketingManager"),
+    "Operations Manager": t("operationsManager"),
+  };
   const { theme } = useTheme();
   const [isLogin, setIsLogin] = useState(true);
   const [step, setStep] = useState<Step>("form");
@@ -184,21 +195,9 @@ export default function Auth() {
                   <SelectValue placeholder={t("yourPosition")} />
                 </SelectTrigger>
                 <SelectContent>
-                  {RESTAURANT_ROLE_KEYS.map((r) => {
-                    // Map each role key to its translation key
-                    const roleTranslationKey: Record<string, string> = {
-                      "Owner": t("owner"),
-                      "General Manager": t("generalManager"),
-                      "Head Chef": t("headChef"),
-                      "Sous Chef": t("sousChef"),
-                      "Floor Manager": t("floorManager"),
-                      "Marketing Manager": t("marketingManager"),
-                      "Operations Manager": t("operationsManager"),
-                    };
-                    return (
-                      <SelectItem key={r} value={r}>{roleTranslationKey[r]}</SelectItem>
-                    );
-                  })}
+                  {RESTAURANT_ROLE_KEYS.map((r) => (
+                    <SelectItem key={r} value={r}>{roleLabels[r]}</SelectItem>
+                  ))}
                   <SelectItem value="Other">{t("other")}</SelectItem>
                 </SelectContent>
               </Select>

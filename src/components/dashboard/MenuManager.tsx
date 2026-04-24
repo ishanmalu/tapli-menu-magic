@@ -95,7 +95,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
             <p className="text-sm text-muted-foreground mb-2">{t("logo")}</p>
             <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
               {restaurant.logo_url ? (
-                <img src={restaurant.logo_url} alt="Logo" className="h-full w-full object-cover" />
+                <img src={restaurant.logo_url} alt={t("logoAlt")} className="h-full w-full object-cover" />
               ) : (
                 <ImageIcon className="h-6 w-6 text-muted-foreground" />
               )}
@@ -106,7 +106,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
             <p className="text-sm text-muted-foreground mb-2">{t("coverPhoto")}</p>
             <label className="flex h-20 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
               {restaurant.cover_photo_url ? (
-                <img src={restaurant.cover_photo_url} alt="Cover" className="h-full w-full object-cover" />
+                <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
               ) : (
                 <span className="text-sm text-muted-foreground">{t("uploadCover")}</span>
               )}

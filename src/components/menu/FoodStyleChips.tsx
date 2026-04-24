@@ -8,40 +8,41 @@ export interface FoodStyleFilter {
   match: (item: { calories?: number | null; protein?: number | null; dietary_tags?: string[] | null }) => boolean;
 }
 
+// label field is an internal fallback only — displayed labels come from labelMap via t()
 export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
   {
     id: "high-protein",
-    label: "High Protein",
+    label: "highProtein",
     emoji: "🔥",
     match: (item) => item.protein != null && Number(item.protein) >= 25,
   },
   {
     id: "high-carb",
-    label: "High Carb",
+    label: "highCarb",
     emoji: "🍞",
     match: (item) => item.dietary_tags?.some((t) => ["high-carb", "carb-heavy", "pasta", "rice", "bread"].includes(t)) ?? false,
   },
   {
     id: "keto",
-    label: "High Fat / Keto",
+    label: "highFatKeto",
     emoji: "🥑",
     match: (item) => item.dietary_tags?.some((t) => ["keto", "low-carb"].includes(t)) ?? false,
   },
   {
     id: "low-calorie",
-    label: "Low Calorie",
+    label: "lowCalorie",
     emoji: "🥗",
     match: (item) => item.calories != null && item.calories <= 300,
   },
   {
     id: "high-energy",
-    label: "High Energy",
+    label: "highEnergy",
     emoji: "⚡",
     match: (item) => item.calories != null && item.calories >= 600,
   },
   {
     id: "plant-based",
-    label: "Plant Based",
+    label: "plantBased",
     emoji: "🌱",
     match: (item) => item.dietary_tags?.some((t) => ["vegan", "vegetarian", "plant-based"].includes(t)) ?? false,
   },

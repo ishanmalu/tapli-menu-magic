@@ -167,6 +167,10 @@ const translations = {
     pageNotFound: "Page not found",
     pageNotFoundDesc: "Oops! The page you're looking for doesn't exist.",
     returnHome: "Return to Home",
+
+    // Accessibility alt text
+    logoAlt: "Restaurant logo",
+    coverAlt: "Restaurant cover photo",
   },
   fi: {
     // Nav / Index
@@ -332,6 +336,10 @@ const translations = {
     pageNotFound: "Sivua ei löydy",
     pageNotFoundDesc: "Hups! Etsimääsi sivua ei ole olemassa.",
     returnHome: "Palaa etusivulle",
+
+    // Accessibility alt text
+    logoAlt: "Ravintolan logo",
+    coverAlt: "Ravintolan kansikuva",
   },
 } as const;
 

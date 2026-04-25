@@ -148,7 +148,11 @@ export default function CustomerMenu() {
           )}
           <div>
             <h1 className="text-2xl font-bold text-foreground">{restaurant?.name}</h1>
-            {restaurant?.description && <p className="text-sm text-muted-foreground">{restaurant.description}</p>}
+            {restaurant && (
+              <p className="text-sm text-muted-foreground">
+                {(language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description}
+              </p>
+            )}
           </div>
         </div>
 

@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
+import { Clock } from "lucide-react";
 
 type Restaurant = Tables<"restaurants">;
 type MenuItem = Tables<"menu_items">;
@@ -148,13 +149,31 @@ export default function CustomerMenu() {
           )}
           <div>
             <h1 className="text-2xl font-bold text-foreground">{restaurant?.name}</h1>
-            {restaurant && (
-              <p className="text-sm text-muted-foreground">
+            {restaurant?.slogan && (
+              <p className="text-sm font-medium text-primary mt-0.5">{restaurant.slogan}</p>
+            )}
+            {restaurant && ((language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description) && (
+              <p className="text-sm text-muted-foreground mt-0.5">
                 {(language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description}
               </p>
             )}
           </div>
         </div>
+
+        {/* Opening hours */}
+        {restaurant?.opening_hours && (restaurant.opening_hours as {days:string;hours:string}[]).length > 0 && (
+          <div className="flex flex-wrap items-start gap-x-4 gap-y-1 mb-4 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1 font-medium text-foreground">
+              <Clock className="h-3.5 w-3.5" /> {t("openingHoursLabel")}
+            </span>
+            {(restaurant.opening_hours as {days:string;hours:string}[]).map((row, i) => (
+              <span key={i} className="flex items-center gap-1">
+                <span className="font-medium text-foreground">{row.days}</span>
+                <span>{row.hours}</span>
+              </span>
+            ))}
+          </div>
+        )}
 
         {/* Filters */}
         <FoodStyleChips selected={selectedFoodStyles} setSelected={setSelectedFoodStyles} />

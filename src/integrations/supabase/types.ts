@@ -163,7 +163,9 @@ export type Database = {
           id: string
           logo_url: string | null
           name: string
+          opening_hours: { days: string; hours: string }[] | null
           owner_id: string
+          slogan: string | null
           slug: string
           updated_at: string
         }
@@ -175,7 +177,9 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name: string
+          opening_hours?: { days: string; hours: string }[] | null
           owner_id: string
+          slogan?: string | null
           slug: string
           updated_at?: string
         }
@@ -187,7 +191,9 @@ export type Database = {
           id?: string
           logo_url?: string | null
           name?: string
+          opening_hours?: { days: string; hours: string }[] | null
           owner_id?: string
+          slogan?: string | null
           slug?: string
           updated_at?: string
         }

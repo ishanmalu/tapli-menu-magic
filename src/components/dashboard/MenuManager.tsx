@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { MenuItemForm } from "@/components/dashboard/MenuItemForm";
 import { CategoryManager } from "@/components/dashboard/CategoryManager";
+import { RestaurantInfoEditor } from "@/components/dashboard/RestaurantInfoEditor";
 import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -101,6 +102,9 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
   return (
     <div className="space-y-6">
+      {/* Restaurant info — name, slogan, description, opening hours */}
+      <RestaurantInfoEditor restaurant={restaurant} onUpdate={onRestaurantUpdate} />
+
       {/* Restaurant branding */}
       <Card>
         <CardHeader>

@@ -17,7 +17,7 @@ type Category = Tables<"categories">;
 
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
-  const { t, tCategory } = useLanguage();
+  const { t, tCategory, language } = useLanguage();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);

@@ -8,7 +8,9 @@ interface MenuItemCardProps {
 }
 
 export function MenuItemCard({ item }: MenuItemCardProps) {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const displayName = (language === "en" && item.name_en) ? item.name_en : item.name;
+  const displayDescription = (language === "en" && item.description_en) ? item.description_en : item.description;
 
   // Translated display labels for all tag slugs
   const tagLabels: Record<string, string> = {
@@ -38,11 +40,11 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
       )}
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-foreground text-sm leading-tight">{item.name}</h3>
+          <h3 className="font-semibold text-foreground text-sm leading-tight">{displayName}</h3>
           <span className="font-bold text-primary text-sm whitespace-nowrap">€{Number(item.price).toFixed(2)}</span>
         </div>
-        {item.description && (
-          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
+        {displayDescription && (
+          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{displayDescription}</p>
         )}
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {item.calories != null && (

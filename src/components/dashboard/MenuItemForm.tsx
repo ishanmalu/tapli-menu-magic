@@ -24,7 +24,9 @@ interface Props {
 export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel }: Props) {
   const { t } = useLanguage();
   const [name, setName] = useState(item?.name || "");
+  const [nameEn, setNameEn] = useState(item?.name_en || "");
   const [description, setDescription] = useState(item?.description || "");
+  const [descriptionEn, setDescriptionEn] = useState(item?.description_en || "");
   const [price, setPrice] = useState(item ? String(item.price) : "");
   const [categoryId, setCategoryId] = useState(item?.category_id || "");
   const [calories, setCalories] = useState(item?.calories != null ? String(item.calories) : "");
@@ -90,7 +92,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
 
       const payload = {
         name: name.trim(),
+        name_en: nameEn.trim() || null,
         description: description.trim() || null,
+        description_en: descriptionEn.trim() || null,
         price: parseFloat(price),
         category_id: categoryId || null,
         calories: calories ? parseInt(calories) : null,
@@ -118,12 +122,20 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label>{t("name")} *</Label>
+        <Label>{t("name")} * <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />
       </div>
       <div>
-        <Label>{t("description")}</Label>
+        <Label>{t("name")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} placeholder={t("englishTranslation")} />
+      </div>
+      <div>
+        <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+      </div>
+      <div>
+        <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <Textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={2} placeholder={t("englishTranslation")} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>

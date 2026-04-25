@@ -53,10 +53,12 @@ export type Database = {
           category_id: string | null
           created_at: string
           description: string | null
+          description_en: string | null
           dietary_tags: string[] | null
           id: string
           is_available: boolean
           name: string
+          name_en: string | null
           photo_url: string | null
           price: number
           protein: number | null
@@ -70,10 +72,12 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           dietary_tags?: string[] | null
           id?: string
           is_available?: boolean
           name: string
+          name_en?: string | null
           photo_url?: string | null
           price: number
           protein?: number | null
@@ -87,10 +91,12 @@ export type Database = {
           category_id?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           dietary_tags?: string[] | null
           id?: string
           is_available?: boolean
           name?: string
+          name_en?: string | null
           photo_url?: string | null
           price?: number
           protein?: number | null

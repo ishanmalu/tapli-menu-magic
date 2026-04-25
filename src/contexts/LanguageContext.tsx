@@ -52,6 +52,21 @@ const translations = {
     errorLoadingMenu: "Error loading menu",
     uploadError: "Upload error",
 
+    // Dashboard — restaurant info
+    restaurantInfo: "Restaurant Info",
+    editName: "Restaurant Name",
+    sloganLabel: "Slogan / Tagline",
+    sloganPlaceholder: "e.g. Farm-to-table Nordic cuisine",
+    descriptionLabel: "About (short description)",
+    descriptionPlaceholder: "A short sentence about your restaurant",
+    openingHoursLabel: "Opening Hours",
+    daysPlaceholder: "e.g. Mon–Fri",
+    hoursPlaceholder: "e.g. 11:00–22:00",
+    addRow: "Add row",
+    saveChanges: "Save Changes",
+    saved: "Saved",
+    changesSaved: "Restaurant info updated.",
+
     // Dashboard
     viewMenu: "View menu →",
     setupTitle: "Set up your restaurant",
@@ -290,6 +305,21 @@ const translations = {
     error: "Virhe",
     errorLoadingMenu: "Virhe ruokalistan lataamisessa",
     uploadError: "Latausvirhe",
+
+    // Dashboard — restaurant info
+    restaurantInfo: "Ravintolan tiedot",
+    editName: "Ravintolan nimi",
+    sloganLabel: "Iskulause / Tunnuslause",
+    sloganPlaceholder: "esim. Pohjoismaista keittiötä pellolta pöytään",
+    descriptionLabel: "Esittely (lyhyt kuvaus)",
+    descriptionPlaceholder: "Lyhyt lause ravintolastasi",
+    openingHoursLabel: "Aukioloajat",
+    daysPlaceholder: "esim. Ma–Pe",
+    hoursPlaceholder: "esim. 11:00–22:00",
+    addRow: "Lisää rivi",
+    saveChanges: "Tallenna muutokset",
+    saved: "Tallennettu",
+    changesSaved: "Ravintolan tiedot päivitetty.",
 
     // Dashboard
     viewMenu: "Näytä ruokalista →",

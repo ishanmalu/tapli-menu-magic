@@ -207,6 +207,8 @@ const translations = {
     // Menu item form section headers
     freeFrom: "Free From",
     dietaryAndLifestyle: "Dietary & Lifestyle",
+    optional: "optional",
+    englishTranslation: "English translation",
 
     // Free From allergen tags (item is free from this allergen)
     tagGlutenFree: "Gluten-free",
@@ -444,6 +446,8 @@ const translations = {
     // Menu item form section headers
     freeFrom: "Ei sisällä",
     dietaryAndLifestyle: "Ruokavalio ja elämäntapa",
+    optional: "valinnainen",
+    englishTranslation: "Englanninkielinen käännös",
 
     // Free From allergen tags — "vapaa ainesosista" style Finnish
     tagGlutenFree: "Gluteeniton",
@@ -500,7 +504,7 @@ const CATEGORY_KEY_MAP: Record<string, TranslationKey> = {
   "Non-Alcoholic Drinks": "catNonAlcoholicDrinks",
 };
 
-interface LanguageContextType {
+export interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: TranslationKey) => string;

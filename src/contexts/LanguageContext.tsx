@@ -198,6 +198,11 @@ const translations = {
     catDesserts: "Desserts",
     catDrinks: "Drinks",
     catAlcohol: "Alcohol",
+    catStarters: "Starters",
+    catMainCourses: "Main Courses",
+    catSideDishes: "Side Dishes",
+    catAlcoholicDrinks: "Alcoholic Drinks",
+    catNonAlcoholicDrinks: "Non-Alcoholic Drinks",
 
     // Menu item form section headers
     freeFrom: "Free From",
@@ -430,6 +435,11 @@ const translations = {
     catDesserts: "Jälkiruoat",
     catDrinks: "Juomat",
     catAlcohol: "Alkoholi",
+    catStarters: "Alkupalat",
+    catMainCourses: "Pääruoat",
+    catSideDishes: "Lisäkkeet",
+    catAlcoholicDrinks: "Alkoholijuomat",
+    catNonAlcoholicDrinks: "Alkoholittomat juomat",
 
     // Menu item form section headers
     freeFrom: "Ei sisällä",
@@ -483,6 +493,11 @@ const CATEGORY_KEY_MAP: Record<string, TranslationKey> = {
   "Desserts": "catDesserts",
   "Drinks": "catDrinks",
   "Alcohol": "catAlcohol",
+  "Starters": "catStarters",
+  "Main Courses": "catMainCourses",
+  "Side Dishes": "catSideDishes",
+  "Alcoholic Drinks": "catAlcoholicDrinks",
+  "Non-Alcoholic Drinks": "catNonAlcoholicDrinks",
 };
 
 interface LanguageContextType {

@@ -1,17 +1,30 @@
-import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function LanguageToggle() {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <Button
-      variant="ghost"
-      size="sm"
-      onClick={() => setLanguage(language === "en" ? "fi" : "en")}
-      className="font-medium text-xs px-2 uppercase tracking-wide"
-    >
-      {language === "en" ? "FI" : "EN"}
-    </Button>
+    <div className="flex items-center gap-0.5 rounded-md border bg-muted/50 p-0.5 text-xs font-medium">
+      <button
+        onClick={() => setLanguage("en")}
+        className={`rounded px-2 py-1 transition-colors ${
+          language === "en"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        EN
+      </button>
+      <button
+        onClick={() => setLanguage("fi")}
+        className={`rounded px-2 py-1 transition-colors ${
+          language === "fi"
+            ? "bg-background text-foreground shadow-sm"
+            : "text-muted-foreground hover:text-foreground"
+        }`}
+      >
+        FI
+      </button>
+    </div>
   );
 }

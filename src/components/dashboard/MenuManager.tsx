@@ -35,6 +35,11 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const fs = restaurant.filter_settings as any;
   const [bannerBlur, setBannerBlur] = useState<number>(fs?.bannerBlur ?? 0);
 
+  const pasteImage = (e: React.ClipboardEvent, fn: (file: File) => void) => {
+    const item = Array.from(e.clipboardData?.items ?? []).find(i => i.type.startsWith("image/"));
+    if (item) { e.preventDefault(); const f = item.getAsFile(); if (f) fn(f); }
+  };
+
   const saveBannerBlur = async (value: number) => {
     try {
       const existing = (restaurant.filter_settings as any) ?? {};
@@ -173,7 +178,11 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
           {/* Logo */}
           <div className="flex gap-4 items-start">
             <div className="relative flex-shrink-0">
-              <label className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden">
+              <label
+                tabIndex={0}
+                onPaste={(e) => pasteImage(e, (f) => uploadRestaurantImage(f, "logo"))}
+                className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden focus:outline-none focus:border-primary"
+              >
                 {restaurant.logo_url ? (
                   <img src={restaurant.logo_url} alt={t("logoAlt")} className="h-full w-full object-cover" />
                 ) : (
@@ -197,6 +206,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               <p className="text-xs text-muted-foreground">{t("logoRecommended")}</p>
               <p className="text-xs text-muted-foreground">{t("logoFormats")}</p>
               <p className="text-xs text-muted-foreground">{t("logoMaxSize")}</p>
+              <p className="text-xs text-muted-foreground/60">{t("pasteHint")}</p>
               {restaurant.logo_url && (
                 <button type="button" onClick={() => removeRestaurantImage("logo")} className="text-xs text-destructive hover:underline">
                   {t("removePhoto")}
@@ -212,7 +222,11 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               <p className="text-xs text-muted-foreground">{t("coverMaxSize")}</p>
             </div>
             <div className="relative">
-              <label className="relative flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden group">
+              <label
+                tabIndex={0}
+                onPaste={(e) => pasteImage(e, (f) => uploadRestaurantImage(f, "cover"))}
+                className="relative flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden group focus:outline-none focus:border-primary"
+              >
                 {restaurant.cover_photo_url ? (
                   <>
                     <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
@@ -226,6 +240,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                     <p className="text-sm text-muted-foreground">{t("uploadCover")}</p>
                     <p className="text-xs text-muted-foreground">{t("coverRecommended")}</p>
                     <p className="text-xs text-muted-foreground">{t("coverFormats")}</p>
+                    <p className="text-xs text-muted-foreground/60">{t("pasteHint")}</p>
                   </div>
                 )}
                 <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => e.target.files?.[0] && uploadRestaurantImage(e.target.files[0], "cover")} />
@@ -302,7 +317,11 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 <div key={item.id} className="flex items-center gap-3 rounded-lg border p-3">
                   {/* Inline photo management */}
                   <div className="relative flex-shrink-0 group">
-                    <label className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-md overflow-hidden border border-dashed hover:border-primary transition-colors">
+                    <label
+                      tabIndex={0}
+                      onPaste={(e) => pasteImage(e, (f) => uploadItemPhoto(item, f))}
+                      className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-md overflow-hidden border border-dashed hover:border-primary transition-colors focus:outline-none focus:border-primary"
+                    >
                       {item.photo_url ? (
                         <>
                           <img src={item.photo_url} alt={item.name} className="h-full w-full object-cover" />

@@ -1,4 +1,6 @@
 export type FilterSlider = { enabled: boolean; min: number; max: number }
+export type AvailabilitySlot = { label: string; from: string; to: string }
+export type AvailabilitySchedule = { enabled: boolean; slots: AvailabilitySlot[] }
 
 export type Json =
   | string
@@ -51,6 +53,7 @@ export type Database = {
       menu_items: {
         Row: {
           allergens: string[] | null
+          availability_schedule: AvailabilitySchedule | null
           calories: number | null
           category_id: string | null
           created_at: string
@@ -70,6 +73,7 @@ export type Database = {
         }
         Insert: {
           allergens?: string[] | null
+          availability_schedule?: AvailabilitySchedule | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
@@ -89,6 +93,7 @@ export type Database = {
         }
         Update: {
           allergens?: string[] | null
+          availability_schedule?: AvailabilitySchedule | null
           calories?: number | null
           category_id?: string | null
           created_at?: string

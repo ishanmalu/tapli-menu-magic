@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
+import { compressImage } from "@/lib/imageUtils";
 
 interface Props {
   restaurantId: string;
@@ -87,12 +88,12 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
     try {
       let photoUrl = removePhoto ? null : (item?.photo_url || null);
       if (photo) {
-        const ext = photo.name.split(".").pop();
-        const path = `${restaurantId}/items/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, photo);
+        const compressed = await compressImage(photo, 800, 0.85);
+        const path = `${restaurantId}/items/${Date.now()}.jpg`;
+        const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, compressed, { contentType: "image/jpeg" });
         if (uploadError) throw uploadError;
         const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-        photoUrl = publicUrl;
+        photoUrl = `${publicUrl}?t=${Date.now()}`;
       }
 
       const payload = {

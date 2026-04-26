@@ -1,3 +1,5 @@
+export type FilterSlider = { enabled: boolean; min: number; max: number }
+
 export type Json =
   | string
   | number
@@ -160,6 +162,7 @@ export type Database = {
           created_at: string
           description: string | null
           description_en: string | null
+          filter_settings: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
           id: string
           logo_url: string | null
           name: string
@@ -174,6 +177,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_en?: string | null
+          filter_settings?: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
           id?: string
           logo_url?: string | null
           name: string
@@ -188,6 +192,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_en?: string | null
+          filter_settings?: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
           id?: string
           logo_url?: string | null
           name?: string

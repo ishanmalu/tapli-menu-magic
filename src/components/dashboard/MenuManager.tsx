@@ -14,6 +14,7 @@ import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { compressImage, localPreview } from "@/lib/imageUtils";
 
 type MenuItem = Tables<"menu_items">;
 type Category = Tables<"categories">;
@@ -34,6 +35,10 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
   const fs = restaurant.filter_settings as any;
   const [bannerBlur, setBannerBlur] = useState<number>(fs?.bannerBlur ?? 0);
+  // Optimistic local previews shown instantly while upload runs in background
+  const [logoPreview,  setLogoPreview]  = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [itemPreviews, setItemPreviews] = useState<Record<string, string>>({});
 
   const pasteImage = (e: React.ClipboardEvent, fn: (file: File) => void) => {
     const item = Array.from(e.clipboardData?.items ?? []).find(i => i.type.startsWith("image/"));
@@ -92,15 +97,15 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   };
 
   const uploadRestaurantImage = async (file: File, type: "logo" | "cover") => {
-    const maxMB = type === "logo" ? 2 : 5;
-    if (file.size > maxMB * 1024 * 1024) {
-      toast({ title: t("uploadError"), description: t(type === "logo" ? "logoSizeError" : "coverSizeError"), variant: "destructive" });
-      return;
-    }
+    // Show local preview instantly
+    const preview = localPreview(file);
+    if (type === "logo") setLogoPreview(preview); else setCoverPreview(preview);
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${restaurant.id}/${type}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
+      const maxWidth = type === "logo" ? 400 : 1600;
+      const quality  = type === "logo" ? 0.88 : 0.85;
+      const compressed = await compressImage(file, maxWidth, quality);
+      const path = `${restaurant.id}/${type}.jpg`;
+      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
       const freshUrl = `${publicUrl}?t=${Date.now()}`;
@@ -110,6 +115,9 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       if (data) onRestaurantUpdate(data);
     } catch (err: any) {
       toast({ title: t("uploadError"), description: err.message, variant: "destructive" });
+    } finally {
+      if (type === "logo") setLogoPreview(null); else setCoverPreview(null);
+      URL.revokeObjectURL(preview);
     }
   };
 
@@ -127,14 +135,13 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || t("uncategorized");
 
   const uploadItemPhoto = async (item: MenuItem, file: File) => {
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: t("uploadError"), description: t("coverSizeError"), variant: "destructive" });
-      return;
-    }
+    // Show local preview instantly
+    const preview = localPreview(file);
+    setItemPreviews(p => ({ ...p, [item.id]: preview }));
     try {
-      const ext = file.name.split(".").pop();
-      const path = `${restaurant.id}/items/${item.id}.${ext}`;
-      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
+      const compressed = await compressImage(file, 800, 0.85);
+      const path = `${restaurant.id}/items/${item.id}.jpg`;
+      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, compressed, { upsert: true, contentType: "image/jpeg" });
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
       const freshUrl = `${publicUrl}?t=${Date.now()}`;
@@ -143,6 +150,9 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       loadData();
     } catch (err: any) {
       toast({ title: t("uploadError"), description: err.message, variant: "destructive" });
+    } finally {
+      setItemPreviews(p => { const n = { ...p }; delete n[item.id]; return n; });
+      URL.revokeObjectURL(preview);
     }
   };
 
@@ -183,8 +193,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 onPaste={(e) => pasteImage(e, (f) => uploadRestaurantImage(f, "logo"))}
                 className="flex h-24 w-24 cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden focus:outline-none focus:border-primary"
               >
-                {restaurant.logo_url ? (
-                  <img src={restaurant.logo_url} alt={t("logoAlt")} className="h-full w-full object-cover" />
+                {(logoPreview || restaurant.logo_url) ? (
+                  <img src={logoPreview ?? restaurant.logo_url!} alt={t("logoAlt")} className="h-full w-full object-cover" />
                 ) : (
                   <ImageIcon className="h-7 w-7 text-muted-foreground" />
                 )}
@@ -227,9 +237,9 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 onPaste={(e) => pasteImage(e, (f) => uploadRestaurantImage(f, "cover"))}
                 className="relative flex h-32 w-full cursor-pointer items-center justify-center rounded-xl border-2 border-dashed hover:border-primary transition-colors overflow-hidden group focus:outline-none focus:border-primary"
               >
-                {restaurant.cover_photo_url ? (
+                {(coverPreview || restaurant.cover_photo_url) ? (
                   <>
-                    <img src={restaurant.cover_photo_url} alt={t("coverAlt")} className="h-full w-full object-cover" />
+                    <img src={coverPreview ?? restaurant.cover_photo_url!} alt={t("coverAlt")} className="h-full w-full object-cover" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <span className="text-white text-sm font-medium">{t("changeCover")}</span>
                     </div>
@@ -322,9 +332,9 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                       onPaste={(e) => pasteImage(e, (f) => uploadItemPhoto(item, f))}
                       className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-md overflow-hidden border border-dashed hover:border-primary transition-colors focus:outline-none focus:border-primary"
                     >
-                      {item.photo_url ? (
+                      {(itemPreviews[item.id] || item.photo_url) ? (
                         <>
-                          <img src={item.photo_url} alt={item.name} className="h-full w-full object-cover" />
+                          <img src={itemPreviews[item.id] ?? item.photo_url!} alt={item.name} className="h-full w-full object-cover" />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                             <ImageIcon className="h-4 w-4 text-white" />
                           </div>

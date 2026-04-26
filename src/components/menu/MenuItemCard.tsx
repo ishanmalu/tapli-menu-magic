@@ -59,11 +59,11 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
       onClick={() => !soldOut && navigate(`/meal/${item.id}`)}
       className={`flex gap-3 rounded-lg border bg-card p-3 transition-all
         ${soldOut
-          ? "opacity-50 cursor-default select-none"
+          ? "cursor-default select-none"
           : "hover:shadow-md hover:scale-[1.01] hover:bg-muted/50 cursor-pointer"}`}
     >
       {item.photo_url && (
-        <div className="relative flex-shrink-0">
+        <div className="relative flex-shrink-0 h-20 w-20">
           <img
             src={item.photo_url}
             alt={item.name}

@@ -207,7 +207,7 @@ const translations = {
     featAccountManager: "Dedicated account manager",
 
     // Contact page
-    contact: "Contact",
+    contact: "Contact Us",
     contactTitle: "Get in touch",
     contactSubtitle: "Have a question or want to work with us? Reach out anytime.",
     contactEmail: "Email us",
@@ -481,7 +481,7 @@ const translations = {
     featAccountManager: "Oma asiakasvastaava",
 
     // Contact page
-    contact: "Yhteystiedot",
+    contact: "Ota yhteyttä",
     contactTitle: "Ota yhteyttä",
     contactSubtitle: "Onko sinulla kysyttävää tai haluatko tehdä yhteistyötä? Ota yhteyttä milloin tahansa.",
     contactEmail: "Lähetä sähköpostia",

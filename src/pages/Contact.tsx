@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -70,6 +70,13 @@ export default function Contact() {
       {/* Content */}
       <main className="flex-1 flex items-center justify-center px-4 py-16">
         <div className="w-full max-w-md">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+          >
+            <ArrowLeft className="h-4 w-4" /> {t("returnHome")}
+          </Link>
+
           <h1 className="text-3xl font-bold text-foreground mb-2">{t("contactTitle")}</h1>
           <p className="text-muted-foreground mb-10">{t("contactSubtitle")}</p>
 

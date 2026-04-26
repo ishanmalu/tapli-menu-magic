@@ -12,6 +12,7 @@ import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEdito
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 type MenuItem = Tables<"menu_items">;
@@ -30,6 +31,25 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+
+  const fs = restaurant.filter_settings as any;
+  const [bannerBlur, setBannerBlur] = useState<number>(fs?.bannerBlur ?? 0);
+
+  const saveBannerBlur = async (value: number) => {
+    try {
+      const existing = (restaurant.filter_settings as any) ?? {};
+      const { data, error } = await supabase
+        .from("restaurants")
+        .update({ filter_settings: { ...existing, bannerBlur: value } })
+        .eq("id", restaurant.id)
+        .select()
+        .single();
+      if (error) throw error;
+      if (data) onRestaurantUpdate(data);
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -224,6 +244,27 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               <p className="text-xs text-muted-foreground">{t("coverRecommended")} · {t("coverFormats")}</p>
             )}
           </div>
+
+          {/* Banner blur */}
+          {restaurant.cover_photo_url && (
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-medium text-foreground">{t("bannerBlur")}</p>
+                <span className="text-xs text-muted-foreground">{bannerBlur}%</span>
+              </div>
+              <p className="text-xs text-muted-foreground">{t("bannerBlurDesc")}</p>
+              <Slider
+                min={0}
+                max={100}
+                step={5}
+                value={[bannerBlur]}
+                onValueChange={([v]) => {
+                  setBannerBlur(v);
+                  saveBannerBlur(v);
+                }}
+              />
+            </div>
+          )}
         </CardContent>
       </Card>
 

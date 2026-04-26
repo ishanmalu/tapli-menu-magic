@@ -165,7 +165,8 @@ export default function CustomerMenu() {
           <img
             src={restaurant.cover_photo_url}
             alt={restaurant.name}
-            className="absolute inset-0 h-full w-full object-cover object-center"
+            className="absolute inset-0 h-full w-full object-cover object-center scale-105"
+            style={{ filter: fs?.bannerBlur ? `blur(${(fs.bannerBlur / 100) * 14}px)` : undefined }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
         </div>

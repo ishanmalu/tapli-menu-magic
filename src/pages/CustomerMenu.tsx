@@ -9,6 +9,8 @@ import { DiscoverRestaurants } from "@/components/menu/DiscoverRestaurants";
 import { Skeleton } from "@/components/ui/skeleton";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/components/ThemeProvider";
+import { Moon, Sun } from "lucide-react";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { Clock } from "lucide-react";
 
@@ -19,6 +21,7 @@ type Category = Tables<"categories">;
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
   const { t, tCategory, language } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [items, setItems] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -142,9 +145,18 @@ export default function CustomerMenu() {
 
   return (
     <div className="min-h-screen bg-background pb-8">
-      {/* Language toggle */}
-      <div className="fixed top-3 right-3 z-50">
+      {/* Language + theme toggles */}
+      <div className="fixed top-3 right-3 z-50 flex items-center gap-1.5">
         <LanguageToggle />
+        <button
+          onClick={toggleTheme}
+          className="flex items-center justify-center rounded-md border bg-muted/50 p-0.5 h-[28px] w-[28px] transition-colors hover:border-primary"
+          aria-label="Toggle theme"
+        >
+          {theme === "dark"
+            ? <Sun className="h-3.5 w-3.5 text-foreground" />
+            : <Moon className="h-3.5 w-3.5 text-foreground" />}
+        </button>
       </div>
 
       {/* Cover photo */}

@@ -100,6 +100,35 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
   const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || t("uncategorized");
 
+  const uploadItemPhoto = async (item: MenuItem, file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: t("uploadError"), description: t("coverSizeError"), variant: "destructive" });
+      return;
+    }
+    try {
+      const ext = file.name.split(".").pop();
+      const path = `${restaurant.id}/items/${item.id}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
+      const { error } = await supabase.from("menu_items").update({ photo_url: publicUrl }).eq("id", item.id);
+      if (error) throw error;
+      loadData();
+    } catch (err: any) {
+      toast({ title: t("uploadError"), description: err.message, variant: "destructive" });
+    }
+  };
+
+  const removeItemPhoto = async (item: MenuItem) => {
+    try {
+      const { error } = await supabase.from("menu_items").update({ photo_url: null }).eq("id", item.id);
+      if (error) throw error;
+      loadData();
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
+
   if (loading) return <div className="text-center py-8 text-muted-foreground">{t("loadingMenu")}</div>;
 
   return (
@@ -228,13 +257,39 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
             <div className="space-y-2">
               {items.map((item) => (
                 <div key={item.id} className="flex items-center gap-3 rounded-lg border p-3">
-                  {item.photo_url ? (
-                    <img src={item.photo_url} alt={item.name} className="h-12 w-12 rounded-md object-cover" />
-                  ) : (
-                    <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center">
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  )}
+                  {/* Inline photo management */}
+                  <div className="relative flex-shrink-0 group">
+                    <label className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-md overflow-hidden border border-dashed hover:border-primary transition-colors">
+                      {item.photo_url ? (
+                        <>
+                          <img src={item.photo_url} alt={item.name} className="h-full w-full object-cover" />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <ImageIcon className="h-4 w-4 text-white" />
+                          </div>
+                        </>
+                      ) : (
+                        <div className="flex items-center justify-center h-full w-full bg-muted">
+                          <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/heic,image/heif"
+                        className="hidden"
+                        onChange={(e) => e.target.files?.[0] && uploadItemPhoto(item, e.target.files[0])}
+                      />
+                    </label>
+                    {item.photo_url && (
+                      <button
+                        type="button"
+                        onClick={() => removeItemPhoto(item)}
+                        className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors z-10"
+                        title={t("removePhoto")}
+                      >
+                        <X className="h-2.5 w-2.5" />
+                      </button>
+                    )}
+                  </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
                     <p className="text-xs text-muted-foreground">{getCategoryName(item.category_id)} · €{Number(item.price).toFixed(2)}</p>

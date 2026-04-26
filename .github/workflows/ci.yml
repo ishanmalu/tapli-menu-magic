@@ -1,6 +1,5 @@
 name: CI
 
-# Only run on pushes and PRs targeting main
 on:
   push:
     branches:
@@ -30,3 +29,6 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}

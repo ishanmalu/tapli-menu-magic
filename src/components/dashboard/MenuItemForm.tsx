@@ -71,6 +71,11 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
     "no-beef": t("tagNoBeef"),
   };
 
+  const pasteImage = (e: React.ClipboardEvent) => {
+    const item = Array.from(e.clipboardData?.items ?? []).find(i => i.type.startsWith("image/"));
+    if (item) { e.preventDefault(); const f = item.getAsFile(); if (f) { setPhoto(f); setRemovePhoto(false); } }
+  };
+
   const toggleAllergen = (a: string) =>
     setAllergens(allergens.includes(a) ? allergens.filter((x) => x !== a) : [...allergens, a]);
   const toggleDietary = (d: string) =>
@@ -167,7 +172,11 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       <div>
         <Label>{t("photo")}</Label>
         {item?.photo_url && !photo && !removePhoto ? (
-          <div className="flex items-center gap-3 mt-1 p-2 rounded-lg border bg-muted/40">
+          <div
+            tabIndex={0}
+            onPaste={pasteImage}
+            className="flex items-center gap-3 mt-1 p-2 rounded-lg border bg-muted/40 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
             <img src={item.photo_url} alt={item.name} className="h-14 w-14 rounded-md object-cover flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground truncate">{t("currentPhoto")}</p>
@@ -175,6 +184,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
                 {t("changePhoto")}
                 <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
               </label>
+              <p className="text-xs text-muted-foreground/60">{t("pasteHint")}</p>
             </div>
             <button
               type="button"
@@ -192,7 +202,23 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
                 <button type="button" onClick={() => setRemovePhoto(false)} className="text-primary hover:underline">{t("undo")}</button>
               </p>
             )}
-            {!removePhoto && <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />}
+            {!removePhoto && (
+              <label
+                tabIndex={0}
+                onPaste={pasteImage}
+                className="flex flex-col items-center justify-center gap-1 w-full rounded-lg border-2 border-dashed p-4 cursor-pointer hover:border-primary transition-colors focus:outline-none focus:border-primary mt-1"
+              >
+                <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+                {photo ? (
+                  <img src={URL.createObjectURL(photo)} alt="preview" className="h-20 w-20 rounded-md object-cover" />
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">{t("photo")}</p>
+                    <p className="text-xs text-muted-foreground/60">{t("pasteHint")}</p>
+                  </>
+                )}
+              </label>
+            )}
           </>
         )}
       </div>

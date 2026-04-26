@@ -24,7 +24,9 @@ interface Props {
 export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel }: Props) {
   const { t } = useLanguage();
   const [name, setName] = useState(item?.name || "");
+  const [nameEn, setNameEn] = useState(item?.name_en || "");
   const [description, setDescription] = useState(item?.description || "");
+  const [descriptionEn, setDescriptionEn] = useState(item?.description_en || "");
   const [price, setPrice] = useState(item ? String(item.price) : "");
   const [categoryId, setCategoryId] = useState(item?.category_id || "");
   const [calories, setCalories] = useState(item?.calories != null ? String(item.calories) : "");
@@ -69,6 +71,11 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
     "no-beef": t("tagNoBeef"),
   };
 
+  const pasteImage = (e: React.ClipboardEvent) => {
+    const item = Array.from(e.clipboardData?.items ?? []).find(i => i.type.startsWith("image/"));
+    if (item) { e.preventDefault(); const f = item.getAsFile(); if (f) { setPhoto(f); setRemovePhoto(false); } }
+  };
+
   const toggleAllergen = (a: string) =>
     setAllergens(allergens.includes(a) ? allergens.filter((x) => x !== a) : [...allergens, a]);
   const toggleDietary = (d: string) =>
@@ -90,7 +97,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
 
       const payload = {
         name: name.trim(),
+        name_en: nameEn.trim() || null,
         description: description.trim() || null,
+        description_en: descriptionEn.trim() || null,
         price: parseFloat(price),
         category_id: categoryId || null,
         calories: calories ? parseInt(calories) : null,
@@ -118,12 +127,20 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <Label>{t("name")} *</Label>
+        <Label>{t("name")} * <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />
       </div>
       <div>
-        <Label>{t("description")}</Label>
+        <Label>{t("name")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} placeholder={t("englishTranslation")} />
+      </div>
+      <div>
+        <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
+      </div>
+      <div>
+        <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <Textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={2} placeholder={t("englishTranslation")} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
@@ -155,7 +172,11 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
       <div>
         <Label>{t("photo")}</Label>
         {item?.photo_url && !photo && !removePhoto ? (
-          <div className="flex items-center gap-3 mt-1 p-2 rounded-lg border bg-muted/40">
+          <div
+            tabIndex={0}
+            onPaste={pasteImage}
+            className="flex items-center gap-3 mt-1 p-2 rounded-lg border bg-muted/40 focus:outline-none focus:ring-1 focus:ring-primary"
+          >
             <img src={item.photo_url} alt={item.name} className="h-14 w-14 rounded-md object-cover flex-shrink-0" />
             <div className="flex-1 min-w-0">
               <p className="text-xs text-muted-foreground truncate">{t("currentPhoto")}</p>
@@ -163,6 +184,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
                 {t("changePhoto")}
                 <input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
               </label>
+              <p className="text-xs text-muted-foreground/60">{t("pasteHint")}</p>
             </div>
             <button
               type="button"
@@ -180,7 +202,23 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
                 <button type="button" onClick={() => setRemovePhoto(false)} className="text-primary hover:underline">{t("undo")}</button>
               </p>
             )}
-            {!removePhoto && <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />}
+            {!removePhoto && (
+              <label
+                tabIndex={0}
+                onPaste={pasteImage}
+                className="flex flex-col items-center justify-center gap-1 w-full rounded-lg border-2 border-dashed p-4 cursor-pointer hover:border-primary transition-colors focus:outline-none focus:border-primary mt-1"
+              >
+                <Input type="file" accept="image/png,image/jpeg,image/heic,image/heif" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+                {photo ? (
+                  <img src={URL.createObjectURL(photo)} alt="preview" className="h-20 w-20 rounded-md object-cover" />
+                ) : (
+                  <>
+                    <p className="text-sm text-muted-foreground">{t("photo")}</p>
+                    <p className="text-xs text-muted-foreground/60">{t("pasteHint")}</p>
+                  </>
+                )}
+              </label>
+            )}
           </>
         )}
       </div>

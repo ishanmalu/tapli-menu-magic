@@ -12,7 +12,7 @@ export default function Index() {
   const { t } = useLanguage();
   const { theme } = useTheme();
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
       <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -20,8 +20,14 @@ export default function Index() {
             <img src={theme === "dark" ? tapliLogoDark : tapliLogo} alt="Tapli" className="h-7 w-auto" />
           </div>
           <div className="flex items-center gap-2">
+            <Link to="/why">
+              <Button variant="ghost" size="sm">{t("whyNav")}</Button>
+            </Link>
             <Link to="/pricing">
               <Button variant="ghost" size="sm">{t("pricing")}</Button>
+            </Link>
+            <Link to="/contact">
+              <Button variant="ghost" size="sm">{t("contact")}</Button>
             </Link>
             <Link to="/auth">
               <Button variant="ghost" size="sm">{t("signIn")}</Button>
@@ -54,7 +60,7 @@ export default function Index() {
       </section>
 
       {/* Features */}
-      <section className="px-4 pb-20 max-w-4xl mx-auto">
+      <section className="px-4 pb-20 max-w-4xl mx-auto flex-1">
         <div className="grid sm:grid-cols-3 gap-6">
           {[
             { icon: QrCode, title: t("featureQr"), desc: t("featureQrDesc") },
@@ -73,7 +79,7 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+      <footer className="py-6 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} Tapli. {t("footerText")}
       </footer>
     </div>

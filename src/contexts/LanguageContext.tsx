@@ -20,6 +20,19 @@ const translations = {
     featureRealtimeDesc: "Change prices, items, or availability — reflected instantly.",
     footerText: "Digital menus made simple.",
 
+    // Why Tapli page
+    whyNav: "Why Tapli",
+    whyTitle: "Why restaurants choose Tapli",
+    whySubtitle: "Everything your guests need — one scan away.",
+    why1Title: "QR & NFC ready",
+    why1Desc: "Guests scan a QR code or tap an NFC tag to open your menu instantly on their phone — no app download, no account needed. Place a QR code on the table, at the entrance, or on a business card. With NFC, a single tap on a sticker or card is all it takes. Fast, frictionless, and works on every modern smartphone.",
+    why2Title: "Update in real time",
+    why2Desc: "Ran out of the daily special? Raising prices next week? Just log in, make the change, and it's live immediately — for every guest, on every table, at the same time. No trips to the printer, no reprinting costs, no outdated paper menus handed to guests. Your menu is always exactly as it should be.",
+    why3Title: "Allergen & dietary filters",
+    why3Desc: "Guests can filter the menu by allergens, calories, protein, and dietary preferences like vegan, halal, or gluten-free before they even order. This means fewer interruptions for your staff, faster ordering, and a better experience for guests with dietary needs. It also helps you stay compliant with EU allergen labelling requirements.",
+    why4Title: "No printing costs",
+    why4Desc: "A typical restaurant reprints menus several times a year — every price change, every seasonal update, every new dish costs time and money. With Tapli, there are no design fees, no print runs, and no waste. One digital menu that you control entirely, updated in seconds, for a simple flat monthly fee.",
+
     // Auth
     signInDesc: "Sign in to manage your menu",
     createAccount: "Create your restaurant account",
@@ -52,6 +65,34 @@ const translations = {
     errorLoadingMenu: "Error loading menu",
     uploadError: "Upload error",
 
+    // Dashboard — restaurant info
+    restaurantInfo: "Restaurant Info",
+    editName: "Restaurant Name",
+    sloganLabel: "Slogan / Tagline",
+    sloganPlaceholder: "e.g. Farm-to-table Nordic cuisine",
+    descriptionLabel: "About (short description)",
+    descriptionPlaceholder: "A short sentence about your restaurant",
+    openingHoursLabel: "Opening Hours",
+    daysPlaceholder: "e.g. Mon–Fri",
+    hoursPlaceholder: "e.g. 11:00–22:00",
+    addRow: "Add row",
+    saveChanges: "Save Changes",
+    saved: "Saved",
+    changesSaved: "Restaurant info updated.",
+    qrCode: "QR Code",
+    qrCodeDesc: "Customers scan this to open your menu.",
+    downloadQr: "Download PNG",
+    copyLink: "Copy link",
+    linkCopied: "Copied!",
+    filterSliders: "Customer Filter Sliders",
+    filterSlidersDesc: "Set the min/max range customers can slide to. Toggle off to hide a slider entirely.",
+    sliderCalories: "Calories (kcal)",
+    sliderProtein: "Protein (g)",
+    sliderBudget: "Budget (€)",
+    sliderMin: "Min",
+    sliderMax: "Max",
+    sliderEnabled: "Show slider",
+
     // Dashboard
     viewMenu: "View menu →",
     setupTitle: "Set up your restaurant",
@@ -72,6 +113,9 @@ const translations = {
     coverFormats: "PNG, JPG or HEIC · Max 5 MB",
     coverMaxSize: "Max 5 MB",
     coverSizeError: "Cover photo must be under 5 MB.",
+    pasteHint: "Paste image (⌘V)",
+    bannerBlur: "Banner blur",
+    bannerBlurDesc: "Blur the cover photo so your restaurant name stays readable.",
     categories: "Categories",
     newCategory: "New category",
     menuItems: "Menu Items",
@@ -178,6 +222,13 @@ const translations = {
     featOnboarding: "Onboarding call",
     featAccountManager: "Dedicated account manager",
 
+    // Contact page
+    contact: "Contact Us",
+    contactTitle: "Get in touch",
+    contactSubtitle: "Have a question or want to work with us? Reach out anytime.",
+    contactEmail: "Email us",
+    contactFollowUs: "Follow us",
+
     // 404 page
     pageNotFound: "Page not found",
     pageNotFoundDesc: "Oops! The page you're looking for doesn't exist.",
@@ -198,10 +249,17 @@ const translations = {
     catDesserts: "Desserts",
     catDrinks: "Drinks",
     catAlcohol: "Alcohol",
+    catStarters: "Starters",
+    catMainCourses: "Main Courses",
+    catSideDishes: "Side Dishes",
+    catAlcoholicDrinks: "Alcoholic Drinks",
+    catNonAlcoholicDrinks: "Non-Alcoholic Drinks",
 
     // Menu item form section headers
     freeFrom: "Free From",
     dietaryAndLifestyle: "Dietary & Lifestyle",
+    optional: "optional",
+    englishTranslation: "English translation",
 
     // Free From allergen tags (item is free from this allergen)
     tagGlutenFree: "Gluten-free",
@@ -252,6 +310,19 @@ const translations = {
     featureRealtimeDesc: "Muuta hintoja, tuotteita tai saatavuutta — näkyy heti.",
     footerText: "Digitaaliset ruokalistat yksinkertaisesti.",
 
+    // Why Tapli page
+    whyNav: "Miksi Tapli",
+    whyTitle: "Miksi ravintolat valitsevat Taplin",
+    whySubtitle: "Kaikki mitä vieraat tarvitsevat — yhdellä skannauksella.",
+    why1Title: "QR & NFC -valmis",
+    why1Desc: "Vieraat skannaavat QR-koodin tai napauttavat NFC-tagia avatakseen ruokalistan heti puhelimellaan — ei sovellusta, ei rekisteröitymistä. Sijoita QR-koodi pöydälle, sisäänkäynnille tai käyntikorttiin. NFC:llä pelkkä napautus tarraan tai korttiin riittää. Nopea, vaivaton ja toimii kaikissa moderneissa älypuhelimissa.",
+    why2Title: "Reaaliaikaiset päivitykset",
+    why2Desc: "Loppuiko päivän erikoisannos? Muuttuuko hinnat ensi viikolla? Kirjaudu sisään, tee muutos ja se näkyy heti — jokaiselle vieraalle, jokaisella pöydällä, samaan aikaan. Ei käyntejä tulostimelle, ei tulostuskuluja, ei vanhentuneita paperisia ruokalistoja vieraille. Ruokalistas on aina juuri sellainen kuin sen pitäisi olla.",
+    why3Title: "Allergeeni- ja ruokavaliosuodattimet",
+    why3Desc: "Vieraat voivat suodattaa ruokalistan allergeenien, kalorien, proteiinin ja ruokavalioiden — kuten vegaani, halal tai gluteeniton — mukaan jo ennen tilaamista. Tämä tarkoittaa vähemmän keskeytyksiä henkilökunnalle, nopeampaa tilaamista ja parempaa kokemusta erityisruokavalioita noudattaville vieraille. Se auttaa myös täyttämään EU:n allergeenimerkintävaatimukset.",
+    why4Title: "Ei tulostuskuluja",
+    why4Desc: "Tyypillinen ravintola tulostaa ruokalistoja useita kertoja vuodessa — jokainen hinnanmuutos, sesonkipäivitys tai uusi annos maksaa aikaa ja rahaa. Taplin kanssa ei ole suunnittelukuluja, painatustilauksia eikä hävikkiä. Yksi digitaalinen ruokalista, jota hallitset täysin, päivitetään sekunneissa kiinteällä kuukausimaksulla.",
+
     // Auth
     signInDesc: "Kirjaudu hallitaksesi ruokalistaasi",
     createAccount: "Luo ravintolasi tili",
@@ -284,6 +355,34 @@ const translations = {
     errorLoadingMenu: "Virhe ruokalistan lataamisessa",
     uploadError: "Latausvirhe",
 
+    // Dashboard — restaurant info
+    restaurantInfo: "Ravintolan tiedot",
+    editName: "Ravintolan nimi",
+    sloganLabel: "Iskulause / Tunnuslause",
+    sloganPlaceholder: "esim. Pohjoismaista keittiötä pellolta pöytään",
+    descriptionLabel: "Esittely (lyhyt kuvaus)",
+    descriptionPlaceholder: "Lyhyt lause ravintolastasi",
+    openingHoursLabel: "Aukioloajat",
+    daysPlaceholder: "esim. Ma–Pe",
+    hoursPlaceholder: "esim. 11:00–22:00",
+    addRow: "Lisää rivi",
+    saveChanges: "Tallenna muutokset",
+    saved: "Tallennettu",
+    changesSaved: "Ravintolan tiedot päivitetty.",
+    qrCode: "QR-koodi",
+    qrCodeDesc: "Asiakkaat skannaavat tämän avatakseen ruokalistan.",
+    downloadQr: "Lataa PNG",
+    copyLink: "Kopioi linkki",
+    linkCopied: "Kopioitu!",
+    filterSliders: "Asiakkaan suodattimet",
+    filterSlidersDesc: "Aseta min/max-arvot, joita asiakkaat voivat säätää. Piilota liukusäädin kytkemällä se pois päältä.",
+    sliderCalories: "Kalorit (kcal)",
+    sliderProtein: "Proteiini (g)",
+    sliderBudget: "Budjetti (€)",
+    sliderMin: "Min",
+    sliderMax: "Max",
+    sliderEnabled: "Näytä liukusäädin",
+
     // Dashboard
     viewMenu: "Näytä ruokalista →",
     setupTitle: "Määritä ravintolasi",
@@ -304,6 +403,9 @@ const translations = {
     coverFormats: "PNG, JPG tai HEIC · Maks. 5 Mt",
     coverMaxSize: "Maks. 5 Mt",
     coverSizeError: "Kansikuvan on oltava alle 5 Mt.",
+    pasteHint: "Liitä kuva (⌘V)",
+    bannerBlur: "Kansikuvan sumennos",
+    bannerBlurDesc: "Sumentele kansikuvaa niin, että ravintolan nimi pysyy luettavana.",
     categories: "Kategoriat",
     newCategory: "Uusi kategoria",
     menuItems: "Ruokalistan tuotteet",
@@ -410,6 +512,13 @@ const translations = {
     featOnboarding: "Käyttöönottosoitto",
     featAccountManager: "Oma asiakasvastaava",
 
+    // Contact page
+    contact: "Ota yhteyttä",
+    contactTitle: "Ota yhteyttä",
+    contactSubtitle: "Onko sinulla kysyttävää tai haluatko tehdä yhteistyötä? Ota yhteyttä milloin tahansa.",
+    contactEmail: "Lähetä sähköpostia",
+    contactFollowUs: "Seuraa meitä",
+
     // 404 page
     pageNotFound: "Sivua ei löydy",
     pageNotFoundDesc: "Hups! Etsimääsi sivua ei ole olemassa.",
@@ -430,10 +539,17 @@ const translations = {
     catDesserts: "Jälkiruoat",
     catDrinks: "Juomat",
     catAlcohol: "Alkoholi",
+    catStarters: "Alkupalat",
+    catMainCourses: "Pääruoat",
+    catSideDishes: "Lisäkkeet",
+    catAlcoholicDrinks: "Alkoholijuomat",
+    catNonAlcoholicDrinks: "Alkoholittomat juomat",
 
     // Menu item form section headers
     freeFrom: "Ei sisällä",
     dietaryAndLifestyle: "Ruokavalio ja elämäntapa",
+    optional: "valinnainen",
+    englishTranslation: "Englanninkielinen käännös",
 
     // Free From allergen tags — "vapaa ainesosista" style Finnish
     tagGlutenFree: "Gluteeniton",
@@ -483,9 +599,14 @@ const CATEGORY_KEY_MAP: Record<string, TranslationKey> = {
   "Desserts": "catDesserts",
   "Drinks": "catDrinks",
   "Alcohol": "catAlcohol",
+  "Starters": "catStarters",
+  "Main Courses": "catMainCourses",
+  "Side Dishes": "catSideDishes",
+  "Alcoholic Drinks": "catAlcoholicDrinks",
+  "Non-Alcoholic Drinks": "catNonAlcoholicDrinks",
 };
 
-interface LanguageContextType {
+export interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (key: TranslationKey) => string;

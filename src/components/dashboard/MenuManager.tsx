@@ -10,7 +10,7 @@ import { CategoryManager } from "@/components/dashboard/CategoryManager";
 import { RestaurantInfoEditor } from "@/components/dashboard/RestaurantInfoEditor";
 import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEditor";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
-import { Plus, Pencil, Trash2, ImageIcon, X } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, X, Search } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -31,6 +31,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategoryId, setActiveCategoryId] = useState<string>("all");
   const { toast } = useToast();
 
   const fs = restaurant.filter_settings as any;
@@ -318,65 +320,162 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
             </DialogContent>
           </Dialog>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
           {items.length === 0 ? (
             <p className="text-center text-muted-foreground py-8">{t("noItemsYet")}</p>
           ) : (
-            <div className="space-y-2">
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center gap-3 rounded-lg border p-3">
-                  {/* Inline photo management */}
-                  <div className="relative flex-shrink-0 group">
-                    <label
-                      tabIndex={0}
-                      onPaste={(e) => pasteImage(e, (f) => uploadItemPhoto(item, f))}
-                      className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-md overflow-hidden border border-dashed hover:border-primary transition-colors focus:outline-none focus:border-primary"
-                    >
-                      {(itemPreviews[item.id] || item.photo_url) ? (
-                        <>
-                          <img src={itemPreviews[item.id] ?? item.photo_url!} alt={item.name} className="h-full w-full object-cover" />
-                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                            <ImageIcon className="h-4 w-4 text-white" />
-                          </div>
-                        </>
-                      ) : (
-                        <div className="flex items-center justify-center h-full w-full bg-muted">
-                          <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                        </div>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/png,image/jpeg,image/heic,image/heif"
-                        className="hidden"
-                        onChange={(e) => e.target.files?.[0] && uploadItemPhoto(item, e.target.files[0])}
-                      />
-                    </label>
-                    {item.photo_url && (
+            <>
+              {/* Search bar */}
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t("searchItems")}
+                  className="pl-8 h-8 text-sm"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Category filter tabs */}
+              {categories.length > 0 && (
+                <div className="flex gap-1.5 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setActiveCategoryId("all")}
+                    className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border
+                      ${activeCategoryId === "all"
+                        ? "bg-primary text-primary-foreground border-primary"
+                        : "bg-background text-foreground border-border hover:border-primary"}`}
+                  >
+                    {t("allItems")} ({items.length})
+                  </button>
+                  {categories.map((cat) => {
+                    const count = items.filter((i) => i.category_id === cat.id).length;
+                    if (count === 0) return null;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => setActiveCategoryId(cat.id)}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border
+                          ${activeCategoryId === cat.id
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary"}`}
+                      >
+                        {cat.name} ({count})
+                      </button>
+                    );
+                  })}
+                  {/* Uncategorized tab */}
+                  {(() => {
+                    const count = items.filter((i) => !i.category_id).length;
+                    if (count === 0) return null;
+                    return (
                       <button
                         type="button"
-                        onClick={() => removeItemPhoto(item)}
-                        className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors z-10"
-                        title={t("removePhoto")}
+                        onClick={() => setActiveCategoryId("uncategorized")}
+                        className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border
+                          ${activeCategoryId === "uncategorized"
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "bg-background text-foreground border-border hover:border-primary"}`}
                       >
-                        <X className="h-2.5 w-2.5" />
+                        {t("uncategorized")} ({count})
                       </button>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
-                    <p className="text-xs text-muted-foreground">{getCategoryName(item.category_id)} · €{Number(item.price).toFixed(2)}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingItem(item); setShowForm(true); }}>
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(item.id)}>
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
+                    );
+                  })()}
                 </div>
-              ))}
-            </div>
+              )}
+
+              {/* Items list */}
+              {(() => {
+                const q = searchQuery.toLowerCase().trim();
+                const visibleItems = items.filter((item) => {
+                  // Category filter
+                  if (activeCategoryId === "uncategorized" && item.category_id) return false;
+                  if (activeCategoryId !== "all" && activeCategoryId !== "uncategorized" && item.category_id !== activeCategoryId) return false;
+                  // Search filter
+                  if (q) {
+                    const name = item.name.toLowerCase();
+                    const nameEn = (item.name_en || "").toLowerCase();
+                    const desc = (item.description || "").toLowerCase();
+                    const cat = getCategoryName(item.category_id).toLowerCase();
+                    if (!name.includes(q) && !nameEn.includes(q) && !desc.includes(q) && !cat.includes(q)) return false;
+                  }
+                  return true;
+                });
+
+                if (visibleItems.length === 0) {
+                  return <p className="text-center text-muted-foreground py-8 text-sm">{t("noMatchFilters")}</p>;
+                }
+
+                return (
+                  <div className="space-y-2">
+                    {visibleItems.map((item) => (
+                      <div key={item.id} className="flex items-center gap-3 rounded-lg border p-3">
+                        {/* Inline photo management */}
+                        <div className="relative flex-shrink-0 group">
+                          <label
+                            tabIndex={0}
+                            onPaste={(e) => pasteImage(e, (f) => uploadItemPhoto(item, f))}
+                            className="relative flex h-12 w-12 cursor-pointer items-center justify-center rounded-md overflow-hidden border border-dashed hover:border-primary transition-colors focus:outline-none focus:border-primary"
+                          >
+                            {(itemPreviews[item.id] || item.photo_url) ? (
+                              <>
+                                <img src={itemPreviews[item.id] ?? item.photo_url!} alt={item.name} className="h-full w-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <ImageIcon className="h-4 w-4 text-white" />
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex items-center justify-center h-full w-full bg-muted">
+                                <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                              </div>
+                            )}
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/heic,image/heif"
+                              className="hidden"
+                              onChange={(e) => e.target.files?.[0] && uploadItemPhoto(item, e.target.files[0])}
+                            />
+                          </label>
+                          {item.photo_url && (
+                            <button
+                              type="button"
+                              onClick={() => removeItemPhoto(item)}
+                              className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center hover:bg-destructive/90 transition-colors z-10"
+                              title={t("removePhoto")}
+                            >
+                              <X className="h-2.5 w-2.5" />
+                            </button>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">{getCategoryName(item.category_id)} · €{Number(item.price).toFixed(2)}</p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingItem(item); setShowForm(true); }}>
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDelete(item.id)}>
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+            </>
           )}
         </CardContent>
       </Card>

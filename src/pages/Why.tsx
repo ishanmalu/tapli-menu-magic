@@ -47,18 +47,16 @@ export default function Why() {
 
         <div className="space-y-4">
           {reasons.map(({ icons, title, desc }) => (
-            <div key={title} className="flex gap-4 rounded-xl border bg-card p-5">
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+            <div key={title} className="rounded-xl border bg-card p-6">
+              <div className="flex items-center gap-2 mb-3">
                 {icons.map((Icon, i) => (
                   <div key={i} className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
                     <Icon className="h-5 w-5 text-primary" />
                   </div>
                 ))}
+                <h3 className="font-semibold text-foreground text-base ml-1">{title}</h3>
               </div>
-              <div>
-                <h3 className="font-semibold text-foreground mb-1">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
             </div>
           ))}
         </div>

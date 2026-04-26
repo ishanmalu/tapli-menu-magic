@@ -70,8 +70,10 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
             className="h-20 w-20 rounded-lg object-cover"
           />
           {soldOut && (
-            <div className="absolute inset-0 rounded-lg bg-background/60 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-foreground/70 uppercase tracking-wide">{t("soldOut")}</span>
+            <div className="absolute inset-0 rounded-lg bg-black/55 flex items-center justify-center">
+              <span className="text-[11px] font-bold text-white uppercase tracking-widest text-center leading-tight px-1">
+                {t("soldOut")}
+              </span>
             </div>
           )}
         </div>

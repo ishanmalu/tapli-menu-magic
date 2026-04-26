@@ -23,6 +23,9 @@ export default function Index() {
             <Link to="/pricing">
               <Button variant="ghost" size="sm">{t("pricing")}</Button>
             </Link>
+            <Link to="/contact">
+              <Button variant="ghost" size="sm">{t("contact")}</Button>
+            </Link>
             <Link to="/auth">
               <Button variant="ghost" size="sm">{t("signIn")}</Button>
             </Link>
@@ -73,8 +76,13 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Tapli. {t("footerText")}
+      <footer className="py-6 text-center text-sm text-muted-foreground space-y-1">
+        <div>
+          <Link to="/contact" className="hover:text-foreground transition-colors">{t("contact")}</Link>
+          <span className="mx-2">·</span>
+          <Link to="/pricing" className="hover:text-foreground transition-colors">{t("pricing")}</Link>
+        </div>
+        <div>© {new Date().getFullYear()} Tapli. {t("footerText")}</div>
       </footer>
     </div>
   );

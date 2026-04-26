@@ -20,7 +20,8 @@ const translations = {
     featureRealtimeDesc: "Change prices, items, or availability — reflected instantly.",
     footerText: "Digital menus made simple.",
 
-    // Why Tapli section
+    // Why Tapli page
+    whyNav: "Why Tapli",
     whyTitle: "Why restaurants choose Tapli",
     whySubtitle: "Everything your guests need — one scan away.",
     why1Title: "QR & NFC ready",
@@ -306,7 +307,8 @@ const translations = {
     featureRealtimeDesc: "Muuta hintoja, tuotteita tai saatavuutta — näkyy heti.",
     footerText: "Digitaaliset ruokalistat yksinkertaisesti.",
 
-    // Why Tapli section
+    // Why Tapli page
+    whyNav: "Miksi Tapli",
     whyTitle: "Miksi ravintolat valitsevat Taplin",
     whySubtitle: "Kaikki mitä vieraat tarvitsevat — yhdellä skannauksella.",
     why1Title: "QR & NFC -valmis",

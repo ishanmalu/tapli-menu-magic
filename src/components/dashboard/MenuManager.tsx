@@ -10,7 +10,7 @@ import { CategoryManager } from "@/components/dashboard/CategoryManager";
 import { RestaurantInfoEditor } from "@/components/dashboard/RestaurantInfoEditor";
 import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEditor";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
-import { Plus, Pencil, Trash2, ImageIcon, X, Search } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -163,6 +163,17 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       const { error } = await supabase.from("menu_items").update({ photo_url: null }).eq("id", item.id);
       if (error) throw error;
       loadData();
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
+
+  const toggleSoldOut = async (item: MenuItem) => {
+    try {
+      const { error } = await supabase.from("menu_items").update({ is_sold_out: !item.is_sold_out }).eq("id", item.id);
+      if (error) throw error;
+      // Optimistic local update — no full reload needed
+      setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_sold_out: !item.is_sold_out } : i));
     } catch (err: any) {
       toast({ title: t("error"), description: err.message, variant: "destructive" });
     }
@@ -420,7 +431,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 return (
                   <div className="space-y-2">
                     {visibleItems.map((item) => (
-                      <div key={item.id} className="flex items-center gap-3 rounded-lg border p-3">
+                      <div key={item.id} className={`flex items-center gap-3 rounded-lg border p-3 transition-opacity ${item.is_sold_out ? "opacity-60" : ""}`}>
                         {/* Inline photo management */}
                         <div className="relative flex-shrink-0 group">
                           <label
@@ -459,10 +470,29 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm text-foreground truncate">{item.name}</p>
+                            {item.is_sold_out && (
+                              <span className="flex-shrink-0 rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-semibold text-destructive">
+                                {t("soldOut")}
+                              </span>
+                            )}
+                          </div>
                           <p className="text-xs text-muted-foreground">{getCategoryName(item.category_id)} · €{Number(item.price).toFixed(2)}</p>
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            title={item.is_sold_out ? t("markAvailable") : t("markSoldOut")}
+                            onClick={() => toggleSoldOut(item)}
+                            className={`flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium transition-colors border
+                              ${item.is_sold_out
+                                ? "bg-destructive/10 text-destructive border-destructive/20 hover:bg-destructive/20"
+                                : "bg-muted text-muted-foreground border-border hover:border-destructive hover:text-destructive"}`}
+                          >
+                            <ShoppingBag className="h-3 w-3" />
+                            {item.is_sold_out ? t("markAvailable") : t("soldOut")}
+                          </button>
                           <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => { setEditingItem(item); setShowForm(true); }}>
                             <Pencil className="h-3.5 w-3.5" />
                           </Button>

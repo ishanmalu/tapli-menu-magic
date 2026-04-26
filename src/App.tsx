@@ -15,6 +15,7 @@ import Upgrade from "./pages/Upgrade";
 import Contact from "./pages/Contact";
 import Why from "./pages/Why";
 import NotFound from "./pages/NotFound";
+import MealDetails from "./pages/MealDetails";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => (
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/why" element={<Why />} />
+                <Route path="/meal/:id" element={<MealDetails />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

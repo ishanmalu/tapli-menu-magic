@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { compressImage } from "@/lib/imageUtils";
+import { translate } from "@/lib/translate";
+import { Languages } from "lucide-react";
 
 interface Props {
   restaurantId: string;
@@ -38,7 +40,28 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   const [photo, setPhoto] = useState<File | null>(null);
   const [removePhoto, setRemovePhoto] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [translatingName, setTranslatingName] = useState(false);
+  const [translatingDesc, setTranslatingDesc] = useState(false);
   const { toast } = useToast();
+
+  const autoTranslate = async (
+    text: string,
+    from: "fi" | "en",
+    to: "fi" | "en",
+    setTarget: (v: string) => void,
+    setLoading: (v: boolean) => void
+  ) => {
+    if (!text.trim()) return;
+    setLoading(true);
+    try {
+      const result = await translate(text, from, to);
+      setTarget(result);
+    } catch {
+      toast({ title: t("translateError"), variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Map each tag slug to its translated display label
   const tagLabels: Record<string, string> = {
@@ -127,20 +150,61 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
+      {/* Name FI + EN with translate buttons */}
+      <div className="space-y-1.5">
         <Label>{t("name")} * <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div>
-        <Label>{t("name")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={translatingName || !name.trim()}
+            onClick={() => autoTranslate(name, "fi", "en", setNameEn, setTranslatingName)}
+            className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Languages className="h-3 w-3" />
+            {translatingName ? t("translating") : t("translateToEn")}
+          </button>
+          {nameEn && (
+            <button
+              type="button"
+              disabled={translatingName || !nameEn.trim()}
+              onClick={() => autoTranslate(nameEn, "en", "fi", setName, setTranslatingName)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages className="h-3 w-3" />
+              {t("translateToFi")}
+            </button>
+          )}
+        </div>
         <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} placeholder={t("englishTranslation")} />
       </div>
-      <div>
+
+      {/* Description FI + EN with translate buttons */}
+      <div className="space-y-1.5">
         <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-      </div>
-      <div>
-        <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={translatingDesc || !description.trim()}
+            onClick={() => autoTranslate(description, "fi", "en", setDescriptionEn, setTranslatingDesc)}
+            className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Languages className="h-3 w-3" />
+            {translatingDesc ? t("translating") : t("translateToEn")}
+          </button>
+          {descriptionEn && (
+            <button
+              type="button"
+              disabled={translatingDesc || !descriptionEn.trim()}
+              onClick={() => autoTranslate(descriptionEn, "en", "fi", setDescription, setTranslatingDesc)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages className="h-3 w-3" />
+              {t("translateToFi")}
+            </button>
+          )}
+        </div>
         <Textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={2} placeholder={t("englishTranslation")} />
       </div>
       <div className="grid grid-cols-2 gap-3">

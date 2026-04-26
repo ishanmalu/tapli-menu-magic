@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, Trash2, Check } from "lucide-react";
+import { Plus, Trash2, Check, Languages } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { translate } from "@/lib/translate";
 
 type Restaurant = Tables<"restaurants">;
 type HoursRow = { days: string; hours: string };
@@ -25,17 +26,34 @@ export function RestaurantInfoEditor({ restaurant, onUpdate }: Props) {
   const [name, setName]           = useState(restaurant.name);
   const [slogan, setSlogan]       = useState(restaurant.slogan ?? "");
   const [description, setDesc]    = useState(restaurant.description ?? "");
+  const [descEn, setDescEn]       = useState((restaurant as any).description_en ?? "");
   const [hours, setHours]         = useState<HoursRow[]>(
     (restaurant.opening_hours as HoursRow[] | null) ?? []
   );
-  const [saving, setSaving]       = useState(false);
-  const [savedAnim, setSavedAnim] = useState(false);
+  const [saving, setSaving]         = useState(false);
+  const [savedAnim, setSavedAnim]   = useState(false);
+  const [translatingDesc, setTranslatingDesc] = useState(false);
+
+  const autoTranslateDesc = async (from: "fi" | "en") => {
+    const source = from === "fi" ? description : descEn;
+    if (!source.trim()) return;
+    setTranslatingDesc(true);
+    try {
+      const result = await translate(source, from, from === "fi" ? "en" : "fi");
+      if (from === "fi") setDescEn(result); else setDesc(result);
+    } catch {
+      toast({ title: t("translateError"), variant: "destructive" });
+    } finally {
+      setTranslatingDesc(false);
+    }
+  };
 
   // Keep local state in sync if parent refreshes restaurant
   useEffect(() => {
     setName(restaurant.name);
     setSlogan(restaurant.slogan ?? "");
     setDesc(restaurant.description ?? "");
+    setDescEn((restaurant as any).description_en ?? "");
     setHours((restaurant.opening_hours as HoursRow[] | null) ?? []);
   }, [restaurant.id]);
 
@@ -50,10 +68,11 @@ export function RestaurantInfoEditor({ restaurant, onUpdate }: Props) {
       const { data, error } = await supabase
         .from("restaurants")
         .update({
-          name:          name.trim(),
-          slogan:        slogan.trim() || null,
-          description:   description.trim() || null,
-          opening_hours: hours.filter(r => r.days.trim() || r.hours.trim()),
+          name:             name.trim(),
+          slogan:           slogan.trim() || null,
+          description:      description.trim() || null,
+          description_en:   descEn.trim() || null,
+          opening_hours:    hours.filter(r => r.days.trim() || r.hours.trim()),
         })
         .eq("id", restaurant.id)
         .select()
@@ -94,16 +113,33 @@ export function RestaurantInfoEditor({ restaurant, onUpdate }: Props) {
           />
         </div>
 
-        {/* Description */}
-        <div>
-          <Label>{t("descriptionLabel")}</Label>
-          <Textarea
-            value={description}
-            onChange={e => setDesc(e.target.value)}
-            placeholder={t("descriptionPlaceholder")}
-            rows={2}
-            className="mt-1 resize-none"
-          />
+        {/* Description FI + EN with translate */}
+        <div className="space-y-1.5">
+          <Label>{t("descriptionLabel")} <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
+          <Textarea value={description} onChange={e => setDesc(e.target.value)} placeholder={t("descriptionPlaceholder")} rows={2} className="resize-none" />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              disabled={translatingDesc || !description.trim()}
+              onClick={() => autoTranslateDesc("fi")}
+              className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages className="h-3 w-3" />
+              {translatingDesc ? t("translating") : t("translateToEn")}
+            </button>
+            {descEn && (
+              <button
+                type="button"
+                disabled={translatingDesc || !descEn.trim()}
+                onClick={() => autoTranslateDesc("en")}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Languages className="h-3 w-3" />
+                {t("translateToFi")}
+              </button>
+            )}
+          </div>
+          <Textarea value={descEn} onChange={e => setDescEn(e.target.value)} placeholder={t("englishTranslation")} rows={2} className="resize-none" />
         </div>
 
         {/* Opening hours */}

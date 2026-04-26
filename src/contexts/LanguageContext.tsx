@@ -260,6 +260,10 @@ const translations = {
     dietaryAndLifestyle: "Dietary & Lifestyle",
     optional: "optional",
     englishTranslation: "English translation",
+    translateToEn: "Translate to English",
+    translateToFi: "Translate to Finnish",
+    translating: "Translating…",
+    translateError: "Translation failed",
 
     // Free From allergen tags (item is free from this allergen)
     tagGlutenFree: "Gluten-free",
@@ -550,6 +554,10 @@ const translations = {
     dietaryAndLifestyle: "Ruokavalio ja elämäntapa",
     optional: "valinnainen",
     englishTranslation: "Englanninkielinen käännös",
+    translateToEn: "Käännä englanniksi",
+    translateToFi: "Käännä suomeksi",
+    translating: "Käännetään…",
+    translateError: "Käännös epäonnistui",
 
     // Free From allergen tags — "vapaa ainesosista" style Finnish
     tagGlutenFree: "Gluteeniton",

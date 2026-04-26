@@ -161,16 +161,20 @@ export default function CustomerMenu() {
 
       {/* Cover photo */}
       {restaurant?.cover_photo_url ? (
-        <div className="relative h-48 sm:h-64 w-full overflow-hidden">
-          <img src={restaurant.cover_photo_url} alt={restaurant.name} className="h-full w-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        <div className="relative w-full overflow-hidden" style={{ aspectRatio: "16/6", maxHeight: "220px" }}>
+          <img
+            src={restaurant.cover_photo_url}
+            alt={restaurant.name}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
         </div>
       ) : (
-        <div className="h-24 bg-primary/10" />
+        <div className="h-16 bg-primary/10" />
       )}
 
       {/* Restaurant info */}
-      <div className="px-4 -mt-8 relative z-10 max-w-2xl mx-auto">
+      <div className="px-4 -mt-6 relative z-10 max-w-2xl mx-auto">
         <div className="flex items-end gap-4 mb-4">
           {restaurant?.logo_url && (
             <img src={restaurant.logo_url} alt={restaurant.name} className="h-16 w-16 rounded-xl border-2 border-background object-cover shadow-md" />

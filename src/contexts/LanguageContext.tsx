@@ -128,6 +128,9 @@ const translations = {
     loadingMenu: "Loading menu...",
     searchItems: "Search items...",
     allItems: "All",
+    soldOut: "Sold out",
+    markSoldOut: "Mark as sold out",
+    markAvailable: "Mark as available",
 
     // Menu Item Form
     name: "Name",
@@ -436,6 +439,9 @@ const translations = {
     loadingMenu: "Ladataan ruokalistaa...",
     searchItems: "Hae tuotteita...",
     allItems: "Kaikki",
+    soldOut: "Loppunut",
+    markSoldOut: "Merkitse loppuneeksi",
+    markAvailable: "Merkitse saatavilla",
 
     // Menu Item Form
     name: "Nimi",

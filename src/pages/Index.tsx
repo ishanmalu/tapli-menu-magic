@@ -73,7 +73,7 @@ export default function Index() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
+      <footer className="py-6 text-center text-sm text-muted-foreground">
         © {new Date().getFullYear()} Tapli. {t("footerText")}
       </footer>
     </div>

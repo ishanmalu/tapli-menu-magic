@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -82,7 +83,7 @@ export function FilterSettingsEditor({ restaurant, onUpdate }: Props) {
         <p className="text-xs text-muted-foreground">{t("filterSlidersDesc")}</p>
       </CardHeader>
       <CardContent className="space-y-5">
-        {sliders.map(({ key, label, unit }) => {
+        {sliders.map(({ key, label, unit, absMax }) => {
           const s = settings[key];
           return (
             <div key={key} className="space-y-2">
@@ -97,26 +98,39 @@ export function FilterSettingsEditor({ restaurant, onUpdate }: Props) {
                 </div>
               </div>
               {s.enabled && (
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label className="text-xs text-muted-foreground">{t("sliderMin")} ({unit})</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={s.min}
-                      onChange={e => update(key, "min", Number(e.target.value))}
-                      className="h-8 text-sm mt-1"
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-xs text-muted-foreground">{t("sliderMax")} ({unit})</Label>
-                    <Input
-                      type="number"
-                      min={0}
-                      value={s.max}
-                      onChange={e => update(key, "max", Number(e.target.value))}
-                      className="h-8 text-sm mt-1"
-                    />
+                <div className="space-y-3">
+                  <Slider
+                    min={0}
+                    max={absMax}
+                    step={key === "calories" ? 50 : key === "budget" ? 1 : 5}
+                    value={[s.min, s.max]}
+                    onValueChange={([min, max]) => {
+                      update(key, "min", min);
+                      update(key, "max", max);
+                    }}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t("sliderMin")} ({unit})</Label>
+                      <Input
+                        type="number"
+                        min={0}
+                        max={s.max}
+                        value={s.min}
+                        onChange={e => update(key, "min", Number(e.target.value))}
+                        className="h-8 text-sm mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-muted-foreground">{t("sliderMax")} ({unit})</Label>
+                      <Input
+                        type="number"
+                        min={s.min}
+                        value={s.max}
+                        onChange={e => update(key, "max", Number(e.target.value))}
+                        className="h-8 text-sm mt-1"
+                      />
+                    </div>
                   </div>
                 </div>
               )}

@@ -66,6 +66,14 @@ const translations = {
     saveChanges: "Save Changes",
     saved: "Saved",
     changesSaved: "Restaurant info updated.",
+    filterSliders: "Customer Filter Sliders",
+    filterSlidersDesc: "Set the min/max range customers can slide to. Toggle off to hide a slider entirely.",
+    sliderCalories: "Calories (kcal)",
+    sliderProtein: "Protein (g)",
+    sliderBudget: "Budget (€)",
+    sliderMin: "Min",
+    sliderMax: "Max",
+    sliderEnabled: "Show slider",
 
     // Dashboard
     viewMenu: "View menu →",
@@ -320,6 +328,14 @@ const translations = {
     saveChanges: "Tallenna muutokset",
     saved: "Tallennettu",
     changesSaved: "Ravintolan tiedot päivitetty.",
+    filterSliders: "Asiakkaan suodattimet",
+    filterSlidersDesc: "Aseta min/max-arvot, joita asiakkaat voivat säätää. Piilota liukusäädin kytkemällä se pois päältä.",
+    sliderCalories: "Kalorit (kcal)",
+    sliderProtein: "Proteiini (g)",
+    sliderBudget: "Budjetti (€)",
+    sliderMin: "Min",
+    sliderMax: "Max",
+    sliderEnabled: "Näytä liukusäädin",
 
     // Dashboard
     viewMenu: "Näytä ruokalista →",

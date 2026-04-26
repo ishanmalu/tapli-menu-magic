@@ -29,6 +29,8 @@ export default function CustomerMenu() {
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [calorieRange, setCalorieRange] = useState<[number, number]>([0, 2000]);
+  const [proteinRange, setProteinRange] = useState<[number, number]>([0, 100]);
+  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 50]);
   const [selectedFoodStyles, setSelectedFoodStyles] = useState<string[]>([]);
 
   useEffect(() => {
@@ -39,6 +41,11 @@ export default function CustomerMenu() {
         if (restError || !rest) { setNotFound(true); return; }
         setRestaurant(rest);
         document.title = `Tapli — ${rest.name}`;
+        // Initialise slider ranges from restaurant settings
+        const fs = rest.filter_settings as any;
+        if (fs?.calories) setCalorieRange([fs.calories.min, fs.calories.max]);
+        if (fs?.protein)  setProteinRange([fs.protein.min, fs.protein.max]);
+        if (fs?.budget)   setBudgetRange([fs.budget.min, fs.budget.max]);
 
         const [{ data: cats, error: catsError }, { data: menuItems, error: itemsError }] = await Promise.all([
           supabase.from("categories").select("*").eq("restaurant_id", rest.id).order("sort_order"),
@@ -57,14 +64,20 @@ export default function CustomerMenu() {
     load();
   }, [slug]);
 
+  const fs = restaurant?.filter_settings as any;
+
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       // Show only items that have ALL selected "free from" tags
       if (excludedAllergens.length > 0 && !excludedAllergens.every((tag) => item.allergens?.includes(tag))) return false;
       // Filter by dietary preference
       if (selectedDietary.length > 0 && !selectedDietary.every((d) => item.dietary_tags?.includes(d))) return false;
-      // Filter by calorie range
-      if (item.calories != null && (item.calories < calorieRange[0] || item.calories > calorieRange[1])) return false;
+      // Filter by calorie range (only if slider enabled)
+      if (fs?.calories?.enabled !== false && item.calories != null && (item.calories < calorieRange[0] || item.calories > calorieRange[1])) return false;
+      // Filter by protein range (only if slider enabled)
+      if (fs?.protein?.enabled !== false && item.protein != null && (Number(item.protein) < proteinRange[0] || Number(item.protein) > proteinRange[1])) return false;
+      // Filter by budget/price range (only if slider enabled)
+      if (fs?.budget?.enabled !== false && (Number(item.price) < budgetRange[0] || Number(item.price) > budgetRange[1])) return false;
       // Filter by food style chips
       if (selectedFoodStyles.length > 0) {
         const activeFilters = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));
@@ -72,7 +85,7 @@ export default function CustomerMenu() {
       }
       return true;
     });
-  }, [items, excludedAllergens, selectedDietary, calorieRange, selectedFoodStyles]);
+  }, [items, excludedAllergens, selectedDietary, calorieRange, proteinRange, budgetRange, selectedFoodStyles, fs]);
 
   const groupedItems = useMemo(() => {
     const groups: { category: Category | null; items: MenuItem[] }[] = [];
@@ -122,7 +135,10 @@ export default function CustomerMenu() {
     );
   }
 
-  const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || calorieRange[0] > 0 || calorieRange[1] < 2000 || selectedFoodStyles.length > 0;
+  const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || selectedFoodStyles.length > 0 ||
+    calorieRange[0] > (fs?.calories?.min ?? 0) || calorieRange[1] < (fs?.calories?.max ?? 2000) ||
+    proteinRange[0] > (fs?.protein?.min ?? 0)  || proteinRange[1] < (fs?.protein?.max ?? 100) ||
+    budgetRange[0]  > (fs?.budget?.min ?? 0)   || budgetRange[1]  < (fs?.budget?.max ?? 50);
 
   return (
     <div className="min-h-screen bg-background pb-8">
@@ -186,6 +202,13 @@ export default function CustomerMenu() {
           setSelectedDietary={setSelectedDietary}
           calorieRange={calorieRange}
           setCalorieRange={setCalorieRange}
+          calorieSettings={fs?.calories}
+          proteinRange={proteinRange}
+          setProteinRange={setProteinRange}
+          proteinSettings={fs?.protein}
+          budgetRange={budgetRange}
+          setBudgetRange={setBudgetRange}
+          budgetSettings={fs?.budget}
         />
 
         {/* Menu items by category */}

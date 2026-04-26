@@ -12,7 +12,7 @@ export default function Index() {
   const { t } = useLanguage();
   const { theme } = useTheme();
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
       <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
@@ -54,7 +54,7 @@ export default function Index() {
       </section>
 
       {/* Features */}
-      <section className="px-4 pb-20 max-w-4xl mx-auto">
+      <section className="px-4 pb-20 max-w-4xl mx-auto flex-1">
         <div className="grid sm:grid-cols-3 gap-6">
           {[
             { icon: QrCode, title: t("featureQr"), desc: t("featureQrDesc") },

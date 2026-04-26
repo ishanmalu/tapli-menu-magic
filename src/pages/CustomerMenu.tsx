@@ -13,6 +13,18 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun } from "lucide-react";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { Clock } from "lucide-react";
+import type { AvailabilitySchedule } from "@/integrations/supabase/types";
+
+function isAvailableNow(schedule: AvailabilitySchedule | null | undefined): boolean {
+  if (!schedule || !schedule.enabled || !schedule.slots.length) return true;
+  const now = new Date();
+  const cur = now.getHours() * 60 + now.getMinutes();
+  return schedule.slots.some(({ from, to }) => {
+    const [fh, fm] = from.split(":").map(Number);
+    const [th, tm] = to.split(":").map(Number);
+    return cur >= fh * 60 + fm && cur <= th * 60 + tm;
+  });
+}
 
 type Restaurant = Tables<"restaurants">;
 type MenuItem = Tables<"menu_items">;
@@ -81,6 +93,8 @@ export default function CustomerMenu() {
       if (fs?.protein?.enabled !== false && item.protein != null && (Number(item.protein) < proteinRange[0] || Number(item.protein) > proteinRange[1])) return false;
       // Filter by budget/price range (only if slider enabled)
       if (fs?.budget?.enabled !== false && (Number(item.price) < budgetRange[0] || Number(item.price) > budgetRange[1])) return false;
+      // Filter by time-based availability
+      if (!isAvailableNow(item.availability_schedule as AvailabilitySchedule | null)) return false;
       // Filter by food style chips
       if (selectedFoodStyles.length > 0) {
         const activeFilters = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));

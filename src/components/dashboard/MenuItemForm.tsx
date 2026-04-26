@@ -15,6 +15,8 @@ import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTag
 import { compressImage } from "@/lib/imageUtils";
 import { translate } from "@/lib/translate";
 import { Languages } from "lucide-react";
+import { AvailabilityEditor } from "@/components/dashboard/AvailabilityEditor";
+import type { AvailabilitySchedule } from "@/integrations/supabase/types";
 
 interface Props {
   restaurantId: string;
@@ -39,6 +41,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   const [isAvailable, setIsAvailable] = useState(item?.is_available ?? true);
   const [photo, setPhoto] = useState<File | null>(null);
   const [removePhoto, setRemovePhoto] = useState(false);
+  const [availabilitySchedule, setAvailabilitySchedule] = useState<AvailabilitySchedule | null>(
+    (item?.availability_schedule as AvailabilitySchedule | null) ?? null
+  );
   const [submitting, setSubmitting] = useState(false);
   const [translatingName, setTranslatingName] = useState(false);
   const [translatingDesc, setTranslatingDesc] = useState(false);
@@ -131,6 +136,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         allergens,
         dietary_tags: dietaryTags,
         is_available: isAvailable,
+        availability_schedule: availabilitySchedule as any,
         photo_url: photoUrl,
         restaurant_id: restaurantId,
       };
@@ -314,6 +320,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
         <Label>{t("available")}</Label>
       </div>
+
+      <AvailabilityEditor value={availabilitySchedule} onChange={setAvailabilitySchedule} />
+
       <div className="flex gap-2 pt-2">
         <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? t("saving") : item ? t("update") : t("addItem")}</Button>
         <Button type="button" variant="outline" onClick={onCancel}>{t("cancel")}</Button>

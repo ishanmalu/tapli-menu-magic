@@ -20,6 +20,18 @@ const translations = {
     featureRealtimeDesc: "Change prices, items, or availability — reflected instantly.",
     footerText: "Digital menus made simple.",
 
+    // Why Tapli section
+    whyTitle: "Why restaurants choose Tapli",
+    whySubtitle: "Everything your guests need — one scan away.",
+    why1Title: "QR & NFC ready",
+    why1Desc: "Guests scan a QR code or tap with NFC to open the menu instantly. No app, no download.",
+    why2Title: "Update in real time",
+    why2Desc: "Change a price, add a dish, or mark something sold out — live in seconds, no reprinting.",
+    why3Title: "Allergen & dietary filters",
+    why3Desc: "Guests filter by allergens, calories, and dietary needs. Fewer questions to staff.",
+    why4Title: "No printing costs",
+    why4Desc: "Forget laminated menus and design fees. One digital menu that updates forever.",
+
     // Auth
     signInDesc: "Sign in to manage your menu",
     createAccount: "Create your restaurant account",
@@ -293,6 +305,18 @@ const translations = {
     featureRealtime: "Reaaliaikaiset päivitykset",
     featureRealtimeDesc: "Muuta hintoja, tuotteita tai saatavuutta — näkyy heti.",
     footerText: "Digitaaliset ruokalistat yksinkertaisesti.",
+
+    // Why Tapli section
+    whyTitle: "Miksi ravintolat valitsevat Taplin",
+    whySubtitle: "Kaikki mitä vieraat tarvitsevat — yhdellä skannauksella.",
+    why1Title: "QR & NFC -valmis",
+    why1Desc: "Vieraat skannaavat QR-koodin tai napauttavat NFC:llä avatakseen ruokalistan heti. Ei sovellusta, ei latausta.",
+    why2Title: "Reaaliaikaiset päivitykset",
+    why2Desc: "Muuta hintaa, lisää annos tai merkitse tuote loppuneeksi — näkyy heti, ilman tulostamista.",
+    why3Title: "Allergeeni- ja ruokavaliosuodattimet",
+    why3Desc: "Vieraat suodattavat allergeenien, kalorien ja ruokavalioiden mukaan. Vähemmän kysymyksiä henkilökunnalle.",
+    why4Title: "Ei tulostuskuluja",
+    why4Desc: "Unohda laminoidut ruokalistat ja suunnittelukulut. Yksi digitaalinen ruokalista, joka päivittyy ikuisesti.",
 
     // Auth
     signInDesc: "Kirjaudu hallitaksesi ruokalistaasi",

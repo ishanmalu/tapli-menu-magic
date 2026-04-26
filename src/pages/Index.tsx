@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { QrCode, Smartphone, BarChart3, ArrowRight } from "lucide-react";
+import { QrCode, Smartphone, BarChart3, ArrowRight, Nfc, RefreshCw, ShieldCheck, Banknote } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -54,6 +54,36 @@ export default function Index() {
             {t("startFree")} <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
+      </section>
+
+      {/* Why Tapli */}
+      <section className="px-4 pb-20 max-w-4xl mx-auto w-full">
+        <div className="text-center mb-10">
+          <h2 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">{t("whyTitle")}</h2>
+          <p className="text-muted-foreground">{t("whySubtitle")}</p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-5">
+          {[
+            { icons: [QrCode, Nfc],   title: t("why1Title"), desc: t("why1Desc") },
+            { icons: [RefreshCw],     title: t("why2Title"), desc: t("why2Desc") },
+            { icons: [ShieldCheck],   title: t("why3Title"), desc: t("why3Desc") },
+            { icons: [Banknote],      title: t("why4Title"), desc: t("why4Desc") },
+          ].map(({ icons, title, desc }) => (
+            <div key={title} className="flex gap-4 rounded-xl border bg-card p-5">
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                {icons.map((Icon, i) => (
+                  <div key={i} className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon className="h-5 w-5 text-primary" />
+                  </div>
+                ))}
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground mb-1">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
 
       {/* Features */}

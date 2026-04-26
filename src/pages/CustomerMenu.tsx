@@ -189,22 +189,23 @@ export default function CustomerMenu() {
       )}
 
       {/* Restaurant info */}
-      <div className="px-4 -mt-6 relative z-10 max-w-2xl mx-auto">
-        <div className="flex items-end gap-4 mb-4">
-          {restaurant?.logo_url && (
+      <div className="px-4 relative z-10 max-w-2xl mx-auto">
+        {/* Logo overlaps banner; name sits cleanly below */}
+        {restaurant?.logo_url && (
+          <div className="-mt-10 mb-3">
             <img src={restaurant.logo_url} alt={restaurant.name} className="h-16 w-16 rounded-xl border-2 border-background object-cover shadow-md" />
-          )}
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{restaurant?.name}</h1>
-            {restaurant?.slogan && (
-              <p className="text-sm font-medium text-primary mt-0.5">{restaurant.slogan}</p>
-            )}
-            {restaurant && ((language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description) && (
-              <p className="text-sm text-muted-foreground mt-0.5">
-                {(language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description}
-              </p>
-            )}
           </div>
+        )}
+        <div className="mb-4">
+          <h1 className="text-2xl font-bold text-foreground">{restaurant?.name}</h1>
+          {restaurant?.slogan && (
+            <p className="text-sm font-medium text-primary mt-0.5">{restaurant.slogan}</p>
+          )}
+          {restaurant && ((language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description) && (
+            <p className="text-sm text-muted-foreground mt-0.5">
+              {(language === "en" && restaurant.description_en) ? restaurant.description_en : restaurant.description}
+            </p>
+          )}
         </div>
 
         {/* Opening hours */}

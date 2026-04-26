@@ -78,7 +78,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-      const updatePayload = type === "logo" ? { logo_url: publicUrl } : { cover_photo_url: publicUrl };
+      const freshUrl = `${publicUrl}?t=${Date.now()}`;
+      const updatePayload = type === "logo" ? { logo_url: freshUrl } : { cover_photo_url: freshUrl };
       const { data, error } = await supabase.from("restaurants").update(updatePayload).eq("id", restaurant.id).select().single();
       if (error) throw error;
       if (data) onRestaurantUpdate(data);
@@ -111,7 +112,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, file, { upsert: true });
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-      const { error } = await supabase.from("menu_items").update({ photo_url: publicUrl }).eq("id", item.id);
+      const freshUrl = `${publicUrl}?t=${Date.now()}`;
+      const { error } = await supabase.from("menu_items").update({ photo_url: freshUrl }).eq("id", item.id);
       if (error) throw error;
       loadData();
     } catch (err: any) {

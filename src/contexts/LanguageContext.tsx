@@ -206,6 +206,13 @@ const translations = {
     featOnboarding: "Onboarding call",
     featAccountManager: "Dedicated account manager",
 
+    // Contact page
+    contact: "Contact",
+    contactTitle: "Get in touch",
+    contactSubtitle: "Have a question or want to work with us? Reach out anytime.",
+    contactEmail: "Email us",
+    contactFollowUs: "Follow us",
+
     // 404 page
     pageNotFound: "Page not found",
     pageNotFoundDesc: "Oops! The page you're looking for doesn't exist.",
@@ -472,6 +479,13 @@ const translations = {
     featCustomQr: "Mukautettu QR-koodi ravintolan logolla",
     featOnboarding: "Käyttöönottosoitto",
     featAccountManager: "Oma asiakasvastaava",
+
+    // Contact page
+    contact: "Yhteystiedot",
+    contactTitle: "Ota yhteyttä",
+    contactSubtitle: "Onko sinulla kysyttävää tai haluatko tehdä yhteistyötä? Ota yhteyttä milloin tahansa.",
+    contactEmail: "Lähetä sähköpostia",
+    contactFollowUs: "Seuraa meitä",
 
     // 404 page
     pageNotFound: "Sivua ei löydy",

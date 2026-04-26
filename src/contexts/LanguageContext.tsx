@@ -126,6 +126,8 @@ const translations = {
     noItemsYet: "No menu items yet. Add your first item!",
     uncategorized: "Uncategorized",
     loadingMenu: "Loading menu...",
+    searchItems: "Search items...",
+    allItems: "All",
 
     // Menu Item Form
     name: "Name",
@@ -432,6 +434,8 @@ const translations = {
     noItemsYet: "Ei tuotteita vielä. Lisää ensimmäinen!",
     uncategorized: "Luokittelematon",
     loadingMenu: "Ladataan ruokalistaa...",
+    searchItems: "Hae tuotteita...",
+    allItems: "Kaikki",
 
     // Menu Item Form
     name: "Nimi",

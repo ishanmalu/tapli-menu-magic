@@ -13,6 +13,7 @@ import CustomerMenu from "./pages/CustomerMenu";
 import Pricing from "./pages/Pricing";
 import Upgrade from "./pages/Upgrade";
 import Contact from "./pages/Contact";
+import Why from "./pages/Why";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,7 @@ const App = () => (
                 <Route path="/pricing" element={<Pricing />} />
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route path="/contact" element={<Contact />} />
+                <Route path="/why" element={<Why />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

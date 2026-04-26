@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { QrCode, Smartphone, BarChart3, ArrowRight } from "lucide-react";
+import { QrCode, Smartphone, BarChart3, ArrowRight, ExternalLink } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -52,11 +52,18 @@ export default function Index() {
         <p className="text-lg text-muted-foreground max-w-xl mx-auto mb-8">
           {t("heroDesc")}
         </p>
-        <Link to="/auth">
-          <Button size="lg" className="gap-2 text-base px-8">
-            {t("startFree")} <ArrowRight className="h-4 w-4" />
-          </Button>
-        </Link>
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          <Link to="/auth">
+            <Button size="lg" className="gap-2 text-base px-8">
+              {t("startFree")} <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+          <a href="https://tapli-menu-magic.pages.dev/menu/tapli-demo" target="_blank" rel="noopener noreferrer">
+            <Button size="lg" variant="outline" className="gap-2 text-base px-8">
+              <ExternalLink className="h-4 w-4" /> {t("viewDemo")}
+            </Button>
+          </a>
+        </div>
       </section>
 
       {/* Features */}

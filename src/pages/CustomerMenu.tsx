@@ -235,7 +235,7 @@ export default function CustomerMenu() {
 
 
       {/* Layout */}
-      <div className="max-w-7xl mx-auto px-4 mt-4 grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+      <div className={`mx-auto px-4 mt-4 transition-all duration-300 ${selectedItem ? "max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6" : "max-w-2xl"}`}>
 
         {/* LEFT SIDE */}
         <div>
@@ -288,10 +288,10 @@ export default function CustomerMenu() {
           {restaurant && <DiscoverRestaurants currentRestaurantId={restaurant.id} />}
         </div>
 
-        {/* RIGHT PANEL */}
-        <div className="hidden lg:block">
-          <MenuDetails item={selectedItem} />
-        </div>
+        {/* RIGHT PANEL (desktop) + BOTTOM SHEET (mobile) */}
+        {selectedItem && (
+          <MenuDetails item={selectedItem} onClose={() => setSelectedItem(null)} />
+        )}
 
       </div>
     </div>

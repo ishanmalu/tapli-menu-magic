@@ -5,8 +5,7 @@ import { Slider } from "@/components/ui/slider";
 import { Filter, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trackAllergenToggled, trackDietaryToggled, trackSliderChanged, trackFilterPanelToggled, trackFilterCleared } from "@/lib/posthog";
-
-type SliderSettings = { enabled: boolean; min: number; max: number } | undefined | null;
+import type { SliderConfig } from "@/types/filterSettings";
 
 interface MenuFilterBarProps {
   slug: string;
@@ -16,25 +15,22 @@ interface MenuFilterBarProps {
   setExcludedAllergens: (v: string[]) => void;
   selectedDietary: string[];
   setSelectedDietary: (v: string[]) => void;
-  calorieRange: [number, number];
-  setCalorieRange: (v: [number, number]) => void;
-  calorieSettings?: SliderSettings;
-  proteinRange: [number, number];
-  setProteinRange: (v: [number, number]) => void;
-  proteinSettings?: SliderSettings;
-  budgetRange: [number, number];
-  setBudgetRange: (v: [number, number]) => void;
-  budgetSettings?: SliderSettings;
+  sliders: SliderConfig[];
+  sliderValues: Record<string, [number, number]>;
+  setSliderValues: (v: Record<string, [number, number]>) => void;
 }
 
 export function MenuFilterBar({
   slug,
-  allergens, dietaryOptions,
-  excludedAllergens, setExcludedAllergens,
-  selectedDietary, setSelectedDietary,
-  calorieRange, setCalorieRange, calorieSettings,
-  proteinRange, setProteinRange, proteinSettings,
-  budgetRange, setBudgetRange, budgetSettings,
+  allergens,
+  dietaryOptions,
+  excludedAllergens,
+  setExcludedAllergens,
+  selectedDietary,
+  setSelectedDietary,
+  sliders,
+  sliderValues,
+  setSliderValues,
 }: MenuFilterBarProps) {
   const { t } = useLanguage();
 
@@ -63,59 +59,82 @@ export function MenuFilterBar({
     trackFilterPanelToggled({ open: next, slug });
   };
 
-  const showCalories = calorieSettings?.enabled !== false;
-  const showProtein  = proteinSettings?.enabled  !== false;
-  const showBudget   = budgetSettings?.enabled   !== false;
+  const enabledSliders = sliders.filter((s) => s.enabled);
 
-  const calMin = calorieSettings?.min ?? 0;
-  const calMax = calorieSettings?.max ?? 2000;
-  const proMin = proteinSettings?.min ?? 0;
-  const proMax = proteinSettings?.max ?? 100;
-  const budMin = budgetSettings?.min ?? 0;
-  const budMax = budgetSettings?.max ?? 50;
+  const hasSliderFilter = enabledSliders.some((s) => {
+    const range = sliderValues[s.id];
+    if (!range) return false;
+    return range[0] > s.min || range[1] < s.max;
+  });
 
-  const hasSliderFilter =
-    (showCalories && (calorieRange[0] > calMin || calorieRange[1] < calMax)) ||
-    (showProtein  && (proteinRange[0] > proMin  || proteinRange[1] < proMax)) ||
-    (showBudget   && (budgetRange[0]  > budMin  || budgetRange[1]  < budMax));
+  const hasFilters =
+    excludedAllergens.length > 0 || selectedDietary.length > 0 || hasSliderFilter;
 
-  const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || hasSliderFilter;
+  const activeCount =
+    excludedAllergens.length + selectedDietary.length + (hasSliderFilter ? 1 : 0);
 
   const toggleAllergen = (a: string) => {
     const active = !excludedAllergens.includes(a);
-    setExcludedAllergens(active ? [...excludedAllergens, a] : excludedAllergens.filter((x) => x !== a));
+    setExcludedAllergens(
+      active ? [...excludedAllergens, a] : excludedAllergens.filter((x) => x !== a)
+    );
     trackAllergenToggled({ allergen: a, active, slug });
   };
 
   const toggleDietary = (d: string) => {
     const active = !selectedDietary.includes(d);
-    setSelectedDietary(active ? [...selectedDietary, d] : selectedDietary.filter((x) => x !== d));
+    setSelectedDietary(
+      active ? [...selectedDietary, d] : selectedDietary.filter((x) => x !== d)
+    );
     trackDietaryToggled({ tag: d, active, slug });
   };
 
   const clearAll = () => {
     setExcludedAllergens([]);
     setSelectedDietary([]);
-    setCalorieRange([calMin, calMax]);
-    setProteinRange([proMin, proMax]);
-    setBudgetRange([budMin, budMax]);
+    // Reset all slider values to their defaults
+    const reset: Record<string, [number, number]> = {};
+    sliders.forEach((s) => { reset[s.id] = [s.min, s.max]; });
+    setSliderValues(reset);
     trackFilterCleared({ slug });
   };
+
+  const updateSlider = (id: string, value: [number, number]) => {
+    setSliderValues({ ...sliderValues, [id]: value });
+  };
+
+  const showFilters =
+    allergens.length > 0 || dietaryOptions.length > 0 || enabledSliders.length > 0;
+
+  if (!showFilters) return null;
 
   return (
     <div className="mb-4">
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={handleOpenToggle} className="gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleOpenToggle}
+          className="gap-2"
+        >
           <Filter className="h-4 w-4" />
           {t("filters")}
           {hasFilters && (
-            <Badge variant="secondary" className="ml-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center">
-              {excludedAllergens.length + selectedDietary.length + (hasSliderFilter ? 1 : 0)}
+            <Badge
+              variant="secondary"
+              className="ml-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+            >
+              {activeCount}
             </Badge>
           )}
         </Button>
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearAll} className="gap-1 text-muted-foreground">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearAll}
+            className="gap-1 text-muted-foreground"
+          >
             <X className="h-3 w-3" /> {t("clear")}
           </Button>
         )}
@@ -130,7 +149,12 @@ export function MenuFilterBar({
               <p className="text-sm font-medium mb-2">{t("freeFrom")}</p>
               <div className="flex flex-wrap gap-2">
                 {allergens.map((a) => (
-                  <Badge key={a} variant={excludedAllergens.includes(a) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(a)}>
+                  <Badge
+                    key={a}
+                    variant={excludedAllergens.includes(a) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => toggleAllergen(a)}
+                  >
                     {tagLabels[a] || a}
                   </Badge>
                 ))}
@@ -144,7 +168,12 @@ export function MenuFilterBar({
               <p className="text-sm font-medium mb-2">{t("dietaryAndLifestyle")}</p>
               <div className="flex flex-wrap gap-2">
                 {dietaryOptions.map((d) => (
-                  <Badge key={d} variant={selectedDietary.includes(d) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(d)}>
+                  <Badge
+                    key={d}
+                    variant={selectedDietary.includes(d) ? "default" : "outline"}
+                    className="cursor-pointer"
+                    onClick={() => toggleDietary(d)}
+                  >
                     {tagLabels[d] || d}
                   </Badge>
                 ))}
@@ -152,42 +181,35 @@ export function MenuFilterBar({
             </div>
           )}
 
-          {/* Calories slider */}
-          {showCalories && (
-            <div>
-              <p className="text-sm font-medium mb-2">
-                🔥 {t("sliderCalories")}: <span className="text-primary">{calorieRange[0]} – {calorieRange[1]} {t("kcal")}</span>
-              </p>
-              <Slider min={calMin} max={calMax} step={10} value={calorieRange}
-                onValueChange={(v) => setCalorieRange(v as [number, number])}
-                onValueCommit={(v) => trackSliderChanged({ slider: "calories", min: v[0], max: v[1], slug })} />
-            </div>
-          )}
-
-          {/* Protein slider */}
-          {showProtein && (
-            <div>
-              <p className="text-sm font-medium mb-2">
-                💪 {t("sliderProtein")}: <span className="text-primary">{proteinRange[0]} – {proteinRange[1]}g</span>
-              </p>
-              <Slider min={proMin} max={proMax} step={1} value={proteinRange}
-                onValueChange={(v) => setProteinRange(v as [number, number])}
-                onValueCommit={(v) => trackSliderChanged({ slider: "protein", min: v[0], max: v[1], slug })} />
-            </div>
-          )}
-
-          {/* Budget slider */}
-          {showBudget && (
-            <div>
-              <p className="text-sm font-medium mb-2">
-                💰 {t("sliderBudget")}: <span className="text-primary">€{budgetRange[0]} – €{budgetRange[1]}</span>
-              </p>
-              <Slider min={budMin} max={budMax} step={1} value={budgetRange}
-                onValueChange={(v) => setBudgetRange(v as [number, number])}
-                onValueCommit={(v) => trackSliderChanged({ slider: "budget", min: v[0], max: v[1], slug })} />
-            </div>
-          )}
-
+          {/* Dynamic sliders */}
+          {enabledSliders.map((s) => {
+            const range = sliderValues[s.id] ?? [s.min, s.max];
+            return (
+              <div key={s.id}>
+                <p className="text-sm font-medium mb-2">
+                  {s.label}
+                  {s.unit && (
+                    <span className="text-muted-foreground font-normal"> ({s.unit})</span>
+                  )}
+                  {": "}
+                  <span className="text-primary">
+                    {range[0]} – {range[1]}
+                    {s.unit ? ` ${s.unit}` : ""}
+                  </span>
+                </p>
+                <Slider
+                  min={s.min}
+                  max={s.max}
+                  step={s.field === "calories" ? 10 : s.field === "price" ? 1 : 1}
+                  value={range}
+                  onValueChange={(v) => updateSlider(s.id, v as [number, number])}
+                  onValueCommit={(v) =>
+                    trackSliderChanged({ slider: s.id, min: v[0], max: v[1], slug })
+                  }
+                />
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

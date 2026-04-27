@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trackFoodStyleToggled } from "@/lib/posthog";
+import type { CustomChip } from "@/types/filterSettings";
 
 export interface FoodStyleFilter {
   id: string;
@@ -21,13 +22,17 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
     id: "high-carb",
     label: "highCarb",
     emoji: "🍞",
-    match: (item) => item.dietary_tags?.some((t) => ["high-carb", "carb-heavy", "pasta", "rice", "bread"].includes(t)) ?? false,
+    match: (item) =>
+      item.dietary_tags?.some((t) =>
+        ["high-carb", "carb-heavy", "pasta", "rice", "bread"].includes(t)
+      ) ?? false,
   },
   {
     id: "keto",
     label: "highFatKeto",
     emoji: "🥑",
-    match: (item) => item.dietary_tags?.some((t) => ["keto", "low-carb"].includes(t)) ?? false,
+    match: (item) =>
+      item.dietary_tags?.some((t) => ["keto", "low-carb"].includes(t)) ?? false,
   },
   {
     id: "low-calorie",
@@ -45,7 +50,10 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
     id: "plant-based",
     label: "plantBased",
     emoji: "🌱",
-    match: (item) => item.dietary_tags?.some((t) => ["vegan", "vegetarian", "plant-based"].includes(t)) ?? false,
+    match: (item) =>
+      item.dietary_tags?.some((t) =>
+        ["vegan", "vegetarian", "plant-based"].includes(t)
+      ) ?? false,
   },
 ];
 
@@ -53,12 +61,21 @@ interface FoodStyleChipsProps {
   selected: string[];
   setSelected: (v: string[]) => void;
   slug: string;
-  /** IDs of chips the restaurant has enabled. If undefined, show all. */
+  /** IDs of built-in chips the restaurant has enabled. Undefined = show all. */
   enabledIds?: string[];
+  /** Custom chips defined by the restaurant manager. */
+  customChips?: CustomChip[];
 }
 
-export function FoodStyleChips({ selected, setSelected, slug, enabledIds }: FoodStyleChipsProps) {
+export function FoodStyleChips({
+  selected,
+  setSelected,
+  slug,
+  enabledIds,
+  customChips = [],
+}: FoodStyleChipsProps) {
   const { t } = useLanguage();
+
   const toggle = (id: string) => {
     const active = !selected.includes(id);
     setSelected(active ? [...selected, id] : selected.filter((x) => x !== id));
@@ -67,30 +84,44 @@ export function FoodStyleChips({ selected, setSelected, slug, enabledIds }: Food
 
   const labelMap: Record<string, string> = {
     "high-protein": t("highProtein"),
-    "high-carb": t("highCarb"),
-    "keto": t("highFatKeto"),
-    "low-calorie": t("lowCalorie"),
-    "high-energy": t("highEnergy"),
-    "plant-based": t("plantBased"),
+    "high-carb":    t("highCarb"),
+    keto:           t("highFatKeto"),
+    "low-calorie":  t("lowCalorie"),
+    "high-energy":  t("highEnergy"),
+    "plant-based":  t("plantBased"),
   };
 
-  // Only show chips the restaurant has enabled (undefined = all)
-  const visibleFilters = enabledIds
+  // Filter built-in chips by enabledIds
+  const visibleBuiltIn = enabledIds
     ? FOOD_STYLE_FILTERS.filter((f) => enabledIds.includes(f.id))
     : FOOD_STYLE_FILTERS;
 
-  if (visibleFilters.length === 0) return null;
+  const hasAnything = visibleBuiltIn.length > 0 || customChips.length > 0;
+  if (!hasAnything) return null;
 
   return (
-    <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
-      {visibleFilters.map((f) => (
+    <div className="flex flex-wrap gap-2 mb-3">
+      {/* Built-in chips */}
+      {visibleBuiltIn.map((f) => (
         <Badge
           key={f.id}
           variant={selected.includes(f.id) ? "default" : "outline"}
-          className="cursor-pointer whitespace-nowrap px-3 py-1.5 text-sm flex-shrink-0"
+          className="cursor-pointer px-3 py-1.5 text-sm"
           onClick={() => toggle(f.id)}
         >
           {f.emoji} {labelMap[f.id] || f.label}
+        </Badge>
+      ))}
+
+      {/* Custom chips */}
+      {customChips.map((c) => (
+        <Badge
+          key={c.id}
+          variant={selected.includes(c.id) ? "default" : "outline"}
+          className="cursor-pointer px-3 py-1.5 text-sm"
+          onClick={() => toggle(c.id)}
+        >
+          {c.emoji} {c.label}
         </Badge>
       ))}
     </div>

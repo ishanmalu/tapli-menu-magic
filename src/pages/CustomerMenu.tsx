@@ -13,12 +13,18 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
-import { Moon, Sun, Clock } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
-import { FOOD_STYLE_FILTERS } from "@/components/menu/FoodStyleChips";
 import type { AvailabilitySchedule } from "@/integrations/supabase/types";
 import { trackMenuViewed } from "@/lib/posthog";
+import {
+  type CustomChip,
+  type SliderConfig,
+  getSlidersFromSettings,
+  getItemFieldValue,
+  matchCustomChip,
+} from "@/types/filterSettings";
 
 function isAvailableNow(schedule: AvailabilitySchedule | null | undefined): boolean {
   if (!schedule || !schedule.enabled) return true;
@@ -39,6 +45,13 @@ type Restaurant = Tables<"restaurants">;
 type MenuItem = Tables<"menu_items">;
 type Category = Tables<"categories">;
 
+/** Build initial slider values map from a SliderConfig array. */
+function buildSliderValues(sliders: SliderConfig[]): Record<string, [number, number]> {
+  const result: Record<string, [number, number]> = {};
+  sliders.forEach((s) => { result[s.id] = [s.min, s.max]; });
+  return result;
+}
+
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
   const { t, tCategory, language } = useLanguage();
@@ -49,33 +62,34 @@ export default function CustomerMenu() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
-
-  // 🔥 NEW: selected item
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
   // Filters
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
-  const [calorieRange, setCalorieRange] = useState<[number, number]>([0, 2000]);
-  const [proteinRange, setProteinRange] = useState<[number, number]>([0, 100]);
-  const [budgetRange, setBudgetRange] = useState<[number, number]>([0, 50]);
   const [selectedFoodStyles, setSelectedFoodStyles] = useState<string[]>([]);
+  // Dynamic slider state: keyed by slider.id → [currentMin, currentMax]
+  const [sliderValues, setSliderValues] = useState<Record<string, [number, number]>>({});
 
   useEffect(() => {
     if (!slug) return;
 
     const load = async () => {
       try {
-        const { data: rest, error: restError } = await supabase.from("restaurants").select("*").eq("slug", slug).maybeSingle();
+        const { data: rest, error: restError } = await supabase
+          .from("restaurants")
+          .select("*")
+          .eq("slug", slug)
+          .maybeSingle();
         if (restError || !rest) { setNotFound(true); return; }
+
         setRestaurant(rest);
         document.title = `Tapli — ${rest.name}`;
         trackMenuViewed({ slug: rest.slug, restaurantName: rest.name });
-        // Initialise slider ranges from restaurant settings
-        const fs = rest.filter_settings as any;
-        if (fs?.calories) setCalorieRange([fs.calories.min, fs.calories.max]);
-        if (fs?.protein) setProteinRange([fs.protein.min, fs.protein.max]);
-        if (fs?.budget) setBudgetRange([fs.budget.min, fs.budget.max]);
+
+        // Initialise slider values from restaurant settings
+        const sliders = getSlidersFromSettings(rest.filter_settings as any);
+        setSliderValues(buildSliderValues(sliders));
 
         const [{ data: cats }, { data: menuItems }] = await Promise.all([
           supabase.from("categories").select("*").eq("restaurant_id", rest.id).order("sort_order"),
@@ -84,7 +98,6 @@ export default function CustomerMenu() {
 
         setCategories(cats || []);
         setItems(menuItems || []);
-
       } catch {
         setNotFound(true);
       } finally {
@@ -95,39 +108,72 @@ export default function CustomerMenu() {
     load();
   }, [slug]);
 
-  const fs = restaurant?.filter_settings as any;
+  // Derived restaurant settings
+  const rfSettings = useMemo(() => (restaurant?.filter_settings ?? {}) as any, [restaurant]);
+  const sliders = useMemo<SliderConfig[]>(() => getSlidersFromSettings(rfSettings), [rfSettings]);
+  const enabledSliders = useMemo(() => sliders.filter((s) => s.enabled), [sliders]);
+  const enabledChipIds = useMemo<string[]>(
+    () => rfSettings?.foodStyleChips ?? FOOD_STYLE_FILTERS.map((f) => f.id),
+    [rfSettings]
+  );
+  const customChips = useMemo<CustomChip[]>(() => rfSettings?.customChips ?? [], [rfSettings]);
 
+  // Derive which allergens/dietary tags are actually used in items (dynamic filter bar)
+  const availableAllergens = useMemo(() => {
+    const used = new Set<string>();
+    items.forEach((item) => item.allergens?.forEach((a) => used.add(a)));
+    return FREE_FROM_ALLERGENS.filter((a) => used.has(a));
+  }, [items]);
+
+  const availableDietary = useMemo(() => {
+    const used = new Set<string>();
+    items.forEach((item) => item.dietary_tags?.forEach((d) => used.add(d)));
+    return DIETARY_LIFESTYLE_TAGS.filter((d) => used.has(d));
+  }, [items]);
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
-      if (excludedAllergens.length > 0 && !excludedAllergens.every((tag) => item.allergens?.includes(tag))) return false;
-      if (selectedDietary.length > 0 && !selectedDietary.every((d) => item.dietary_tags?.includes(d))) return false;
+      // Allergen exclusions
+      if (
+        excludedAllergens.length > 0 &&
+        !excludedAllergens.every((tag) => item.allergens?.includes(tag))
+      ) return false;
 
-      if (fs?.calories?.enabled !== false && item.calories != null &&
-        (item.calories < calorieRange[0] || item.calories > calorieRange[1])) return false;
+      // Dietary inclusions
+      if (
+        selectedDietary.length > 0 &&
+        !selectedDietary.every((d) => item.dietary_tags?.includes(d))
+      ) return false;
 
-      if (fs?.protein?.enabled !== false && item.protein != null &&
-        (Number(item.protein) < proteinRange[0] || Number(item.protein) > proteinRange[1])) return false;
+      // Dynamic sliders
+      for (const s of enabledSliders) {
+        const range = sliderValues[s.id];
+        if (!range) continue;
+        const val = getItemFieldValue(item, s.field);
+        if (val != null && (val < range[0] || val > range[1])) return false;
+      }
 
-      if (fs?.budget?.enabled !== false &&
-        (Number(item.price) < budgetRange[0] || Number(item.price) > budgetRange[1])) return false;
-
+      // Availability schedule
       if (!isAvailableNow(item.availability_schedule as AvailabilitySchedule | null)) return false;
 
+      // Food style chips (built-in + custom)
       if (selectedFoodStyles.length > 0) {
-        const activeFilters = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));
-        if (!activeFilters.some((f) => f.match(item))) return false;
+        const activeBuiltIn = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));
+        const activeCustom = customChips.filter((c) => selectedFoodStyles.includes(c.id));
+
+        const builtInMatch = activeBuiltIn.some((f) => f.match(item));
+        const customMatch = activeCustom.some((c) => matchCustomChip(c, item));
+        if (!builtInMatch && !customMatch) return false;
       }
 
       return true;
     });
-  }, [items, excludedAllergens, selectedDietary, calorieRange, proteinRange, budgetRange, selectedFoodStyles, fs]);
+  }, [items, excludedAllergens, selectedDietary, enabledSliders, sliderValues, selectedFoodStyles, customChips]);
 
   const groupedItems = useMemo(() => {
     const groups: { category: Category | null; items: MenuItem[] }[] = [];
     const catMap = new Map(categories.map((c) => [c.id, c]));
     const uncategorized: MenuItem[] = [];
-
     const byCat = new Map<string, MenuItem[]>();
 
     for (const item of filteredItems) {
@@ -143,38 +189,17 @@ export default function CustomerMenu() {
       const catItems = byCat.get(cat.id);
       if (catItems?.length) groups.push({ category: cat, items: catItems });
     }
-
     if (uncategorized.length) groups.push({ category: null, items: uncategorized });
-
     return groups;
   }, [filteredItems, categories]);
 
-  // Derive which allergens/dietary tags are actually used across menu items.
-  // This makes the filter bar dynamic — only shows options the restaurant uses.
-  const availableAllergens = useMemo(() => {
-    const used = new Set<string>();
-    items.forEach((item) => item.allergens?.forEach((a) => used.add(a)));
-    return FREE_FROM_ALLERGENS.filter((a) => used.has(a));
-  }, [items]);
-
-  const availableDietary = useMemo(() => {
-    const used = new Set<string>();
-    items.forEach((item) => item.dietary_tags?.forEach((d) => used.add(d)));
-    return DIETARY_LIFESTYLE_TAGS.filter((d) => used.has(d));
-  }, [items]);
-
-  // Which food style chips the restaurant has enabled
-  const enabledChipIds = useMemo(() => {
-    const rfSettings = restaurant?.filter_settings as any;
-    if (rfSettings?.foodStyleChips) return rfSettings.foodStyleChips as string[];
-    // Default: all chips that could match at least one item
-    return FOOD_STYLE_FILTERS.map((f) => f.id);
-  }, [restaurant]);
-
-  const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || selectedFoodStyles.length > 0 ||
-    calorieRange[0] > (fs?.calories?.min ?? 0) || calorieRange[1] < (fs?.calories?.max ?? 2000) ||
-    proteinRange[0] > (fs?.protein?.min ?? 0)  || proteinRange[1] < (fs?.protein?.max ?? 100) ||
-    budgetRange[0]  > (fs?.budget?.min ?? 0)   || budgetRange[1]  < (fs?.budget?.max ?? 50);
+  const hasFilters = useMemo(() => {
+    if (excludedAllergens.length > 0 || selectedDietary.length > 0 || selectedFoodStyles.length > 0) return true;
+    return enabledSliders.some((s) => {
+      const range = sliderValues[s.id];
+      return range ? (range[0] > s.min || range[1] < s.max) : false;
+    });
+  }, [excludedAllergens, selectedDietary, selectedFoodStyles, enabledSliders, sliderValues]);
 
   if (loading) {
     return (
@@ -215,48 +240,44 @@ export default function CustomerMenu() {
             <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
           </div>
         )}
-
-        {/* Logo overlapping the bottom of the cover photo */}
         {restaurant?.logo_url && (
           <div className="max-w-7xl mx-auto px-4">
             <img
               src={restaurant.logo_url}
               alt={restaurant.name}
-              className={`h-16 w-16 rounded-xl border-2 border-background shadow-md object-cover ${restaurant?.cover_photo_url ? "-mt-8 relative z-10" : "mt-4"}`}
+              className={`h-16 w-16 rounded-xl border-2 border-background shadow-md object-cover ${
+                restaurant?.cover_photo_url ? "-mt-8 relative z-10" : "mt-4"
+              }`}
             />
           </div>
         )}
       </div>
 
-      {/* Restaurant Info — always below the banner */}
+      {/* Restaurant Info */}
       <div className="max-w-7xl mx-auto px-4 mt-3 mb-6">
-        <div className={restaurant?.logo_url ? "ml-0" : ""}>
-          <h1 className="text-xl font-semibold text-foreground">
-            {restaurant?.name}
-          </h1>
-
-          {restaurant?.slogan && (
-            <p className="text-sm text-primary font-medium">
-              {restaurant.slogan}
-            </p>
-          )}
-
-          {(language === "en" && restaurant?.description_en
-            ? restaurant.description_en
-            : restaurant?.description) && (
-            <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-              {language === "en" && restaurant?.description_en
-                ? restaurant.description_en
-                : restaurant?.description}
-            </p>
-          )}
-        </div>
+        <h1 className="text-xl font-semibold text-foreground">{restaurant?.name}</h1>
+        {restaurant?.slogan && (
+          <p className="text-sm text-primary font-medium">{restaurant.slogan}</p>
+        )}
+        {(language === "en" && restaurant?.description_en
+          ? restaurant.description_en
+          : restaurant?.description) && (
+          <p className="text-sm text-muted-foreground mt-1 max-w-xl">
+            {language === "en" && restaurant?.description_en
+              ? restaurant.description_en
+              : restaurant?.description}
+          </p>
+        )}
       </div>
 
-
       {/* Layout */}
-      <div className={`mx-auto px-4 mt-4 transition-all duration-300 ${selectedItem ? "max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6" : "max-w-2xl"}`}>
-
+      <div
+        className={`mx-auto px-4 mt-4 transition-all duration-300 ${
+          selectedItem
+            ? "max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6"
+            : "max-w-2xl"
+        }`}
+      >
         {/* LEFT SIDE */}
         <div>
           <FoodStyleChips
@@ -264,6 +285,7 @@ export default function CustomerMenu() {
             setSelected={setSelectedFoodStyles}
             slug={slug ?? ""}
             enabledIds={enabledChipIds}
+            customChips={customChips}
           />
           <MenuFilterBar
             slug={slug ?? ""}
@@ -273,15 +295,9 @@ export default function CustomerMenu() {
             setExcludedAllergens={setExcludedAllergens}
             selectedDietary={selectedDietary}
             setSelectedDietary={setSelectedDietary}
-            calorieRange={calorieRange}
-            setCalorieRange={setCalorieRange}
-            calorieSettings={fs?.calories}
-            proteinRange={proteinRange}
-            setProteinRange={setProteinRange}
-            proteinSettings={fs?.protein}
-            budgetRange={budgetRange}
-            setBudgetRange={setBudgetRange}
-            budgetSettings={fs?.budget}
+            sliders={sliders}
+            sliderValues={sliderValues}
+            setSliderValues={setSliderValues}
           />
 
           {groupedItems.length === 0 && hasFilters ? (
@@ -317,7 +333,6 @@ export default function CustomerMenu() {
         {selectedItem && (
           <MenuDetails item={selectedItem} onClose={() => setSelectedItem(null)} />
         )}
-
       </div>
     </div>
   );

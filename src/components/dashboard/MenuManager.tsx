@@ -10,6 +10,7 @@ import { CategoryManager } from "@/components/dashboard/CategoryManager";
 import { RestaurantInfoEditor } from "@/components/dashboard/RestaurantInfoEditor";
 import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEditor";
 import { FoodStyleSettings } from "@/components/dashboard/FoodStyleSettings";
+import { TagSettings } from "@/components/dashboard/TagSettings";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag, Undo2, Redo2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -246,16 +247,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       {/* Restaurant info — name, slogan, description, opening hours */}
       <RestaurantInfoEditor restaurant={restaurant} onUpdate={onRestaurantUpdate} />
 
-      {/* QR Code */}
-      <QRCodeCard slug={restaurant.slug} restaurantName={restaurant.name} />
-
-      {/* Food style chip visibility settings */}
-      <FoodStyleSettings restaurant={restaurant} onUpdate={onRestaurantUpdate} />
-
-      {/* Filter slider settings */}
-      <FilterSettingsEditor restaurant={restaurant} onUpdate={onRestaurantUpdate} />
-
-      {/* Restaurant branding */}
+      {/* Restaurant branding — logo + cover (before QR so photos are set first) */}
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">{t("restaurantBranding")}</CardTitle>
@@ -369,6 +361,18 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
         </CardContent>
       </Card>
 
+      {/* QR Code */}
+      <QRCodeCard slug={restaurant.slug} restaurantName={restaurant.name} />
+
+      {/* Food style chip visibility + custom chips */}
+      <FoodStyleSettings restaurant={restaurant} onUpdate={onRestaurantUpdate} />
+
+      {/* Free From & Dietary tag visibility */}
+      <TagSettings restaurant={restaurant} onUpdate={onRestaurantUpdate} />
+
+      {/* Custom filter sliders */}
+      <FilterSettingsEditor restaurant={restaurant} onUpdate={onRestaurantUpdate} />
+
       {/* Categories */}
       <CategoryManager restaurantId={restaurant.id} categories={categories} onUpdate={loadData} />
 
@@ -406,6 +410,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 item={editingItem}
                 onSave={handleSave}
                 onCancel={() => { setShowForm(false); setEditingItem(null); }}
+                activeAllergens={(restaurant.filter_settings as any)?.activeAllergens}
+                activeDietaryTags={(restaurant.filter_settings as any)?.activeDietaryTags}
               />
             </DialogContent>
           </Dialog>

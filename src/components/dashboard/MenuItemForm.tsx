@@ -24,9 +24,13 @@ interface Props {
   item: Tables<"menu_items"> | null;
   onSave: () => void;
   onCancel: () => void;
+  /** Only show these allergen tags in the form (undefined = show all) */
+  activeAllergens?: string[];
+  /** Only show these dietary tags in the form (undefined = show all) */
+  activeDietaryTags?: string[];
 }
 
-export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel }: Props) {
+export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel, activeAllergens, activeDietaryTags }: Props) {
   const { t } = useLanguage();
   const [name, setName] = useState(item?.name || "");
   const [nameEn, setNameEn] = useState(item?.name_en || "");
@@ -294,28 +298,44 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         )}
       </div>
       {/* Free From section — EU 14 allergens in "free from" style */}
-      <div>
-        <Label>{t("freeFrom")}</Label>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {FREE_FROM_ALLERGENS.map((a) => (
-            <Badge key={a} variant={allergens.includes(a) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(a)}>
-              {tagLabels[a] || a}
-            </Badge>
-          ))}
-        </div>
-      </div>
+      {(() => {
+        const displayAllergens = activeAllergens
+          ? FREE_FROM_ALLERGENS.filter((a) => activeAllergens.includes(a))
+          : [...FREE_FROM_ALLERGENS];
+        if (displayAllergens.length === 0) return null;
+        return (
+          <div>
+            <Label>{t("freeFrom")}</Label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {displayAllergens.map((a) => (
+                <Badge key={a} variant={allergens.includes(a) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(a)}>
+                  {tagLabels[a] || a}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Dietary & Lifestyle section */}
-      <div>
-        <Label>{t("dietaryAndLifestyle")}</Label>
-        <div className="flex flex-wrap gap-2 mt-1">
-          {DIETARY_LIFESTYLE_TAGS.map((d) => (
-            <Badge key={d} variant={dietaryTags.includes(d) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(d)}>
-              {tagLabels[d] || d}
-            </Badge>
-          ))}
-        </div>
-      </div>
+      {(() => {
+        const displayDietary = activeDietaryTags
+          ? DIETARY_LIFESTYLE_TAGS.filter((d) => activeDietaryTags.includes(d))
+          : [...DIETARY_LIFESTYLE_TAGS];
+        if (displayDietary.length === 0) return null;
+        return (
+          <div>
+            <Label>{t("dietaryAndLifestyle")}</Label>
+            <div className="flex flex-wrap gap-2 mt-1">
+              {displayDietary.map((d) => (
+                <Badge key={d} variant={dietaryTags.includes(d) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(d)}>
+                  {tagLabels[d] || d}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
       <div className="flex items-center gap-2">
         <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
         <Label>{t("available")}</Label>

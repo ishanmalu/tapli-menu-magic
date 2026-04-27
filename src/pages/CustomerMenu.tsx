@@ -14,7 +14,7 @@ import { Moon, Sun } from "lucide-react";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { Clock } from "lucide-react";
 import type { AvailabilitySchedule } from "@/integrations/supabase/types";
-import { trackMenuViewed, trackFilterUsed } from "@/lib/posthog";
+import { trackMenuViewed } from "@/lib/posthog";
 
 function isAvailableNow(schedule: AvailabilitySchedule | null | undefined): boolean {
   if (!schedule || !schedule.enabled) return true;
@@ -87,21 +87,6 @@ export default function CustomerMenu() {
 
   const fs = restaurant?.filter_settings as any;
 
-  // Track filter usage (only when restaurant is loaded and filters actually change)
-  useEffect(() => {
-    if (!restaurant || excludedAllergens.length === 0) return;
-    trackFilterUsed({ filterType: "allergen", value: excludedAllergens, slug: restaurant.slug });
-  }, [excludedAllergens]);
-
-  useEffect(() => {
-    if (!restaurant || selectedDietary.length === 0) return;
-    trackFilterUsed({ filterType: "dietary", value: selectedDietary, slug: restaurant.slug });
-  }, [selectedDietary]);
-
-  useEffect(() => {
-    if (!restaurant || selectedFoodStyles.length === 0) return;
-    trackFilterUsed({ filterType: "foodStyle", value: selectedFoodStyles, slug: restaurant.slug });
-  }, [selectedFoodStyles]);
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -246,8 +231,9 @@ export default function CustomerMenu() {
         )}
 
         {/* Filters */}
-        <FoodStyleChips selected={selectedFoodStyles} setSelected={setSelectedFoodStyles} />
+        <FoodStyleChips selected={selectedFoodStyles} setSelected={setSelectedFoodStyles} slug={slug ?? ""} />
         <MenuFilterBar
+          slug={slug ?? ""}
           allergens={[...FREE_FROM_ALLERGENS]}
           dietaryOptions={[...DIETARY_LIFESTYLE_TAGS]}
           excludedAllergens={excludedAllergens}

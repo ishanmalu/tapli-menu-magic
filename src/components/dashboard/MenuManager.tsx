@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { compressImage, localPreview } from "@/lib/imageUtils";
+import { trackSoldOutToggled, trackPhotoUploaded } from "@/lib/posthog";
 
 type MenuItem = Tables<"menu_items">;
 type Category = Tables<"categories">;
@@ -115,6 +116,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
       const { data, error } = await supabase.from("restaurants").update(updatePayload).eq("id", restaurant.id).select().single();
       if (error) throw error;
       if (data) onRestaurantUpdate(data);
+      trackPhotoUploaded({ type });
     } catch (err: any) {
       toast({ title: t("uploadError"), description: err.message, variant: "destructive" });
     } finally {
@@ -170,10 +172,11 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
   const toggleSoldOut = async (item: MenuItem) => {
     try {
-      const { error } = await supabase.from("menu_items").update({ is_sold_out: !item.is_sold_out }).eq("id", item.id);
+      const next = !item.is_sold_out;
+      const { error } = await supabase.from("menu_items").update({ is_sold_out: next }).eq("id", item.id);
       if (error) throw error;
-      // Optimistic local update — no full reload needed
-      setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_sold_out: !item.is_sold_out } : i));
+      setItems(prev => prev.map(i => i.id === item.id ? { ...i, is_sold_out: next } : i));
+      trackSoldOutToggled({ itemId: item.id, itemName: item.name, soldOut: next });
     } catch (err: any) {
       toast({ title: t("error"), description: err.message, variant: "destructive" });
     }

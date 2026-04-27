@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackFoodStyleToggled } from "@/lib/posthog";
 
 export interface FoodStyleFilter {
   id: string;
@@ -51,12 +52,16 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
 interface FoodStyleChipsProps {
   selected: string[];
   setSelected: (v: string[]) => void;
+  slug: string;
 }
 
-export function FoodStyleChips({ selected, setSelected }: FoodStyleChipsProps) {
+export function FoodStyleChips({ selected, setSelected, slug }: FoodStyleChipsProps) {
   const { t } = useLanguage();
-  const toggle = (id: string) =>
-    setSelected(selected.includes(id) ? selected.filter((x) => x !== id) : [...selected, id]);
+  const toggle = (id: string) => {
+    const active = !selected.includes(id);
+    setSelected(active ? [...selected, id] : selected.filter((x) => x !== id));
+    trackFoodStyleToggled({ style: id, active, slug });
+  };
 
   const labelMap: Record<string, string> = {
     "high-protein": t("highProtein"),

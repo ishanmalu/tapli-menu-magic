@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Filter, X } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { trackAllergenToggled, trackDietaryToggled, trackSliderChanged, trackFilterPanelToggled, trackFilterCleared } from "@/lib/posthog";
 
 type SliderSettings = { enabled: boolean; min: number; max: number } | undefined | null;
 
 interface MenuFilterBarProps {
+  slug: string;
   allergens: string[];
   dietaryOptions: string[];
   excludedAllergens: string[];
@@ -26,6 +28,7 @@ interface MenuFilterBarProps {
 }
 
 export function MenuFilterBar({
+  slug,
   allergens, dietaryOptions,
   excludedAllergens, setExcludedAllergens,
   selectedDietary, setSelectedDietary,
@@ -54,6 +57,12 @@ export function MenuFilterBar({
 
   const [open, setOpen] = useState(false);
 
+  const handleOpenToggle = () => {
+    const next = !open;
+    setOpen(next);
+    trackFilterPanelToggled({ open: next, slug });
+  };
+
   const showCalories = calorieSettings?.enabled !== false;
   const showProtein  = proteinSettings?.enabled  !== false;
   const showBudget   = budgetSettings?.enabled   !== false;
@@ -72,11 +81,17 @@ export function MenuFilterBar({
 
   const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || hasSliderFilter;
 
-  const toggleAllergen = (a: string) =>
-    setExcludedAllergens(excludedAllergens.includes(a) ? excludedAllergens.filter((x) => x !== a) : [...excludedAllergens, a]);
+  const toggleAllergen = (a: string) => {
+    const active = !excludedAllergens.includes(a);
+    setExcludedAllergens(active ? [...excludedAllergens, a] : excludedAllergens.filter((x) => x !== a));
+    trackAllergenToggled({ allergen: a, active, slug });
+  };
 
-  const toggleDietary = (d: string) =>
-    setSelectedDietary(selectedDietary.includes(d) ? selectedDietary.filter((x) => x !== d) : [...selectedDietary, d]);
+  const toggleDietary = (d: string) => {
+    const active = !selectedDietary.includes(d);
+    setSelectedDietary(active ? [...selectedDietary, d] : selectedDietary.filter((x) => x !== d));
+    trackDietaryToggled({ tag: d, active, slug });
+  };
 
   const clearAll = () => {
     setExcludedAllergens([]);
@@ -84,12 +99,13 @@ export function MenuFilterBar({
     setCalorieRange([calMin, calMax]);
     setProteinRange([proMin, proMax]);
     setBudgetRange([budMin, budMax]);
+    trackFilterCleared({ slug });
   };
 
   return (
     <div className="mb-4">
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="sm" onClick={() => setOpen(!open)} className="gap-2">
+        <Button variant="outline" size="sm" onClick={handleOpenToggle} className="gap-2">
           <Filter className="h-4 w-4" />
           {t("filters")}
           {hasFilters && (
@@ -143,7 +159,8 @@ export function MenuFilterBar({
                 🔥 {t("sliderCalories")}: <span className="text-primary">{calorieRange[0]} – {calorieRange[1]} {t("kcal")}</span>
               </p>
               <Slider min={calMin} max={calMax} step={10} value={calorieRange}
-                onValueChange={(v) => setCalorieRange(v as [number, number])} />
+                onValueChange={(v) => setCalorieRange(v as [number, number])}
+                onValueCommit={(v) => trackSliderChanged({ slider: "calories", min: v[0], max: v[1], slug })} />
             </div>
           )}
 
@@ -154,7 +171,8 @@ export function MenuFilterBar({
                 💪 {t("sliderProtein")}: <span className="text-primary">{proteinRange[0]} – {proteinRange[1]}g</span>
               </p>
               <Slider min={proMin} max={proMax} step={1} value={proteinRange}
-                onValueChange={(v) => setProteinRange(v as [number, number])} />
+                onValueChange={(v) => setProteinRange(v as [number, number])}
+                onValueCommit={(v) => trackSliderChanged({ slider: "protein", min: v[0], max: v[1], slug })} />
             </div>
           )}
 
@@ -165,7 +183,8 @@ export function MenuFilterBar({
                 💰 {t("sliderBudget")}: <span className="text-primary">€{budgetRange[0]} – €{budgetRange[1]}</span>
               </p>
               <Slider min={budMin} max={budMax} step={1} value={budgetRange}
-                onValueChange={(v) => setBudgetRange(v as [number, number])} />
+                onValueChange={(v) => setBudgetRange(v as [number, number])}
+                onValueCommit={(v) => trackSliderChanged({ slider: "budget", min: v[0], max: v[1], slug })} />
             </div>
           )}
 

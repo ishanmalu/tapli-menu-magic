@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { QrCode, Smartphone, BarChart3, ArrowRight, ExternalLink } from "lucide-react";
-import { trackSignupStarted } from "@/lib/posthog";
+import { trackSignupStarted, trackDemoClicked, trackNavClicked } from "@/lib/posthog";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -23,20 +23,20 @@ export default function Index() {
           <div className="flex items-center gap-2">
             {/* Text links — hidden on mobile, visible from sm up */}
             <div className="hidden sm:flex items-center gap-1">
-              <Link to="/why">
+              <Link to="/why" onClick={() => trackNavClicked({ page: "why" })}>
                 <Button variant="ghost" size="sm">{t("whyNav")}</Button>
               </Link>
-              <Link to="/pricing">
+              <Link to="/pricing" onClick={() => trackNavClicked({ page: "pricing" })}>
                 <Button variant="ghost" size="sm">{t("pricing")}</Button>
               </Link>
-              <Link to="/contact">
+              <Link to="/contact" onClick={() => trackNavClicked({ page: "contact" })}>
                 <Button variant="ghost" size="sm">{t("contact")}</Button>
               </Link>
-              <Link to="/auth">
+              <Link to="/auth" onClick={() => trackNavClicked({ page: "signin" })}>
                 <Button variant="ghost" size="sm">{t("signIn")}</Button>
               </Link>
             </div>
-            <Link to="/auth" onClick={trackSignupStarted}>
+            <Link to="/auth" onClick={() => trackSignupStarted({ button: "get_started_nav" })}>
               <Button size="sm">{t("getStarted")}</Button>
             </Link>
             <LanguageToggle />
@@ -57,12 +57,12 @@ export default function Index() {
           {t("heroDesc")}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Link to="/auth" onClick={trackSignupStarted}>
+          <Link to="/auth" onClick={() => trackSignupStarted({ button: "start_for_free" })}>
             <Button size="lg" className="gap-2 text-base px-8">
               {t("startFree")} <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <a href="https://tapli-menu-magic.pages.dev/menu/tapli-demo" target="_blank" rel="noopener noreferrer">
+          <a href="https://tapli-menu-magic.pages.dev/menu/tapli-demo" target="_blank" rel="noopener noreferrer" onClick={trackDemoClicked}>
             <Button size="lg" variant="outline" className="gap-2 text-base px-8">
               <ExternalLink className="h-4 w-4" /> {t("viewDemo")}
             </Button>

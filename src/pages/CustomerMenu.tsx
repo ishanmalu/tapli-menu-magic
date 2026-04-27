@@ -16,12 +16,16 @@ import { Clock } from "lucide-react";
 import type { AvailabilitySchedule } from "@/integrations/supabase/types";
 
 function isAvailableNow(schedule: AvailabilitySchedule | null | undefined): boolean {
-  if (!schedule || !schedule.enabled || !schedule.slots.length) return true;
+  if (!schedule || !schedule.enabled) return true;
+  const slots = schedule.slots;
+  if (!slots || !Array.isArray(slots) || slots.length === 0) return true;
   const now = new Date();
   const cur = now.getHours() * 60 + now.getMinutes();
-  return schedule.slots.some(({ from, to }) => {
+  return slots.some(({ from, to }) => {
+    if (!from || !to) return false;
     const [fh, fm] = from.split(":").map(Number);
     const [th, tm] = to.split(":").map(Number);
+    if (isNaN(fh) || isNaN(fm) || isNaN(th) || isNaN(tm)) return false;
     return cur >= fh * 60 + fm && cur <= th * 60 + tm;
   });
 }

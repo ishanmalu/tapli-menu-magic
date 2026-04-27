@@ -16,7 +16,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun } from "lucide-react";
 
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
-import type { AvailabilitySchedule } from "@/integrations/supabase/types";
+import type { AvailabilitySchedule } from "@/types/availability";
 import { trackMenuViewed } from "@/lib/posthog";
 import {
   type CustomChip,

@@ -17,7 +17,7 @@ import { compressImage } from "@/lib/imageUtils";
 import { translate } from "@/lib/translate";
 import { Languages } from "lucide-react";
 import { AvailabilityEditor } from "@/components/dashboard/AvailabilityEditor";
-import type { AvailabilitySchedule } from "@/integrations/supabase/types";
+import type { AvailabilitySchedule } from "@/types/availability";
 
 interface Props {
   restaurantId: string;

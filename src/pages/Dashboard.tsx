@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { RestaurantSetup } from "@/components/dashboard/RestaurantSetup";
 import { MenuManager } from "@/components/dashboard/MenuManager";
@@ -11,6 +12,7 @@ import { LogOut } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import tapliLogo from "@/assets/tapli-logo.png";
 import tapliLogoDark from "@/assets/tapli-logo-dark.png";
 
@@ -18,9 +20,32 @@ export default function Dashboard() {
   const { user, loading, signOut } = useAuth();
   const { t } = useLanguage();
   const { theme } = useTheme();
+  const navigate = useNavigate();
   const [restaurant, setRestaurant] = useState<Tables<"restaurants"> | null>(null);
   const [loadingRest, setLoadingRest] = useState(true);
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const { toast } = useToast();
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmInput !== "DELETE") return;
+    setDeletingAccount(true);
+    try {
+      if (restaurant) {
+        await supabase.from("menu_items").delete().eq("restaurant_id", restaurant.id);
+        await supabase.from("categories").delete().eq("restaurant_id", restaurant.id);
+        await supabase.from("restaurants").delete().eq("id", restaurant.id);
+      }
+      const { error } = await supabase.rpc("delete_user");
+      if (error) throw error;
+      await signOut();
+      navigate("/");
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+      setDeletingAccount(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -77,6 +102,48 @@ export default function Dashboard() {
         ) : (
           <MenuManager restaurant={restaurant} onRestaurantUpdate={setRestaurant} />
         )}
+
+        {/* Delete account */}
+        <div className="mt-10 pb-4 flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-destructive text-xs"
+            onClick={() => { setDeleteConfirmInput(""); setShowDeleteAccount(true); }}
+          >
+            {t("deleteAccount")}
+          </Button>
+        </div>
+
+        <Dialog open={showDeleteAccount} onOpenChange={setShowDeleteAccount}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-destructive">{t("deleteAccountTitle")}</DialogTitle>
+              <DialogDescription>{t("deleteAccountDesc")}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 pt-2">
+              <p className="text-sm text-muted-foreground font-medium">{t("typeDeleteConfirm")}</p>
+              <Input
+                placeholder="DELETE"
+                value={deleteConfirmInput}
+                onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                className="font-mono"
+              />
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setShowDeleteAccount(false)} disabled={deletingAccount}>
+                  {t("cancel")}
+                </Button>
+                <Button
+                  variant="destructive"
+                  disabled={deleteConfirmInput !== "DELETE" || deletingAccount}
+                  onClick={handleDeleteAccount}
+                >
+                  {deletingAccount ? t("deleting") : t("deleteAccount")}
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

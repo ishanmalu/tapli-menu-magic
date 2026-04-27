@@ -10,8 +10,9 @@ import { CategoryManager } from "@/components/dashboard/CategoryManager";
 import { RestaurantInfoEditor } from "@/components/dashboard/RestaurantInfoEditor";
 import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEditor";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
-import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag, Undo2, Redo2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { compressImage, localPreview } from "@/lib/imageUtils";
@@ -34,6 +35,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategoryId, setActiveCategoryId] = useState<string>("all");
+  const [undoStack, setUndoStack] = useState<MenuItem[][]>([]);
+  const [redoStack, setRedoStack] = useState<MenuItem[][]>([]);
   const { toast } = useToast();
 
   const fs = restaurant.filter_settings as any;
@@ -83,11 +86,64 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
   useEffect(() => { loadData(); }, [restaurant.id]);
 
+  const pushUndo = (deleted: MenuItem[]) => {
+    setUndoStack(prev => [...prev.slice(-19), deleted]);
+    setRedoStack([]);
+  };
+
   const handleDelete = async (id: string) => {
+    const item = items.find(i => i.id === id);
+    if (!item) return;
     try {
       const { error } = await supabase.from("menu_items").delete().eq("id", id);
       if (error) throw error;
-      loadData();
+      pushUndo([item]);
+      setItems(prev => prev.filter(i => i.id !== id));
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleClearMenu = async () => {
+    if (items.length === 0) return;
+    const snapshot = [...items];
+    try {
+      const { error } = await supabase.from("menu_items").delete().eq("restaurant_id", restaurant.id);
+      if (error) throw error;
+      pushUndo(snapshot);
+      setItems([]);
+      toast({ title: t("menuCleared") });
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleUndo = async () => {
+    if (undoStack.length === 0) return;
+    const deleted = undoStack[undoStack.length - 1];
+    try {
+      const { error } = await supabase.from("menu_items").upsert(deleted);
+      if (error) throw error;
+      setUndoStack(prev => prev.slice(0, -1));
+      setRedoStack(prev => [...prev, deleted]);
+      await loadData();
+      toast({ title: t("undoSuccess") });
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
+
+  const handleRedo = async () => {
+    if (redoStack.length === 0) return;
+    const toDelete = redoStack[redoStack.length - 1];
+    try {
+      const ids = toDelete.map(i => i.id);
+      const { error } = await supabase.from("menu_items").delete().in("id", ids);
+      if (error) throw error;
+      setRedoStack(prev => prev.slice(0, -1));
+      setUndoStack(prev => [...prev, toDelete]);
+      setItems(prev => prev.filter(i => !ids.includes(i.id)));
+      toast({ title: t("redoSuccess") });
     } catch (err: any) {
       toast({ title: t("error"), description: err.message, variant: "destructive" });
     }
@@ -314,8 +370,24 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
       {/* Menu items */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">{t("menuItems")} ({items.length})</CardTitle>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle className="text-lg shrink-0">{t("menuItems")} ({items.length})</CardTitle>
+          <div className="flex items-center gap-1 ml-auto">
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8"
+              onClick={handleUndo} disabled={undoStack.length === 0}
+              title={t("undo")}
+            >
+              <Undo2 className="h-4 w-4" />
+              {undoStack.length > 0 && <span className="sr-only">{undoStack.length}</span>}
+            </Button>
+            <Button
+              variant="ghost" size="icon" className="h-8 w-8"
+              onClick={handleRedo} disabled={redoStack.length === 0}
+              title={t("redo")}
+            >
+              <Redo2 className="h-4 w-4" />
+            </Button>
           <Dialog open={showForm} onOpenChange={(open) => { setShowForm(open); if (!open) setEditingItem(null); }}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-1"><Plus className="h-4 w-4" /> {t("addItem")}</Button>
@@ -333,6 +405,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
               />
             </DialogContent>
           </Dialog>
+          </div>
         </CardHeader>
         <CardContent className="space-y-3">
           {items.length === 0 ? (
@@ -509,6 +582,34 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 );
               })()}
             </>
+          )}
+
+          {/* Clear menu */}
+          {items.length > 0 && (
+            <div className="pt-2 border-t flex justify-end">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10 hover:border-destructive">
+                    {t("clearMenu")}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>{t("clearMenuConfirm")}</AlertDialogTitle>
+                    <AlertDialogDescription>{t("clearMenuConfirmDesc")}</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>{t("cancel")}</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      onClick={handleClearMenu}
+                    >
+                      {t("clearMenu")}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
           )}
         </CardContent>
       </Card>

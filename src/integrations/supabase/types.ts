@@ -165,6 +165,7 @@ export type Database = {
           cover_photo_url: string | null
           created_at: string
           description: string | null
+          description_en: string | null
           filter_settings: Json | null
           id: string
           logo_url: string | null
@@ -179,6 +180,7 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           filter_settings?: Json | null
           id?: string
           logo_url?: string | null
@@ -193,6 +195,7 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           filter_settings?: Json | null
           id?: string
           logo_url?: string | null

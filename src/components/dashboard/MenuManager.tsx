@@ -9,6 +9,7 @@ import { MenuItemForm } from "@/components/dashboard/MenuItemForm";
 import { CategoryManager } from "@/components/dashboard/CategoryManager";
 import { RestaurantInfoEditor } from "@/components/dashboard/RestaurantInfoEditor";
 import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEditor";
+import { FoodStyleSettings } from "@/components/dashboard/FoodStyleSettings";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
 import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag, Undo2, Redo2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -247,6 +248,9 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
 
       {/* QR Code */}
       <QRCodeCard slug={restaurant.slug} restaurantName={restaurant.name} />
+
+      {/* Food style chip visibility settings */}
+      <FoodStyleSettings restaurant={restaurant} onUpdate={onRestaurantUpdate} />
 
       {/* Filter slider settings */}
       <FilterSettingsEditor restaurant={restaurant} onUpdate={onRestaurantUpdate} />

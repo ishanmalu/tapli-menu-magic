@@ -53,9 +53,11 @@ interface FoodStyleChipsProps {
   selected: string[];
   setSelected: (v: string[]) => void;
   slug: string;
+  /** IDs of chips the restaurant has enabled. If undefined, show all. */
+  enabledIds?: string[];
 }
 
-export function FoodStyleChips({ selected, setSelected, slug }: FoodStyleChipsProps) {
+export function FoodStyleChips({ selected, setSelected, slug, enabledIds }: FoodStyleChipsProps) {
   const { t } = useLanguage();
   const toggle = (id: string) => {
     const active = !selected.includes(id);
@@ -72,9 +74,16 @@ export function FoodStyleChips({ selected, setSelected, slug }: FoodStyleChipsPr
     "plant-based": t("plantBased"),
   };
 
+  // Only show chips the restaurant has enabled (undefined = all)
+  const visibleFilters = enabledIds
+    ? FOOD_STYLE_FILTERS.filter((f) => enabledIds.includes(f.id))
+    : FOOD_STYLE_FILTERS;
+
+  if (visibleFilters.length === 0) return null;
+
   return (
     <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide mb-3">
-      {FOOD_STYLE_FILTERS.map((f) => (
+      {visibleFilters.map((f) => (
         <Badge
           key={f.id}
           variant={selected.includes(f.id) ? "default" : "outline"}

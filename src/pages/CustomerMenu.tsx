@@ -16,6 +16,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun, Clock } from "lucide-react";
 
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
+import { FOOD_STYLE_FILTERS } from "@/components/menu/FoodStyleChips";
 import type { AvailabilitySchedule } from "@/integrations/supabase/types";
 import { trackMenuViewed } from "@/lib/posthog";
 
@@ -148,6 +149,28 @@ export default function CustomerMenu() {
     return groups;
   }, [filteredItems, categories]);
 
+  // Derive which allergens/dietary tags are actually used across menu items.
+  // This makes the filter bar dynamic — only shows options the restaurant uses.
+  const availableAllergens = useMemo(() => {
+    const used = new Set<string>();
+    items.forEach((item) => item.allergens?.forEach((a) => used.add(a)));
+    return FREE_FROM_ALLERGENS.filter((a) => used.has(a));
+  }, [items]);
+
+  const availableDietary = useMemo(() => {
+    const used = new Set<string>();
+    items.forEach((item) => item.dietary_tags?.forEach((d) => used.add(d)));
+    return DIETARY_LIFESTYLE_TAGS.filter((d) => used.has(d));
+  }, [items]);
+
+  // Which food style chips the restaurant has enabled
+  const enabledChipIds = useMemo(() => {
+    const rfSettings = restaurant?.filter_settings as any;
+    if (rfSettings?.foodStyleChips) return rfSettings.foodStyleChips as string[];
+    // Default: all chips that could match at least one item
+    return FOOD_STYLE_FILTERS.map((f) => f.id);
+  }, [restaurant]);
+
   const hasFilters = excludedAllergens.length > 0 || selectedDietary.length > 0 || selectedFoodStyles.length > 0 ||
     calorieRange[0] > (fs?.calories?.min ?? 0) || calorieRange[1] < (fs?.calories?.max ?? 2000) ||
     proteinRange[0] > (fs?.protein?.min ?? 0)  || proteinRange[1] < (fs?.protein?.max ?? 100) ||
@@ -236,11 +259,16 @@ export default function CustomerMenu() {
 
         {/* LEFT SIDE */}
         <div>
-          <FoodStyleChips selected={selectedFoodStyles} setSelected={setSelectedFoodStyles} slug={slug ?? ""} />
+          <FoodStyleChips
+            selected={selectedFoodStyles}
+            setSelected={setSelectedFoodStyles}
+            slug={slug ?? ""}
+            enabledIds={enabledChipIds}
+          />
           <MenuFilterBar
             slug={slug ?? ""}
-            allergens={[...FREE_FROM_ALLERGENS]}
-            dietaryOptions={[...DIETARY_LIFESTYLE_TAGS]}
+            allergens={availableAllergens}
+            dietaryOptions={availableDietary}
             excludedAllergens={excludedAllergens}
             setExcludedAllergens={setExcludedAllergens}
             selectedDietary={selectedDietary}

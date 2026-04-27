@@ -81,6 +81,7 @@ export function FilterSettingsEditor({ restaurant, onUpdate }: Props) {
       <CardHeader>
         <CardTitle className="text-lg">{t("filterSliders")}</CardTitle>
         <p className="text-xs text-muted-foreground">{t("filterSlidersDesc")}</p>
+        <p className="text-xs text-muted-foreground/70 italic mt-1">{t("dynamicFilterNote")}</p>
       </CardHeader>
       <CardContent className="space-y-5">
         {sliders.map(({ key, label, unit, absMax }) => {

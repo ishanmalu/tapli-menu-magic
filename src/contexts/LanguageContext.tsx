@@ -344,6 +344,14 @@ const translations = {
     tagNoPork: "No pork",
     tagNoAlcohol: "No alcohol",
     tagNoBeef: "No beef",
+
+    // Dashboard — Food Style Chip settings
+    foodStyleChipsTitle: "Food Style Chips",
+    foodStyleChipsDesc: "Choose which quick-filter chips customers see at the top of your menu.",
+
+    // Dashboard — Filter settings (sliders section)
+    filterSlidersTitle: "Filter Sliders",
+    dynamicFilterNote: "These filters are built automatically from the tags you add to each menu item.",
   },
   fi: {
     // Nav / Index
@@ -686,6 +694,14 @@ const translations = {
     tagNoPork: "Ei sianlihaa",
     tagNoAlcohol: "Ei alkoholia",
     tagNoBeef: "Ei naudanlihaa",
+
+    // Dashboard — Food Style Chip settings
+    foodStyleChipsTitle: "Ruokatyyli-pikavalinnat",
+    foodStyleChipsDesc: "Valitse, mitkä pikavalinnat näkyvät ruokalistan yläosassa asiakkaille.",
+
+    // Dashboard — Filter settings
+    filterSlidersTitle: "Suodattimet",
+    dynamicFilterNote: "Nämä suodattimet muodostuvat automaattisesti tuotteillesi lisätyistä merkeistä.",
   },
 } as const;
 

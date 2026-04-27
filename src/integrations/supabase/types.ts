@@ -1,7 +1,3 @@
-export type FilterSlider = { enabled: boolean; min: number; max: number }
-export type AvailabilitySlot = { label: string; from: string; to: string }
-export type AvailabilitySchedule = { enabled: boolean; slots: AvailabilitySlot[] }
-
 export type Json =
   | string
   | number
@@ -53,7 +49,7 @@ export type Database = {
       menu_items: {
         Row: {
           allergens: string[] | null
-          availability_schedule: AvailabilitySchedule | null
+          availability_schedule: Json | null
           calories: number | null
           category_id: string | null
           created_at: string
@@ -74,7 +70,7 @@ export type Database = {
         }
         Insert: {
           allergens?: string[] | null
-          availability_schedule?: AvailabilitySchedule | null
+          availability_schedule?: Json | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
@@ -95,7 +91,7 @@ export type Database = {
         }
         Update: {
           allergens?: string[] | null
-          availability_schedule?: AvailabilitySchedule | null
+          availability_schedule?: Json | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
@@ -170,11 +166,11 @@ export type Database = {
           created_at: string
           description: string | null
           description_en: string | null
-          filter_settings: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
+          filter_settings: Json | null
           id: string
           logo_url: string | null
           name: string
-          opening_hours: { days: string; hours: string }[] | null
+          opening_hours: Json | null
           owner_id: string
           slogan: string | null
           slug: string
@@ -185,11 +181,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_en?: string | null
-          filter_settings?: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
+          filter_settings?: Json | null
           id?: string
           logo_url?: string | null
           name: string
-          opening_hours?: { days: string; hours: string }[] | null
+          opening_hours?: Json | null
           owner_id: string
           slogan?: string | null
           slug: string
@@ -200,11 +196,11 @@ export type Database = {
           created_at?: string
           description?: string | null
           description_en?: string | null
-          filter_settings?: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
+          filter_settings?: Json | null
           id?: string
           logo_url?: string | null
           name?: string
-          opening_hours?: { days: string; hours: string }[] | null
+          opening_hours?: Json | null
           owner_id?: string
           slogan?: string | null
           slug?: string

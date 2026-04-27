@@ -17,7 +17,7 @@ import { compressImage } from "@/lib/imageUtils";
 import { translate } from "@/lib/translate";
 import { Languages } from "lucide-react";
 import { AvailabilityEditor } from "@/components/dashboard/AvailabilityEditor";
-import type { AvailabilitySchedule } from "@/integrations/supabase/types";
+import type { AvailabilitySchedule } from "@/types/availability";
 
 interface Props {
   restaurantId: string;
@@ -49,7 +49,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
   const [photo, setPhoto] = useState<File | null>(null);
   const [removePhoto, setRemovePhoto] = useState(false);
   const [availabilitySchedule, setAvailabilitySchedule] = useState<AvailabilitySchedule | null>(
-    (item?.availability_schedule as AvailabilitySchedule | null) ?? null
+    (item?.availability_schedule as unknown as AvailabilitySchedule | null) ?? null
   );
   const [submitting, setSubmitting] = useState(false);
   const [translatingName, setTranslatingName] = useState(false);

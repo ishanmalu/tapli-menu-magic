@@ -12,6 +12,7 @@ import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
+import type { CustomTag } from "@/types/filterSettings";
 import { compressImage } from "@/lib/imageUtils";
 import { translate } from "@/lib/translate";
 import { Languages } from "lucide-react";
@@ -28,9 +29,11 @@ interface Props {
   activeAllergens?: string[];
   /** Only show these dietary tags in the form (undefined = show all) */
   activeDietaryTags?: string[];
+  /** Custom tags defined by the restaurant manager */
+  customTags?: CustomTag[];
 }
 
-export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel, activeAllergens, activeDietaryTags }: Props) {
+export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel, activeAllergens, activeDietaryTags, customTags = [] }: Props) {
   const { t } = useLanguage();
   const [name, setName] = useState(item?.name || "");
   const [nameEn, setNameEn] = useState(item?.name_en || "");
@@ -297,19 +300,25 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
           </>
         )}
       </div>
-      {/* Free From section — EU 14 allergens in "free from" style */}
+      {/* Free From section */}
       {(() => {
-        const displayAllergens = activeAllergens
+        const builtIn = activeAllergens
           ? FREE_FROM_ALLERGENS.filter((a) => activeAllergens.includes(a))
           : [...FREE_FROM_ALLERGENS];
-        if (displayAllergens.length === 0) return null;
+        const custom = customTags.filter((ct) => ct.type === "allergen");
+        if (builtIn.length === 0 && custom.length === 0) return null;
         return (
           <div>
             <Label>{t("freeFrom")}</Label>
             <div className="flex flex-wrap gap-2 mt-1">
-              {displayAllergens.map((a) => (
+              {builtIn.map((a) => (
                 <Badge key={a} variant={allergens.includes(a) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(a)}>
                   {tagLabels[a] || a}
+                </Badge>
+              ))}
+              {custom.map((ct) => (
+                <Badge key={ct.id} variant={allergens.includes(ct.id) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleAllergen(ct.id)}>
+                  {ct.label}
                 </Badge>
               ))}
             </div>
@@ -319,17 +328,23 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
 
       {/* Dietary & Lifestyle section */}
       {(() => {
-        const displayDietary = activeDietaryTags
+        const builtIn = activeDietaryTags
           ? DIETARY_LIFESTYLE_TAGS.filter((d) => activeDietaryTags.includes(d))
           : [...DIETARY_LIFESTYLE_TAGS];
-        if (displayDietary.length === 0) return null;
+        const custom = customTags.filter((ct) => ct.type === "dietary");
+        if (builtIn.length === 0 && custom.length === 0) return null;
         return (
           <div>
             <Label>{t("dietaryAndLifestyle")}</Label>
             <div className="flex flex-wrap gap-2 mt-1">
-              {displayDietary.map((d) => (
+              {builtIn.map((d) => (
                 <Badge key={d} variant={dietaryTags.includes(d) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(d)}>
                   {tagLabels[d] || d}
+                </Badge>
+              ))}
+              {custom.map((ct) => (
+                <Badge key={ct.id} variant={dietaryTags.includes(ct.id) ? "default" : "outline"} className="cursor-pointer" onClick={() => toggleDietary(ct.id)}>
+                  {ct.label}
                 </Badge>
               ))}
             </div>

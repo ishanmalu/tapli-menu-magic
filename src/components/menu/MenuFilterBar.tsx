@@ -18,6 +18,8 @@ interface MenuFilterBarProps {
   sliders: SliderConfig[];
   sliderValues: Record<string, [number, number]>;
   setSliderValues: (v: Record<string, [number, number]>) => void;
+  /** Custom tag labels for manager-defined tags */
+  extraTagLabels?: Record<string, string>;
 }
 
 export function MenuFilterBar({
@@ -31,10 +33,12 @@ export function MenuFilterBar({
   sliders,
   sliderValues,
   setSliderValues,
+  extraTagLabels = {},
 }: MenuFilterBarProps) {
   const { t } = useLanguage();
 
   const tagLabels: Record<string, string> = {
+    ...extraTagLabels,
     "gluten-free": t("tagGlutenFree"), "dairy-free": t("tagDairyFree"),
     "egg-free": t("tagEggFree"), "fish-free": t("tagFishFree"),
     "peanut-free": t("tagPeanutFree"), "nut-free": t("tagNutFree"),

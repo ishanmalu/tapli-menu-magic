@@ -8,13 +8,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { Check, Plus, Trash2, Undo2, Redo2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FOOD_STYLE_FILTERS } from "@/components/menu/FoodStyleChips";
 import type { CustomChip, ChipMatchType } from "@/types/filterSettings";
+import { useUndoable } from "@/hooks/useUndoable";
 
-// Generate a simple unique id for new chips
 const uid = () => Math.random().toString(36).slice(2, 10);
 
 interface Props {
@@ -29,50 +29,57 @@ const BLANK_CHIP: Omit<CustomChip, "id"> = {
   matchValue: "",
 };
 
+interface ChipState {
+  enabledChips: string[];
+  customChips: CustomChip[];
+}
+
+function buildChipState(restaurant: Tables<"restaurants">): ChipState {
+  const fs = restaurant.filter_settings as any;
+  const defaultChips = FOOD_STYLE_FILTERS.map((f) => f.id);
+  return {
+    enabledChips: (fs?.foodStyleChips as string[] | undefined) ?? defaultChips,
+    customChips: (fs?.customChips as CustomChip[] | undefined) ?? [],
+  };
+}
+
 export function FoodStyleSettings({ restaurant, onUpdate }: Props) {
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  const defaultChips = FOOD_STYLE_FILTERS.map((f) => f.id);
+  const { state, update, undo, redo, reset, canUndo, canRedo } =
+    useUndoable<ChipState>(buildChipState(restaurant));
 
-  const getState = () => {
-    const fs = restaurant.filter_settings as any;
-    return {
-      enabledChips: (fs?.foodStyleChips as string[] | undefined) ?? defaultChips,
-      customChips: (fs?.customChips as CustomChip[] | undefined) ?? [],
-    };
-  };
-
-  const [enabledChips, setEnabledChips] = useState<string[]>(getState().enabledChips);
-  const [customChips, setCustomChips] = useState<CustomChip[]>(getState().customChips);
   const [saving, setSaving] = useState(false);
   const [savedAnim, setSavedAnim] = useState(false);
-
-  // New chip form state
   const [adding, setAdding] = useState(false);
   const [newChip, setNewChip] = useState<Omit<CustomChip, "id">>(BLANK_CHIP);
 
   useEffect(() => {
-    const s = getState();
-    setEnabledChips(s.enabledChips);
-    setCustomChips(s.customChips);
+    reset(buildChipState(restaurant));
   }, [restaurant.id]);
 
   const toggleBuiltIn = (id: string) =>
-    setEnabledChips((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    );
+    update((prev) => ({
+      ...prev,
+      enabledChips: prev.enabledChips.includes(id)
+        ? prev.enabledChips.filter((x) => x !== id)
+        : [...prev.enabledChips, id],
+    }));
 
   const addChip = () => {
     if (!newChip.label.trim() || !newChip.matchValue.trim()) return;
     const chip: CustomChip = { ...newChip, id: uid(), emoji: newChip.emoji || "✨" };
-    setCustomChips((prev) => [...prev, chip]);
+    update((prev) => ({ ...prev, customChips: [...prev.customChips, chip] }));
     setNewChip(BLANK_CHIP);
     setAdding(false);
   };
 
   const removeCustomChip = (id: string) =>
-    setCustomChips((prev) => prev.filter((c) => c.id !== id));
+    update((prev) => ({
+      ...prev,
+      customChips: prev.customChips.filter((c) => c.id !== id),
+    }));
 
   const handleSave = async () => {
     setSaving(true);
@@ -83,8 +90,8 @@ export function FoodStyleSettings({ restaurant, onUpdate }: Props) {
         .update({
           filter_settings: {
             ...existing,
-            foodStyleChips: enabledChips,
-            customChips,
+            foodStyleChips: state.enabledChips,
+            customChips: state.customChips,
           },
         })
         .eq("id", restaurant.id)
@@ -125,8 +132,20 @@ export function FoodStyleSettings({ restaurant, onUpdate }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{t("foodStyleChipsTitle")}</CardTitle>
-        <p className="text-xs text-muted-foreground">{t("foodStyleChipsDesc")}</p>
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-lg">{t("foodStyleChipsTitle")}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("foodStyleChipsDesc")}</p>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={undo} disabled={!canUndo} title={t("undo")}>
+              <Undo2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={redo} disabled={!canRedo} title={t("redo")}>
+              <Redo2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-5">
         {/* Built-in chips */}
@@ -144,7 +163,7 @@ export function FoodStyleSettings({ restaurant, onUpdate }: Props) {
               </div>
               <Switch
                 id={`chip-${f.id}`}
-                checked={enabledChips.includes(f.id)}
+                checked={state.enabledChips.includes(f.id)}
                 onCheckedChange={() => toggleBuiltIn(f.id)}
               />
             </div>
@@ -157,9 +176,9 @@ export function FoodStyleSettings({ restaurant, onUpdate }: Props) {
           <p className="text-xs text-muted-foreground mb-3">{t("customChipsSectionDesc")}</p>
 
           {/* Existing custom chips */}
-          {customChips.length > 0 && (
+          {state.customChips.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
-              {customChips.map((c) => (
+              {state.customChips.map((c) => (
                 <Badge
                   key={c.id}
                   variant="secondary"

@@ -412,6 +412,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 onCancel={() => { setShowForm(false); setEditingItem(null); }}
                 activeAllergens={(restaurant.filter_settings as any)?.activeAllergens}
                 activeDietaryTags={(restaurant.filter_settings as any)?.activeDietaryTags}
+                customTags={(restaurant.filter_settings as any)?.customTags}
               />
             </DialogContent>
           </Dialog>

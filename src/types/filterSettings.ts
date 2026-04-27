@@ -1,5 +1,13 @@
 // Shared types for restaurant filter_settings JSON column
 
+/** A custom allergen or dietary tag defined by the restaurant manager. */
+export interface CustomTag {
+  id: string;       // stable slug stored in item.allergens / item.dietary_tags
+  label: string;    // primary language display label
+  labelEn?: string; // optional English label
+  type: "allergen" | "dietary"; // which section it appears in
+}
+
 export type ChipMatchType =
   | "dietary_tag"
   | "allergen"
@@ -38,6 +46,8 @@ export interface MenuFilterSettings {
   // Which allergen/dietary tags are active for this restaurant
   activeAllergens?: string[];
   activeDietaryTags?: string[];
+  // Custom tags added by the manager (stored + selectable on items)
+  customTags?: CustomTag[];
   // New custom slider format
   sliders?: SliderConfig[];
   // Legacy format (kept for backwards compat)

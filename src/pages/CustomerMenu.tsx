@@ -20,6 +20,7 @@ import type { AvailabilitySchedule } from "@/integrations/supabase/types";
 import { trackMenuViewed } from "@/lib/posthog";
 import {
   type CustomChip,
+  type CustomTag,
   type SliderConfig,
   getSlidersFromSettings,
   getItemFieldValue,
@@ -117,19 +118,36 @@ export default function CustomerMenu() {
     [rfSettings]
   );
   const customChips = useMemo<CustomChip[]>(() => rfSettings?.customChips ?? [], [rfSettings]);
+  const customTags = useMemo<CustomTag[]>(() => rfSettings?.customTags ?? [], [rfSettings]);
+
+  // Label lookup for manager-defined custom tags — passed to all customer components
+  const extraTagLabels = useMemo<Record<string, string>>(() => {
+    const map: Record<string, string> = {};
+    customTags.forEach((ct) => { map[ct.id] = ct.label; });
+    return map;
+  }, [customTags]);
 
   // Derive which allergens/dietary tags are actually used in items (dynamic filter bar)
+  // Includes both built-in tags and custom tags
   const availableAllergens = useMemo(() => {
     const used = new Set<string>();
     items.forEach((item) => item.allergens?.forEach((a) => used.add(a)));
-    return FREE_FROM_ALLERGENS.filter((a) => used.has(a));
-  }, [items]);
+    const builtIn = FREE_FROM_ALLERGENS.filter((a) => used.has(a));
+    const custom = customTags
+      .filter((ct) => ct.type === "allergen" && used.has(ct.id))
+      .map((ct) => ct.id);
+    return [...builtIn, ...custom];
+  }, [items, customTags]);
 
   const availableDietary = useMemo(() => {
     const used = new Set<string>();
     items.forEach((item) => item.dietary_tags?.forEach((d) => used.add(d)));
-    return DIETARY_LIFESTYLE_TAGS.filter((d) => used.has(d));
-  }, [items]);
+    const builtIn = DIETARY_LIFESTYLE_TAGS.filter((d) => used.has(d));
+    const custom = customTags
+      .filter((ct) => ct.type === "dietary" && used.has(ct.id))
+      .map((ct) => ct.id);
+    return [...builtIn, ...custom];
+  }, [items, customTags]);
 
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
@@ -298,6 +316,7 @@ export default function CustomerMenu() {
             sliders={sliders}
             sliderValues={sliderValues}
             setSliderValues={setSliderValues}
+            extraTagLabels={extraTagLabels}
           />
 
           {groupedItems.length === 0 && hasFilters ? (
@@ -319,6 +338,7 @@ export default function CustomerMenu() {
                       item={item}
                       onClick={() => setSelectedItem(item)}
                       isActive={selectedItem?.id === item.id}
+                      extraTagLabels={extraTagLabels}
                     />
                   ))}
                 </div>
@@ -331,7 +351,11 @@ export default function CustomerMenu() {
 
         {/* RIGHT PANEL (desktop) + BOTTOM SHEET (mobile) */}
         {selectedItem && (
-          <MenuDetails item={selectedItem} onClose={() => setSelectedItem(null)} />
+          <MenuDetails
+            item={selectedItem}
+            onClose={() => setSelectedItem(null)}
+            extraTagLabels={extraTagLabels}
+          />
         )}
       </div>
     </div>

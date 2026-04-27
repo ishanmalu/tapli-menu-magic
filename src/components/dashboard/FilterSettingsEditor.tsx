@@ -8,15 +8,15 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Check, Plus, Trash2 } from "lucide-react";
+import { Check, Plus, Trash2, Undo2, Redo2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import {
   type SliderConfig,
   type SliderField,
-  DEFAULT_SLIDERS,
   getSlidersFromSettings,
 } from "@/types/filterSettings";
+import { useUndoable } from "@/hooks/useUndoable";
 
 type Restaurant = Tables<"restaurants">;
 
@@ -40,16 +40,16 @@ export function FilterSettingsEditor({ restaurant, onUpdate }: Props) {
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  const [sliders, setSliders] = useState<SliderConfig[]>(() =>
-    getSlidersFromSettings(restaurant.filter_settings as any)
-  );
+  const { state: sliders, update: setSliders, undo, redo, reset, canUndo, canRedo } =
+    useUndoable<SliderConfig[]>(getSlidersFromSettings(restaurant.filter_settings as any));
+
   const [saving, setSaving] = useState(false);
   const [savedAnim, setSavedAnim] = useState(false);
   const [adding, setAdding] = useState(false);
   const [newSlider, setNewSlider] = useState<Omit<SliderConfig, "id">>(BLANK_SLIDER);
 
   useEffect(() => {
-    setSliders(getSlidersFromSettings(restaurant.filter_settings as any));
+    reset(getSlidersFromSettings(restaurant.filter_settings as any));
   }, [restaurant.id]);
 
   const updateSlider = (id: string, patch: Partial<SliderConfig>) =>
@@ -104,8 +104,20 @@ export function FilterSettingsEditor({ restaurant, onUpdate }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">{t("customSlidersTitle")}</CardTitle>
-        <p className="text-xs text-muted-foreground">{t("customSlidersDesc")}</p>
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <CardTitle className="text-lg">{t("customSlidersTitle")}</CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">{t("customSlidersDesc")}</p>
+          </div>
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={undo} disabled={!canUndo} title={t("undo")}>
+              <Undo2 className="h-3.5 w-3.5" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={redo} disabled={!canRedo} title={t("redo")}>
+              <Redo2 className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Existing sliders */}

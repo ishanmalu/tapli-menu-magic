@@ -6,12 +6,14 @@ import type { Tables } from "@/integrations/supabase/types";
 interface MenuDetailsProps {
   item: Tables<"menu_items"> | null;
   onClose: () => void;
+  extraTagLabels?: Record<string, string>;
 }
 
-export function MenuDetails({ item, onClose }: MenuDetailsProps) {
+export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsProps) {
   const { t, language } = useLanguage();
 
   const tagLabels: Record<string, string> = {
+    ...extraTagLabels,
     "gluten-free": t("tagGlutenFree"),
     "dairy-free": t("tagDairyFree"),
     "egg-free": t("tagEggFree"),

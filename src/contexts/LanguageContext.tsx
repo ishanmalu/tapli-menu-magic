@@ -373,6 +373,14 @@ const translations = {
     tagSettingsDesc: "Choose which tags are available when adding items. Only enabled tags appear in the item form.",
     tagSettingsFreeFrom: "Free From allergens",
     tagSettingsDietary: "Dietary & Lifestyle",
+    addCustomTag: "Add custom tag",
+    customTagLabel: "Tag name",
+    customTagLabelPlaceholder: "e.g. Tree nuts",
+    customTagType: "Category",
+    customTagTypeFreeFrom: "Free From",
+    customTagTypeDietary: "Dietary & Lifestyle",
+    customTagsSection: "Custom tags",
+    saveTag: "Add",
 
     // Dashboard — Custom filter sliders
     customSlidersTitle: "Filter Sliders",
@@ -762,6 +770,14 @@ const translations = {
     tagSettingsDesc: "Valitse, mitkä tagit näkyvät tuotteen lisäyslomakkeessa. Vain valitut tagit näkyvät.",
     tagSettingsFreeFrom: "Ei sisällä -allergeenit",
     tagSettingsDietary: "Ruokavalio ja elämäntapa",
+    addCustomTag: "Lisää oma tagi",
+    customTagLabel: "Tagin nimi",
+    customTagLabelPlaceholder: "esim. Pähkinätön",
+    customTagType: "Kategoria",
+    customTagTypeFreeFrom: "Ei sisällä",
+    customTagTypeDietary: "Ruokavalio ja elämäntapa",
+    customTagsSection: "Omat tagit",
+    saveTag: "Lisää",
 
     // Dashboard — Custom filter sliders
     customSlidersTitle: "Suodatinliukusäätimet",

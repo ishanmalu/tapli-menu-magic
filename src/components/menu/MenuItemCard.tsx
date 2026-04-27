@@ -8,9 +8,10 @@ interface MenuItemCardProps {
   item: Tables<"menu_items">;
   onClick?: () => void;
   isActive?: boolean;
+  extraTagLabels?: Record<string, string>;
 }
 
-export function MenuItemCard({ item, onClick, isActive }: MenuItemCardProps) {
+export function MenuItemCard({ item, onClick, isActive, extraTagLabels = {} }: MenuItemCardProps) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
@@ -23,6 +24,7 @@ export function MenuItemCard({ item, onClick, isActive }: MenuItemCardProps) {
       : item.description;
 
   const tagLabels: Record<string, string> = {
+    ...extraTagLabels,
     "gluten-free": t("tagGlutenFree"),
     "dairy-free": t("tagDairyFree"),
     "egg-free": t("tagEggFree"),

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { QrCode, Smartphone, BarChart3, ArrowRight, ExternalLink } from "lucide-react";
+import { trackSignupStarted } from "@/lib/posthog";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -35,7 +36,7 @@ export default function Index() {
                 <Button variant="ghost" size="sm">{t("signIn")}</Button>
               </Link>
             </div>
-            <Link to="/auth">
+            <Link to="/auth" onClick={trackSignupStarted}>
               <Button size="sm">{t("getStarted")}</Button>
             </Link>
             <LanguageToggle />
@@ -56,7 +57,7 @@ export default function Index() {
           {t("heroDesc")}
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <Link to="/auth">
+          <Link to="/auth" onClick={trackSignupStarted}>
             <Button size="lg" className="gap-2 text-base px-8">
               {t("startFree")} <ArrowRight className="h-4 w-4" />
             </Button>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { trackItemViewed } from "@/lib/posthog";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +36,7 @@ export default function MealDetails() {
         if (itemError) throw itemError;
         if (!menuItem) { setNotFound(true); return; }
         setItem(menuItem);
+        trackItemViewed({ itemId: menuItem.id, itemName: menuItem.name, restaurantId: menuItem.restaurant_id });
 
         const { data: rest, error: restError } = await supabase
           .from("restaurants")

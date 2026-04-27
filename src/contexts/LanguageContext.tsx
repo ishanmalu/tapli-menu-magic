@@ -37,7 +37,7 @@ const translations = {
     // Auth
     signInDesc: "Sign in to manage your menu",
     createAccount: "Create your restaurant account",
-    verifyDesc: "Enter the verification code sent to your email",
+    verifyDesc: "Click the confirmation link we sent to your email to activate your account.",
     email: "Email",
     password: "Password",
     confirmPassword: "Confirm password",
@@ -379,7 +379,7 @@ const translations = {
     // Auth
     signInDesc: "Kirjaudu hallitaksesi ruokalistaasi",
     createAccount: "Luo ravintolasi tili",
-    verifyDesc: "Syötä sähköpostiisi lähetetty vahvistuskoodi",
+    verifyDesc: "Klikkaa sähköpostiisi lähetettyä vahvistuslinkkiä aktivoidaksesi tilisi.",
     email: "Sähköposti",
     password: "Salasana",
     confirmPassword: "Vahvista salasana",

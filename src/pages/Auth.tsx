@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useToast } from "@/hooks/use-toast";
 import tapliLogo from "@/assets/tapli-logo.png";
 import tapliLogoDark from "@/assets/tapli-logo-dark.png";
@@ -30,7 +29,7 @@ const RESTAURANT_ROLE_KEYS = [
 type Step = "form" | "verify" | "forgot" | "forgot-sent";
 
 export default function Auth() {
-  const { user, loading, signIn, signUp, verifyOtp, resetPassword } = useAuth();
+  const { user, loading, signIn, signUp, resetPassword } = useAuth();
   const { t } = useLanguage();
 
   // Role labels mapped to translations — values stored in DB stay English, display is translated
@@ -56,7 +55,6 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otpCode, setOtpCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -93,19 +91,6 @@ export default function Auth() {
       toast({ title: t("verificationSent"), description: t("checkEmail") });
     } catch (err: any) {
       toast({ title: t("error"), description: err.message, variant: "destructive" });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-    try {
-      const { error } = await verifyOtp(email, otpCode);
-      if (error) throw error;
-    } catch (err: any) {
-      toast({ title: t("verificationFailed"), description: err.message, variant: "destructive" });
     } finally {
       setSubmitting(false);
     }
@@ -171,33 +156,18 @@ export default function Auth() {
         </CardHeader>
         <CardContent>
           {step === "verify" ? (
-            <form onSubmit={handleVerify} className="space-y-6">
-              <div className="flex justify-center">
-                <InputOTP maxLength={6} value={otpCode} onChange={setOtpCode}>
-                  <InputOTPGroup>
-                    <InputOTPSlot index={0} />
-                    <InputOTPSlot index={1} />
-                    <InputOTPSlot index={2} />
-                    <InputOTPSlot index={3} />
-                    <InputOTPSlot index={4} />
-                    <InputOTPSlot index={5} />
-                  </InputOTPGroup>
-                </InputOTP>
-              </div>
-              <Button type="submit" className="w-full" disabled={submitting || otpCode.length < 6}>
-                {submitting ? t("verifying") : t("verifyEmail")}
+            <div className="space-y-4 text-center">
+              <p className="text-4xl">📧</p>
+              <p className="text-sm text-foreground font-medium">{email}</p>
+              <p className="text-sm text-muted-foreground">{t("verifyDesc")}</p>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => { setStep("form"); }}
+              >
+                {t("goBack")}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                {t("didntReceive")}{" "}
-                <button
-                  type="button"
-                  onClick={() => { setStep("form"); setOtpCode(""); }}
-                  className="text-primary underline-offset-4 hover:underline font-medium"
-                >
-                  {t("goBack")}
-                </button>
-              </p>
-            </form>
+            </div>
           ) : step === "forgot" ? (
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <Input

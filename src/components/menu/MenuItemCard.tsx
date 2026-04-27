@@ -52,25 +52,46 @@ export function MenuItemCard({ item }: MenuItemCardProps) {
     "no-beef": t("tagNoBeef"),
   };
 
+  const soldOut = item.is_sold_out ?? false;
+
   return (
     <div
-      onClick={() => navigate(`/meal/${item.id}`)}
-      className="flex gap-3 rounded-lg border bg-card p-3 transition-all hover:shadow-md hover:scale-[1.01] hover:bg-muted/50 cursor-pointer"
+      onClick={() => !soldOut && navigate(`/meal/${item.id}`)}
+      className={`flex gap-3 rounded-lg border bg-card p-3 transition-all
+        ${soldOut
+          ? "cursor-default select-none"
+          : "hover:shadow-md hover:scale-[1.01] hover:bg-muted/50 cursor-pointer"}`}
     >
       {item.photo_url && (
-        <img
-          src={item.photo_url}
-          alt={item.name}
-          className="h-20 w-20 rounded-lg object-cover flex-shrink-0"
-        />
+        <div className="relative flex-shrink-0 h-20 w-20">
+          <img
+            src={item.photo_url}
+            alt={item.name}
+            className="h-20 w-20 rounded-lg object-cover"
+          />
+          {soldOut && (
+            <div className="absolute inset-0 rounded-lg bg-black/55 flex items-center justify-center">
+              <span className="text-[11px] font-bold text-white uppercase tracking-widest text-center leading-tight px-1">
+                {t("soldOut")}
+              </span>
+            </div>
+          )}
+        </div>
       )}
 
       <div className="flex-1 min-w-0">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-foreground text-sm leading-tight">
-            {displayName}
-          </h3>
-          <span className="font-bold text-primary text-sm whitespace-nowrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-semibold text-foreground text-sm leading-tight truncate">
+              {displayName}
+            </h3>
+            {soldOut && !item.photo_url && (
+              <span className="flex-shrink-0 rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                {t("soldOut")}
+              </span>
+            )}
+          </div>
+          <span className={`font-bold text-sm whitespace-nowrap ${soldOut ? "text-muted-foreground line-through" : "text-primary"}`}>
             €{Number(item.price).toFixed(2)}
           </span>
         </div>

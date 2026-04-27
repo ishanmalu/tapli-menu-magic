@@ -12,6 +12,11 @@ import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
+import { compressImage } from "@/lib/imageUtils";
+import { translate } from "@/lib/translate";
+import { Languages } from "lucide-react";
+import { AvailabilityEditor } from "@/components/dashboard/AvailabilityEditor";
+import type { AvailabilitySchedule } from "@/integrations/supabase/types";
 
 interface Props {
   restaurantId: string;
@@ -36,8 +41,32 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
   const [isAvailable, setIsAvailable] = useState(item?.is_available ?? true);
   const [photo, setPhoto] = useState<File | null>(null);
   const [removePhoto, setRemovePhoto] = useState(false);
+  const [availabilitySchedule, setAvailabilitySchedule] = useState<AvailabilitySchedule | null>(
+    (item?.availability_schedule as AvailabilitySchedule | null) ?? null
+  );
   const [submitting, setSubmitting] = useState(false);
+  const [translatingName, setTranslatingName] = useState(false);
+  const [translatingDesc, setTranslatingDesc] = useState(false);
   const { toast } = useToast();
+
+  const autoTranslate = async (
+    text: string,
+    from: "fi" | "en",
+    to: "fi" | "en",
+    setTarget: (v: string) => void,
+    setLoading: (v: boolean) => void
+  ) => {
+    if (!text.trim()) return;
+    setLoading(true);
+    try {
+      const result = await translate(text, from, to);
+      setTarget(result);
+    } catch {
+      toast({ title: t("translateError"), variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Map each tag slug to its translated display label
   const tagLabels: Record<string, string> = {
@@ -87,12 +116,12 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
     try {
       let photoUrl = removePhoto ? null : (item?.photo_url || null);
       if (photo) {
-        const ext = photo.name.split(".").pop();
-        const path = `${restaurantId}/items/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, photo);
+        const compressed = await compressImage(photo, 800, 0.85);
+        const path = `${restaurantId}/items/${Date.now()}.jpg`;
+        const { error: uploadError } = await supabase.storage.from("menu-photos").upload(path, compressed, { contentType: "image/jpeg" });
         if (uploadError) throw uploadError;
         const { data: { publicUrl } } = supabase.storage.from("menu-photos").getPublicUrl(path);
-        photoUrl = publicUrl;
+        photoUrl = `${publicUrl}?t=${Date.now()}`;
       }
 
       const payload = {
@@ -107,6 +136,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         allergens,
         dietary_tags: dietaryTags,
         is_available: isAvailable,
+        availability_schedule: availabilitySchedule as any,
         photo_url: photoUrl,
         restaurant_id: restaurantId,
       };
@@ -126,20 +156,61 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
+      {/* Name FI + EN with translate buttons */}
+      <div className="space-y-1.5">
         <Label>{t("name")} * <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Input value={name} onChange={(e) => setName(e.target.value)} required />
-      </div>
-      <div>
-        <Label>{t("name")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={translatingName || !name.trim()}
+            onClick={() => autoTranslate(name, "fi", "en", setNameEn, setTranslatingName)}
+            className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Languages className="h-3 w-3" />
+            {translatingName ? t("translating") : t("translateToEn")}
+          </button>
+          {nameEn && (
+            <button
+              type="button"
+              disabled={translatingName || !nameEn.trim()}
+              onClick={() => autoTranslate(nameEn, "en", "fi", setName, setTranslatingName)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages className="h-3 w-3" />
+              {t("translateToFi")}
+            </button>
+          )}
+        </div>
         <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} placeholder={t("englishTranslation")} />
       </div>
-      <div>
+
+      {/* Description FI + EN with translate buttons */}
+      <div className="space-y-1.5">
         <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
         <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-      </div>
-      <div>
-        <Label>{t("description")} <span className="text-muted-foreground font-normal text-xs">(EN — {t("optional")})</span></Label>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={translatingDesc || !description.trim()}
+            onClick={() => autoTranslate(description, "fi", "en", setDescriptionEn, setTranslatingDesc)}
+            className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Languages className="h-3 w-3" />
+            {translatingDesc ? t("translating") : t("translateToEn")}
+          </button>
+          {descriptionEn && (
+            <button
+              type="button"
+              disabled={translatingDesc || !descriptionEn.trim()}
+              onClick={() => autoTranslate(descriptionEn, "en", "fi", setDescription, setTranslatingDesc)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages className="h-3 w-3" />
+              {t("translateToFi")}
+            </button>
+          )}
+        </div>
         <Textarea value={descriptionEn} onChange={(e) => setDescriptionEn(e.target.value)} rows={2} placeholder={t("englishTranslation")} />
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -249,6 +320,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel 
         <Switch checked={isAvailable} onCheckedChange={setIsAvailable} />
         <Label>{t("available")}</Label>
       </div>
+
+      <AvailabilityEditor value={availabilitySchedule} onChange={setAvailabilitySchedule} />
+
       <div className="flex gap-2 pt-2">
         <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? t("saving") : item ? t("update") : t("addItem")}</Button>
         <Button type="button" variant="outline" onClick={onCancel}>{t("cancel")}</Button>

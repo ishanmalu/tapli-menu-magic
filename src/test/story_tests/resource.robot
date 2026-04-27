@@ -8,4 +8,3 @@ Open App
     Click    text=Login
     Fill Text    input[name="email"]    test@test.com
 
-#testing

@@ -75,11 +75,7 @@ export function MenuDetails({ item, onClose }: MenuDetailsProps) {
       {/* Photo */}
       {item.photo_url && (
         <div className="relative overflow-hidden rounded-xl">
-          <img
-            src={item.photo_url}
-            alt={displayName}
-            className="w-full h-44 object-cover"
-          />
+          <img src={item.photo_url} alt={displayName} className="w-full h-44 object-cover" />
           {soldOut && (
             <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-xl">
               <span className="text-sm font-bold text-white uppercase tracking-widest">
@@ -121,9 +117,7 @@ export function MenuDetails({ item, onClose }: MenuDetailsProps) {
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {item.allergens!.map((a) => (
-              <Badge key={a} variant="secondary" className="text-xs">
-                {tagLabels[a] || a}
-              </Badge>
+              <Badge key={a} variant="secondary" className="text-xs">{tagLabels[a] || a}</Badge>
             ))}
           </div>
         </div>
@@ -137,9 +131,7 @@ export function MenuDetails({ item, onClose }: MenuDetailsProps) {
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {item.dietary_tags!.map((d) => (
-              <Badge key={d} className="text-xs">
-                {tagLabels[d] || d}
-              </Badge>
+              <Badge key={d} className="text-xs">{tagLabels[d] || d}</Badge>
             ))}
           </div>
         </div>
@@ -149,14 +141,10 @@ export function MenuDetails({ item, onClose }: MenuDetailsProps) {
 
   return (
     <>
-      {/* ── Mobile: bottom sheet overlay ── */}
+      {/* Mobile: bottom sheet */}
       <div className="lg:hidden">
-        <div
-          className="fixed inset-0 bg-black/40 z-40"
-          onClick={onClose}
-        />
+        <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
         <div className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto">
-          {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1">
             <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
           </div>
@@ -164,7 +152,7 @@ export function MenuDetails({ item, onClose }: MenuDetailsProps) {
         </div>
       </div>
 
-      {/* ── Desktop: sticky sidebar ── */}
+      {/* Desktop: sticky sidebar */}
       <div className="hidden lg:block sticky top-4 rounded-2xl border bg-card p-5 shadow-sm">
         {content}
       </div>

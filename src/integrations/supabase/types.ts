@@ -49,14 +49,18 @@ export type Database = {
       menu_items: {
         Row: {
           allergens: string[] | null
+          availability_schedule: Json | null
           calories: number | null
           category_id: string | null
           created_at: string
           description: string | null
+          description_en: string | null
           dietary_tags: string[] | null
           id: string
           is_available: boolean
+          is_sold_out: boolean
           name: string
+          name_en: string | null
           photo_url: string | null
           price: number
           protein: number | null
@@ -66,14 +70,18 @@ export type Database = {
         }
         Insert: {
           allergens?: string[] | null
+          availability_schedule?: Json | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           dietary_tags?: string[] | null
           id?: string
           is_available?: boolean
+          is_sold_out?: boolean
           name: string
+          name_en?: string | null
           photo_url?: string | null
           price: number
           protein?: number | null
@@ -83,14 +91,18 @@ export type Database = {
         }
         Update: {
           allergens?: string[] | null
+          availability_schedule?: Json | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
           description?: string | null
+          description_en?: string | null
           dietary_tags?: string[] | null
           id?: string
           is_available?: boolean
+          is_sold_out?: boolean
           name?: string
+          name_en?: string | null
           photo_url?: string | null
           price?: number
           protein?: number | null
@@ -153,10 +165,13 @@ export type Database = {
           cover_photo_url: string | null
           created_at: string
           description: string | null
+          filter_settings: Json | null
           id: string
           logo_url: string | null
           name: string
+          opening_hours: Json | null
           owner_id: string
+          slogan: string | null
           slug: string
           updated_at: string
         }
@@ -164,10 +179,13 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           description?: string | null
+          filter_settings?: Json | null
           id?: string
           logo_url?: string | null
           name: string
+          opening_hours?: Json | null
           owner_id: string
+          slogan?: string | null
           slug: string
           updated_at?: string
         }
@@ -175,10 +193,13 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           description?: string | null
+          filter_settings?: Json | null
           id?: string
           logo_url?: string | null
           name?: string
+          opening_hours?: Json | null
           owner_id?: string
+          slogan?: string | null
           slug?: string
           updated_at?: string
         }

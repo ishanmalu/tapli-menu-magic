@@ -1,7 +1,3 @@
-export type FilterSlider = { enabled: boolean; min: number; max: number }
-export type AvailabilitySlot = { label: string; from: string; to: string }
-export type AvailabilitySchedule = { enabled: boolean; slots: AvailabilitySlot[] }
-
 export type Json =
   | string
   | number
@@ -53,18 +49,14 @@ export type Database = {
       menu_items: {
         Row: {
           allergens: string[] | null
-          availability_schedule: AvailabilitySchedule | null
           calories: number | null
           category_id: string | null
           created_at: string
           description: string | null
-          description_en: string | null
           dietary_tags: string[] | null
           id: string
           is_available: boolean
-          is_sold_out: boolean
           name: string
-          name_en: string | null
           photo_url: string | null
           price: number
           protein: number | null
@@ -74,18 +66,14 @@ export type Database = {
         }
         Insert: {
           allergens?: string[] | null
-          availability_schedule?: AvailabilitySchedule | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
           description?: string | null
-          description_en?: string | null
           dietary_tags?: string[] | null
           id?: string
           is_available?: boolean
-          is_sold_out?: boolean
           name: string
-          name_en?: string | null
           photo_url?: string | null
           price: number
           protein?: number | null
@@ -95,18 +83,14 @@ export type Database = {
         }
         Update: {
           allergens?: string[] | null
-          availability_schedule?: AvailabilitySchedule | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
           description?: string | null
-          description_en?: string | null
           dietary_tags?: string[] | null
           id?: string
           is_available?: boolean
-          is_sold_out?: boolean
           name?: string
-          name_en?: string | null
           photo_url?: string | null
           price?: number
           protein?: number | null
@@ -169,14 +153,10 @@ export type Database = {
           cover_photo_url: string | null
           created_at: string
           description: string | null
-          description_en: string | null
-          filter_settings: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
           id: string
           logo_url: string | null
           name: string
-          opening_hours: { days: string; hours: string }[] | null
           owner_id: string
-          slogan: string | null
           slug: string
           updated_at: string
         }
@@ -184,14 +164,10 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           description?: string | null
-          description_en?: string | null
-          filter_settings?: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
           id?: string
           logo_url?: string | null
           name: string
-          opening_hours?: { days: string; hours: string }[] | null
           owner_id: string
-          slogan?: string | null
           slug: string
           updated_at?: string
         }
@@ -199,14 +175,10 @@ export type Database = {
           cover_photo_url?: string | null
           created_at?: string
           description?: string | null
-          description_en?: string | null
-          filter_settings?: { calories: FilterSlider; protein: FilterSlider; budget: FilterSlider } | null
           id?: string
           logo_url?: string | null
           name?: string
-          opening_hours?: { days: string; hours: string }[] | null
           owner_id?: string
-          slogan?: string | null
           slug?: string
           updated_at?: string
         }

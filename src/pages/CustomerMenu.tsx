@@ -84,9 +84,6 @@ export default function CustomerMenu() {
         setCategories(cats || []);
         setItems(menuItems || []);
 
-        // 🔥 Auto-select first item
-        if (menuItems?.length) setSelectedItem(menuItems[0]);
-
       } catch {
         setNotFound(true);
       } finally {
@@ -183,32 +180,34 @@ export default function CustomerMenu() {
         </button>
       </div>
 
-      {restaurant?.cover_photo_url && (
-        <div className="relative w-full h-[200px] md:h-[240px] overflow-hidden">
-          <img
-            src={restaurant.cover_photo_url}
-            alt={restaurant.name}
-            className="absolute inset-0 w-full h-full object-cover scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-        </div>
-      )}
-
-          {/* Restaurant Info */}
-    <div className="max-w-7xl mx-auto px-4 -mt-12 mb-6 relative z-10">
-      <div className="flex items-start gap-4">
-
-        {/* Logo */}
-        {restaurant?.logo_url && (
-          <img
-            src={restaurant.logo_url}
-            alt={restaurant.name}
-            className="h-16 w-16 rounded-xl border-2 border-background shadow-md object-cover"
-          />
+      {/* Cover photo + logo overlap */}
+      <div className="relative">
+        {restaurant?.cover_photo_url && (
+          <div className="relative w-full h-[200px] md:h-[240px] overflow-hidden">
+            <img
+              src={restaurant.cover_photo_url}
+              alt={restaurant.name}
+              className="absolute inset-0 w-full h-full object-cover scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+          </div>
         )}
 
-        {/* Text */}
-        <div>
+        {/* Logo overlapping the bottom of the cover photo */}
+        {restaurant?.logo_url && (
+          <div className="max-w-7xl mx-auto px-4">
+            <img
+              src={restaurant.logo_url}
+              alt={restaurant.name}
+              className={`h-16 w-16 rounded-xl border-2 border-background shadow-md object-cover ${restaurant?.cover_photo_url ? "-mt-8 relative z-10" : "mt-4"}`}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Restaurant Info — always below the banner */}
+      <div className="max-w-7xl mx-auto px-4 mt-3 mb-6">
+        <div className={restaurant?.logo_url ? "ml-0" : ""}>
           <h1 className="text-xl font-semibold text-foreground">
             {restaurant?.name}
           </h1>
@@ -229,9 +228,7 @@ export default function CustomerMenu() {
             </p>
           )}
         </div>
-
       </div>
-    </div>
 
 
       {/* Layout */}

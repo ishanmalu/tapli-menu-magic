@@ -172,7 +172,7 @@ export default function CustomerMenu() {
       }
 
       // Availability schedule
-      if (!isAvailableNow(item.availability_schedule as AvailabilitySchedule | null)) return false;
+      if (!isAvailableNow(item.availability_schedule as unknown as AvailabilitySchedule | null)) return false;
 
       // Food style chips (built-in + custom)
       if (selectedFoodStyles.length > 0) {

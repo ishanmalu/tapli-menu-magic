@@ -49,7 +49,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
   const [photo, setPhoto] = useState<File | null>(null);
   const [removePhoto, setRemovePhoto] = useState(false);
   const [availabilitySchedule, setAvailabilitySchedule] = useState<AvailabilitySchedule | null>(
-    (item?.availability_schedule as AvailabilitySchedule | null) ?? null
+    (item?.availability_schedule as unknown as AvailabilitySchedule | null) ?? null
   );
   const [submitting, setSubmitting] = useState(false);
   const [translatingName, setTranslatingName] = useState(false);

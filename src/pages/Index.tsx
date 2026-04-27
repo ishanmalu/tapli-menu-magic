@@ -62,7 +62,7 @@ export default function Index() {
               {t("startFree")} <ArrowRight className="h-4 w-4" />
             </Button>
           </Link>
-          <a href="https://tapli-menu-magic.pages.dev/menu/tapli-demo" target="_blank" rel="noopener noreferrer" onClick={trackDemoClicked}>
+          <a href="https://tapliapp.com/menu/tapli-demo" target="_blank" rel="noopener noreferrer" onClick={trackDemoClicked}>
             <Button size="lg" variant="outline" className="gap-2 text-base px-8">
               <ExternalLink className="h-4 w-4" /> {t("viewDemo")}
             </Button>

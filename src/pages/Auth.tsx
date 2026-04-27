@@ -27,10 +27,10 @@ const RESTAURANT_ROLE_KEYS = [
   "Operations Manager",
 ] as const;
 
-type Step = "form" | "verify";
+type Step = "form" | "verify" | "forgot" | "forgot-sent";
 
 export default function Auth() {
-  const { user, loading, signIn, signUp, verifyOtp } = useAuth();
+  const { user, loading, signIn, signUp, verifyOtp, resetPassword } = useAuth();
   const { t } = useLanguage();
 
   // Role labels mapped to translations — values stored in DB stay English, display is translated
@@ -61,8 +61,9 @@ export default function Auth() {
   const { toast } = useToast();
 
   useEffect(() => {
-    document.title = isLogin ? "Tapli — Sign In" : "Tapli — Sign Up";
-  }, [isLogin]);
+    if (step === "forgot" || step === "forgot-sent") document.title = "Tapli — Reset Password";
+    else document.title = isLogin ? "Tapli — Sign In" : "Tapli — Sign Up";
+  }, [isLogin, step]);
 
   if (loading) return <div className="flex min-h-screen items-center justify-center"><div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   if (user) return <Navigate to="/dashboard" replace />;
@@ -110,6 +111,20 @@ export default function Auth() {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitting(true);
+    try {
+      const { error } = await resetPassword(email);
+      if (error) throw error;
+      setStep("forgot-sent");
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
@@ -145,6 +160,10 @@ export default function Auth() {
           <CardDescription>
             {step === "verify"
               ? t("verifyDesc")
+              : step === "forgot"
+              ? t("forgotPasswordDesc")
+              : step === "forgot-sent"
+              ? t("resetLinkSentDesc")
               : isLogin
               ? t("signInDesc")
               : t("createAccount")}
@@ -179,10 +198,53 @@ export default function Auth() {
                 </button>
               </p>
             </form>
+          ) : step === "forgot" ? (
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <Input
+                type="email"
+                placeholder={t("email")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <Button type="submit" className="w-full" disabled={submitting}>
+                {submitting ? t("sendingResetLink") : t("sendResetLink")}
+              </Button>
+              <p className="text-center text-sm text-muted-foreground">
+                <button
+                  type="button"
+                  onClick={() => setStep("form")}
+                  className="text-primary underline-offset-4 hover:underline font-medium"
+                >
+                  {t("backToSignIn")}
+                </button>
+              </p>
+            </form>
+          ) : step === "forgot-sent" ? (
+            <div className="space-y-4 text-center">
+              <p className="text-4xl">📧</p>
+              <p className="text-sm text-muted-foreground">{t("resetLinkSentDesc")}</p>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => { setStep("form"); setEmail(""); }}
+              >
+                {t("backToSignIn")}
+              </Button>
+            </div>
           ) : isLogin ? (
             <form onSubmit={handleSignIn} className="space-y-4">
               <Input type="email" placeholder={t("email")} value={email} onChange={(e) => setEmail(e.target.value)} required />
               <Input type="password" placeholder={t("password")} value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+              <div className="flex justify-end -mt-1">
+                <button
+                  type="button"
+                  onClick={() => setStep("forgot")}
+                  className="text-xs text-muted-foreground hover:text-primary underline-offset-4 hover:underline"
+                >
+                  {t("forgotPassword")}
+                </button>
+              </div>
               <Button type="submit" className="w-full" disabled={submitting}>
                 {submitting ? t("signingIn") : t("signIn")}
               </Button>

@@ -16,6 +16,7 @@ import Contact from "./pages/Contact";
 import Why from "./pages/Why";
 import NotFound from "./pages/NotFound";
 import MealDetails from "./pages/MealDetails";
+import ResetPassword from "./pages/ResetPassword";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/why" element={<Why />} />
                 <Route path="/meal/:id" element={<MealDetails />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               </ErrorBoundary>

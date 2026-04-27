@@ -55,7 +55,7 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Nav */}
-      <nav className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b bg-card sticky top-0 z-50 will-change-transform [transform:translateZ(0)]">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
             <img src={theme === "dark" ? tapliLogoDark : tapliLogo} alt="Tapli" className="h-7 w-auto" />

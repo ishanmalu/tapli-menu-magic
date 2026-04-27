@@ -256,7 +256,7 @@ export default function CustomerMenu() {
           groupedItems.map((group, i) => (
             <div key={group.category?.id || `uncategorized-${i}`} className="mb-6">
               {group.category && (
-                <h2 className="text-lg font-semibold text-foreground mb-3 sticky top-0 bg-background py-2 z-10">
+                <h2 className="text-lg font-semibold text-foreground mb-3 sticky top-0 bg-background py-2 z-20 will-change-transform [transform:translateZ(0)]">
                   {tCategory(group.category.name)}
                 </h2>
               )}

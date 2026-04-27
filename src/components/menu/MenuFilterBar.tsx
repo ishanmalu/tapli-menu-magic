@@ -208,7 +208,7 @@ export function MenuFilterBar({
                   value={range}
                   onValueChange={(v) => updateSlider(s.id, v as [number, number])}
                   onValueCommit={(v) =>
-                    trackSliderChanged({ slider: s.id, min: v[0], max: v[1], slug })
+                    trackSliderChanged({ slider: s.id as "budget" | "calories" | "protein", min: v[0], max: v[1], slug })
                   }
                 />
               </div>

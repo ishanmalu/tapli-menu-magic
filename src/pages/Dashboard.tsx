@@ -37,7 +37,7 @@ export default function Dashboard() {
         await supabase.from("categories").delete().eq("restaurant_id", restaurant.id);
         await supabase.from("restaurants").delete().eq("id", restaurant.id);
       }
-      const { error } = await supabase.rpc("delete_user");
+      const { error } = await (supabase.rpc as any)("delete_user");
       if (error) throw error;
       await signOut();
       navigate("/");

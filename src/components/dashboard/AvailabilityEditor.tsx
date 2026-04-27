@@ -83,7 +83,14 @@ export function AvailabilityEditor({ value, onChange }: Props) {
                 <button
                   key={p.label}
                   type="button"
-                  onClick={() => active ? removeSlot(slots.findIndex(s => s.label === p.label)) : addPreset(p)}
+                  onClick={() => {
+                    if (active) {
+                      const idx = slots.findIndex(s => s.label === p.label);
+                      if (idx !== -1) removeSlot(idx);
+                    } else {
+                      addPreset(p);
+                    }
+                  }}
                   className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors
                     ${active
                       ? "bg-primary text-primary-foreground border-primary"

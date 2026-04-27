@@ -251,6 +251,11 @@ const translations = {
     pageNotFoundDesc: "Oops! The page you're looking for doesn't exist.",
     returnHome: "Return to Home",
 
+    // Meal details
+    backToMenu: "← Back to menu",
+    itemNotFound: "Item not found",
+    itemNotFoundDesc: "This menu item doesn't exist or has been removed.",
+
     // Accessibility alt text
     logoAlt: "Restaurant logo",
     coverAlt: "Restaurant cover photo",
@@ -561,6 +566,11 @@ const translations = {
     pageNotFound: "Sivua ei löydy",
     pageNotFoundDesc: "Hups! Etsimääsi sivua ei ole olemassa.",
     returnHome: "Palaa etusivulle",
+
+    // Meal details
+    backToMenu: "← Takaisin ruokalistalle",
+    itemNotFound: "Tuotetta ei löydy",
+    itemNotFoundDesc: "Tätä ruokalistan tuotetta ei ole tai se on poistettu.",
 
     // Accessibility alt text
     logoAlt: "Ravintolan logo",

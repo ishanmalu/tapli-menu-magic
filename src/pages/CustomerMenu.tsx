@@ -52,7 +52,7 @@ export default function CustomerMenu() {
     if (!slug) return;
     const load = async () => {
       try {
-        const { data: rest, error: restError } = await supabase.from("restaurants").select("*").eq("slug", slug).single();
+        const { data: rest, error: restError } = await supabase.from("restaurants").select("*").eq("slug", slug).maybeSingle();
         if (restError || !rest) { setNotFound(true); return; }
         setRestaurant(rest);
         document.title = `Tapli — ${rest.name}`;

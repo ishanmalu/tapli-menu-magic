@@ -155,25 +155,27 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
     </div>
   );
 
-  // Shared bottom-sheet inner wrapper
-  const sheet = (
-    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
-      <div className="pointer-events-auto w-full lg:max-w-xl bg-card rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto">
-        {/* Drag handle */}
-        <div className="flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-        </div>
-        <div className="px-5 pb-10 pt-2">{content}</div>
-      </div>
-    </div>
-  );
-
   return (
     <>
       {/* Backdrop */}
       <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-      {/* Bottom sheet — full width on mobile, centered max-w-xl on desktop */}
-      {sheet}
+
+      {/* Mobile: bottom sheet */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-50">
+        <div className="w-full bg-card rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto">
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+          </div>
+          <div className="px-5 pb-10 pt-2">{content}</div>
+        </div>
+      </div>
+
+      {/* Desktop: centered modal */}
+      <div className="hidden lg:flex fixed inset-0 z-50 items-center justify-center p-6 pointer-events-none">
+        <div className="pointer-events-auto w-full max-w-lg bg-card rounded-2xl shadow-2xl max-h-[85vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="px-6 py-6">{content}</div>
+        </div>
+      </div>
     </>
   );
 }

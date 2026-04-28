@@ -32,6 +32,20 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
       item.dietary_tags?.some((t) => ["vegetarian", "vegan"].includes(t)) ?? false,
   },
   {
+    id: "low-calorie",
+    emoji: "🥗",
+    match: (item) => item.calories != null && item.calories <= 300,
+  },
+  {
+    id: "red-meat-free",
+    emoji: "🥩",
+    // Matches items explicitly free from red meat, or vegetarian/vegan (implicitly red meat free)
+    match: (item) =>
+      item.dietary_tags?.some((t) =>
+        ["red-meat-free", "no-beef", "no-pork", "vegetarian", "vegan"].includes(t)
+      ) ?? false,
+  },
+  {
     id: "dairy-free",
     emoji: "🧀",
     match: (item) => item.allergens?.includes("dairy-free") ?? false,
@@ -66,11 +80,13 @@ export function FoodStyleChips({
   };
 
   const labelMap: Record<string, string> = {
-    "high-protein": t("highProtein"),
-    "vegan":        t("tagVegan"),
-    "vegetarian":   t("tagVegetarian"),
-    "dairy-free":   t("dairyFree"),
-    "gluten-free":  t("glutenFree"),
+    "high-protein":  t("highProtein"),
+    "vegan":         t("tagVegan"),
+    "vegetarian":    t("tagVegetarian"),
+    "low-calorie":   t("lowCalorie"),
+    "red-meat-free": t("redMeatFree"),
+    "dairy-free":    t("dairyFree"),
+    "gluten-free":   t("glutenFree"),
   };
 
   const visibleChips = enabledIds

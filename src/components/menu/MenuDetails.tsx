@@ -99,21 +99,15 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
       {hasNutrition && (
         <div className="grid grid-cols-2 gap-2">
           {item.calories != null && (
-            <div className="flex items-center gap-3 bg-orange-500/10 rounded-xl px-4 py-3">
-              <span className="text-2xl">🔥</span>
-              <div>
-                <div className="text-lg font-bold text-foreground leading-none">{item.calories}</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{t("kcal")}</div>
-              </div>
+            <div className="flex flex-col items-center justify-center bg-muted/40 rounded-xl px-4 py-3 text-center">
+              <div className="text-lg font-bold text-foreground leading-none">{item.calories}</div>
+              <div className="text-xs text-muted-foreground mt-1">{t("kcal")}</div>
             </div>
           )}
           {item.protein != null && (
-            <div className="flex items-center gap-3 bg-blue-500/10 rounded-xl px-4 py-3">
-              <span className="text-2xl">💪</span>
-              <div>
-                <div className="text-lg font-bold text-foreground leading-none">{Number(item.protein)}g</div>
-                <div className="text-xs text-muted-foreground mt-0.5">{t("protein")}</div>
-              </div>
+            <div className="flex flex-col items-center justify-center bg-muted/40 rounded-xl px-4 py-3 text-center">
+              <div className="text-lg font-bold text-foreground leading-none">{Number(item.protein)}g</div>
+              <div className="text-xs text-muted-foreground mt-1">{t("protein")}</div>
             </div>
           )}
         </div>

@@ -251,16 +251,18 @@ export default function CustomerMenu() {
         </div>
       )}
 
-      {/* Logo + restaurant info — all aligned to same max-w-2xl container */}
-      <div className="max-w-2xl mx-auto px-4 mb-6">
+      {/* Logo + restaurant info */}
+      <div className="max-w-2xl mx-auto px-4 mb-6 text-center">
         {restaurant?.logo_url && (
-          <img
-            src={restaurant.logo_url}
-            alt={restaurant.name}
-            className={`h-20 w-20 rounded-2xl border-2 border-background shadow-md object-cover ${
-              restaurant?.cover_photo_url ? "-mt-10 relative z-10" : "mt-4"
-            }`}
-          />
+          <div className="flex justify-center">
+            <img
+              src={restaurant.logo_url}
+              alt={restaurant.name}
+              className={`h-20 w-20 rounded-2xl border-2 border-background shadow-md object-cover ${
+                restaurant?.cover_photo_url ? "-mt-10 relative z-10" : "mt-4"
+              }`}
+            />
+          </div>
         )}
         <div className={restaurant?.logo_url ? "mt-3" : "mt-4"}>
           <h1 className="text-xl font-semibold text-foreground">{restaurant?.name}</h1>

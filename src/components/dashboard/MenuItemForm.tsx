@@ -54,9 +54,13 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
   const [ingredientsText, setIngredientsText] = useState(
     (item?.ingredients ?? []).join(", ")
   );
+  const [ingredientsTextEn, setIngredientsTextEn] = useState(
+    (item?.ingredients_en ?? []).join(", ")
+  );
   const [submitting, setSubmitting] = useState(false);
   const [translatingName, setTranslatingName] = useState(false);
   const [translatingDesc, setTranslatingDesc] = useState(false);
+  const [translatingIngredients, setTranslatingIngredients] = useState(false);
   const { toast } = useToast();
 
   const autoTranslate = async (
@@ -147,6 +151,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
         dietary_tags: dietaryTags,
         ingredients: ingredientsText.trim()
           ? ingredientsText.split(",").map((s) => s.trim()).filter(Boolean)
+          : null,
+        ingredients_en: ingredientsTextEn.trim()
+          ? ingredientsTextEn.split(",").map((s) => s.trim()).filter(Boolean)
           : null,
         is_available: isAvailable,
         availability_schedule: availabilitySchedule as any,
@@ -253,13 +260,41 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
           <Input type="number" step="0.1" min="0" value={protein} onChange={(e) => setProtein(e.target.value)} />
         </div>
       </div>
-      <div>
-        <Label>{t("ingredients")}</Label>
-        <p className="text-xs text-muted-foreground mb-1">{t("ingredientsHint")}</p>
+      <div className="space-y-1.5">
+        <Label>{t("ingredients")} <span className="text-muted-foreground font-normal text-xs">(FI)</span></Label>
+        <p className="text-xs text-muted-foreground">{t("ingredientsHint")}</p>
         <Textarea
           value={ingredientsText}
           onChange={(e) => setIngredientsText(e.target.value)}
           placeholder={t("ingredientsPlaceholder")}
+          rows={2}
+        />
+        <div className="flex gap-2">
+          <button
+            type="button"
+            disabled={translatingIngredients || !ingredientsText.trim()}
+            onClick={() => autoTranslate(ingredientsText, "fi", "en", setIngredientsTextEn, setTranslatingIngredients)}
+            className="flex items-center gap-1 text-xs text-primary hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Languages className="h-3 w-3" />
+            {translatingIngredients ? t("translating") : t("translateToEn")}
+          </button>
+          {ingredientsTextEn && (
+            <button
+              type="button"
+              disabled={translatingIngredients || !ingredientsTextEn.trim()}
+              onClick={() => autoTranslate(ingredientsTextEn, "en", "fi", setIngredientsText, setTranslatingIngredients)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:underline disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <Languages className="h-3 w-3" />
+              {t("translateToFi")}
+            </button>
+          )}
+        </div>
+        <Textarea
+          value={ingredientsTextEn}
+          onChange={(e) => setIngredientsTextEn(e.target.value)}
+          placeholder={t("ingredientsPlaceholderEn")}
           rows={2}
         />
       </div>

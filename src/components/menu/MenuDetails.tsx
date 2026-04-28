@@ -49,6 +49,10 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
   const displayName = language === "en" && item.name_en ? item.name_en : item.name;
   const displayDescription =
     language === "en" && item.description_en ? item.description_en : item.description;
+  const displayIngredients =
+    language === "en" && item.ingredients_en?.length
+      ? item.ingredients_en
+      : item.ingredients;
   const soldOut = item.is_sold_out ?? false;
   const hasNutrition = item.calories != null || item.protein != null;
 
@@ -114,13 +118,13 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
       )}
 
       {/* Ingredients */}
-      {(item.ingredients?.length ?? 0) > 0 && (
+      {(displayIngredients?.length ?? 0) > 0 && (
         <div>
           <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
             {t("ingredients")}
           </h4>
           <p className="text-sm text-foreground leading-relaxed">
-            {item.ingredients!.join(", ")}
+            {displayIngredients!.join(", ")}
           </p>
         </div>
       )}

@@ -239,46 +239,44 @@ export default function CustomerMenu() {
         </button>
       </div>
 
-      {/* Cover photo + logo overlap */}
-      <div className="relative">
-        {restaurant?.cover_photo_url && (
-          <div className="relative w-full h-[200px] md:h-[240px] overflow-hidden">
-            <img
-              src={restaurant.cover_photo_url}
-              alt={restaurant.name}
-              className="absolute inset-0 w-full h-full object-cover scale-105"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
-          </div>
-        )}
-        {restaurant?.logo_url && (
-          <div className="max-w-7xl mx-auto px-4">
-            <img
-              src={restaurant.logo_url}
-              alt={restaurant.name}
-              className={`h-16 w-16 rounded-xl border-2 border-background shadow-md object-cover ${
-                restaurant?.cover_photo_url ? "-mt-8 relative z-10" : "mt-4"
-              }`}
-            />
-          </div>
-        )}
-      </div>
+      {/* Cover photo */}
+      {restaurant?.cover_photo_url && (
+        <div className="relative w-full h-[200px] md:h-[240px] overflow-hidden">
+          <img
+            src={restaurant.cover_photo_url}
+            alt={restaurant.name}
+            className="absolute inset-0 w-full h-full object-cover scale-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+        </div>
+      )}
 
-      {/* Restaurant Info */}
-      <div className="max-w-7xl mx-auto px-4 mt-3 mb-6">
-        <h1 className="text-xl font-semibold text-foreground">{restaurant?.name}</h1>
-        {restaurant?.slogan && (
-          <p className="text-sm text-primary font-medium">{restaurant.slogan}</p>
+      {/* Logo + restaurant info — all aligned to same max-w-2xl container */}
+      <div className="max-w-2xl mx-auto px-4 mb-6">
+        {restaurant?.logo_url && (
+          <img
+            src={restaurant.logo_url}
+            alt={restaurant.name}
+            className={`h-20 w-20 rounded-2xl border-2 border-background shadow-md object-cover ${
+              restaurant?.cover_photo_url ? "-mt-10 relative z-10" : "mt-4"
+            }`}
+          />
         )}
-        {(language === "en" && restaurant?.description_en
-          ? restaurant.description_en
-          : restaurant?.description) && (
-          <p className="text-sm text-muted-foreground mt-1 max-w-xl">
-            {language === "en" && restaurant?.description_en
-              ? restaurant.description_en
-              : restaurant?.description}
-          </p>
-        )}
+        <div className={restaurant?.logo_url ? "mt-3" : "mt-4"}>
+          <h1 className="text-xl font-semibold text-foreground">{restaurant?.name}</h1>
+          {restaurant?.slogan && (
+            <p className="text-sm text-primary font-medium mt-0.5">{restaurant.slogan}</p>
+          )}
+          {(language === "en" && restaurant?.description_en
+            ? restaurant.description_en
+            : restaurant?.description) && (
+            <p className="text-sm text-muted-foreground mt-1">
+              {language === "en" && restaurant?.description_en
+                ? restaurant.description_en
+                : restaurant?.description}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Layout */}

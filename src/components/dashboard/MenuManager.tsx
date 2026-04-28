@@ -12,9 +12,11 @@ import { FilterSettingsEditor } from "@/components/dashboard/FilterSettingsEdito
 import { FoodStyleSettings } from "@/components/dashboard/FoodStyleSettings";
 import { TagSettings } from "@/components/dashboard/TagSettings";
 import { QRCodeCard } from "@/components/dashboard/QRCodeCard";
-import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag, Undo2, Redo2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ImageIcon, X, Search, ShoppingBag, Undo2, Redo2, FolderInput } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { compressImage, localPreview } from "@/lib/imageUtils";
@@ -39,6 +41,8 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   const [activeCategoryId, setActiveCategoryId] = useState<string>("all");
   const [undoStack, setUndoStack] = useState<MenuItem[][]>([]);
   const [redoStack, setRedoStack] = useState<MenuItem[][]>([]);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [bulkCategoryId, setBulkCategoryId] = useState<string>("");
   const { toast } = useToast();
 
   const fs = restaurant.filter_settings as any;
@@ -195,6 +199,35 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
   };
 
   const getCategoryName = (catId: string | null) => categories.find((c) => c.id === catId)?.name || t("uncategorized");
+
+  const toggleSelectItem = (id: string, checked: boolean) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      checked ? next.add(id) : next.delete(id);
+      return next;
+    });
+  };
+
+  const handleBulkAssign = async () => {
+    if (selectedIds.size === 0 || !bulkCategoryId) return;
+    const ids = Array.from(selectedIds);
+    const catId = bulkCategoryId === "__none__" ? null : bulkCategoryId;
+    try {
+      const { error } = await supabase
+        .from("menu_items")
+        .update({ category_id: catId })
+        .in("id", ids);
+      if (error) throw error;
+      setItems((prev) =>
+        prev.map((i) => selectedIds.has(i.id) ? { ...i, category_id: catId } : i)
+      );
+      setSelectedIds(new Set());
+      setBulkCategoryId("");
+      toast({ title: t("bulkAssigned") });
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    }
+  };
 
   const uploadItemPhoto = async (item: MenuItem, file: File) => {
     // Show local preview instantly
@@ -463,7 +496,7 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                       <button
                         key={cat.id}
                         type="button"
-                        onClick={() => setActiveCategoryId(cat.id)}
+                        onClick={() => { setActiveCategoryId(cat.id); setSelectedIds(new Set()); }}
                         className={`rounded-full px-3 py-1 text-xs font-medium transition-colors border
                           ${activeCategoryId === cat.id
                             ? "bg-primary text-primary-foreground border-primary"
@@ -493,6 +526,39 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                 </div>
               )}
 
+              {/* Bulk action bar */}
+              {categories.length > 0 && (
+                <div className={`flex items-center gap-2 rounded-lg border p-2 transition-all ${selectedIds.size > 0 ? "bg-primary/5 border-primary/30" : "bg-muted/30 border-transparent"}`}>
+                  <FolderInput className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm text-muted-foreground flex-shrink-0">
+                    {selectedIds.size > 0
+                      ? `${selectedIds.size} ${t("itemsSelected")}`
+                      : t("bulkAssignHint")}
+                  </span>
+                  {selectedIds.size > 0 && (
+                    <>
+                      <Select value={bulkCategoryId} onValueChange={setBulkCategoryId}>
+                        <SelectTrigger className="h-8 flex-1 text-sm min-w-0">
+                          <SelectValue placeholder={t("assignToCategory")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="__none__">{t("uncategorized")}</SelectItem>
+                          {categories.map((cat) => (
+                            <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Button size="sm" className="flex-shrink-0" onClick={handleBulkAssign} disabled={!bulkCategoryId}>
+                        {t("assign")}
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0" onClick={() => { setSelectedIds(new Set()); setBulkCategoryId(""); }}>
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              )}
+
               {/* Items list */}
               {(() => {
                 const q = searchQuery.toLowerCase().trim();
@@ -515,10 +581,38 @@ export function MenuManager({ restaurant, onRestaurantUpdate }: Props) {
                   return <p className="text-center text-muted-foreground py-8 text-sm">{t("noMatchFilters")}</p>;
                 }
 
+                const allVisibleSelected = visibleItems.every((i) => selectedIds.has(i.id));
+
                 return (
                   <div className="space-y-2">
+                    {/* Select all visible */}
+                    {categories.length > 0 && visibleItems.length > 1 && (
+                      <div className="flex items-center gap-2 px-1">
+                        <Checkbox
+                          checked={allVisibleSelected}
+                          onCheckedChange={(checked) => {
+                            setSelectedIds((prev) => {
+                              const next = new Set(prev);
+                              visibleItems.forEach((i) => checked ? next.add(i.id) : next.delete(i.id));
+                              return next;
+                            });
+                          }}
+                        />
+                        <span className="text-xs text-muted-foreground">
+                          {allVisibleSelected ? t("deselectAll") : t("selectAll")}
+                        </span>
+                      </div>
+                    )}
                     {visibleItems.map((item) => (
-                      <div key={item.id} className={`flex items-center gap-3 rounded-lg border p-3 transition-opacity ${item.is_sold_out ? "opacity-60" : ""}`}>
+                      <div key={item.id} className={`flex items-center gap-3 rounded-lg border p-3 transition-opacity ${item.is_sold_out ? "opacity-60" : ""} ${selectedIds.has(item.id) ? "border-primary/40 bg-primary/5" : ""}`}>
+                        {/* Checkbox */}
+                        {categories.length > 0 && (
+                          <Checkbox
+                            checked={selectedIds.has(item.id)}
+                            onCheckedChange={(checked) => toggleSelectItem(item.id, !!checked)}
+                            className="flex-shrink-0"
+                          />
+                        )}
                         {/* Inline photo management */}
                         <div className="relative flex-shrink-0 group">
                           <label

@@ -1,13 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { trackFoodStyleToggled } from "@/lib/posthog";
-import type { CustomChip } from "@/types/filterSettings";
 
 export interface FoodStyleFilter {
   id: string;
   label: string;
   emoji: string;
-  match: (item: { calories?: number | null; protein?: number | null; dietary_tags?: string[] | null }) => boolean;
+  match: (item: { calories?: number | null; protein?: number | null; dietary_tags?: string[] | null; allergens?: string[] | null }) => boolean;
 }
 
 // label field is an internal fallback only — displayed labels come from labelMap via t()
@@ -17,22 +16,6 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
     label: "highProtein",
     emoji: "🔥",
     match: (item) => item.protein != null && Number(item.protein) >= 25,
-  },
-  {
-    id: "high-carb",
-    label: "highCarb",
-    emoji: "🍞",
-    match: (item) =>
-      item.dietary_tags?.some((t) =>
-        ["high-carb", "carb-heavy", "pasta", "rice", "bread"].includes(t)
-      ) ?? false,
-  },
-  {
-    id: "keto",
-    label: "highFatKeto",
-    emoji: "🥑",
-    match: (item) =>
-      item.dietary_tags?.some((t) => ["keto", "low-carb"].includes(t)) ?? false,
   },
   {
     id: "low-calorie",
@@ -55,6 +38,36 @@ export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
         ["vegan", "vegetarian", "plant-based"].includes(t)
       ) ?? false,
   },
+  {
+    id: "meat-free",
+    label: "meatFree",
+    emoji: "🥩",
+    match: (item) =>
+      item.dietary_tags?.some((t) =>
+        ["vegan", "vegetarian", "plant-based", "no-pork", "no-beef"].includes(t)
+      ) ?? false,
+  },
+  {
+    id: "dairy-free",
+    label: "dairyFree",
+    emoji: "🧀",
+    match: (item) =>
+      item.allergens?.includes("dairy-free") ?? false,
+  },
+  {
+    id: "gluten-free",
+    label: "glutenFree",
+    emoji: "🌾",
+    match: (item) =>
+      item.allergens?.includes("gluten-free") ?? false,
+  },
+  {
+    id: "low-carb",
+    label: "lowCarb",
+    emoji: "💊",
+    match: (item) =>
+      item.dietary_tags?.some((t) => ["low-carb", "keto"].includes(t)) ?? false,
+  },
 ];
 
 interface FoodStyleChipsProps {
@@ -63,8 +76,6 @@ interface FoodStyleChipsProps {
   slug: string;
   /** IDs of built-in chips the restaurant has enabled. Undefined = show all. */
   enabledIds?: string[];
-  /** Custom chips defined by the restaurant manager. */
-  customChips?: CustomChip[];
 }
 
 export function FoodStyleChips({
@@ -72,7 +83,6 @@ export function FoodStyleChips({
   setSelected,
   slug,
   enabledIds,
-  customChips = [],
 }: FoodStyleChipsProps) {
   const { t } = useLanguage();
 
@@ -84,25 +94,24 @@ export function FoodStyleChips({
 
   const labelMap: Record<string, string> = {
     "high-protein": t("highProtein"),
-    "high-carb":    t("highCarb"),
-    keto:           t("highFatKeto"),
     "low-calorie":  t("lowCalorie"),
     "high-energy":  t("highEnergy"),
     "plant-based":  t("plantBased"),
+    "meat-free":    t("meatFree"),
+    "dairy-free":   t("dairyFree"),
+    "gluten-free":  t("glutenFree"),
+    "low-carb":     t("lowCarb"),
   };
 
-  // Filter built-in chips by enabledIds
-  const visibleBuiltIn = enabledIds
+  const visibleChips = enabledIds
     ? FOOD_STYLE_FILTERS.filter((f) => enabledIds.includes(f.id))
     : FOOD_STYLE_FILTERS;
 
-  const hasAnything = visibleBuiltIn.length > 0 || customChips.length > 0;
-  if (!hasAnything) return null;
+  if (!visibleChips.length) return null;
 
   return (
     <div className="flex flex-wrap gap-2 mb-3">
-      {/* Built-in chips */}
-      {visibleBuiltIn.map((f) => (
+      {visibleChips.map((f) => (
         <Badge
           key={f.id}
           variant={selected.includes(f.id) ? "default" : "outline"}
@@ -110,18 +119,6 @@ export function FoodStyleChips({
           onClick={() => toggle(f.id)}
         >
           {f.emoji} {labelMap[f.id] || f.label}
-        </Badge>
-      ))}
-
-      {/* Custom chips */}
-      {customChips.map((c) => (
-        <Badge
-          key={c.id}
-          variant={selected.includes(c.id) ? "default" : "outline"}
-          className="cursor-pointer px-3 py-1.5 text-sm"
-          onClick={() => toggle(c.id)}
-        >
-          {c.emoji} {c.label}
         </Badge>
       ))}
     </div>

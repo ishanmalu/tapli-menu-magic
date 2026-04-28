@@ -206,11 +206,13 @@ const translations = {
 
     // Food style chips
     highProtein: "High Protein",
-    highCarb: "High Carb",
-    highFatKeto: "High Fat / Keto",
     lowCalorie: "Low Calorie",
     highEnergy: "High Energy",
     plantBased: "Plant Based",
+    meatFree: "Meat-Free",
+    dairyFree: "Dairy-Free",
+    glutenFree: "Gluten-Free",
+    lowCarb: "Low Carb",
 
     // Roles
     owner: "Owner",
@@ -603,11 +605,13 @@ const translations = {
 
     // Food style chips
     highProtein: "Proteiinipitoinen",
-    highCarb: "Hiilihydraattipitoinen",
-    highFatKeto: "Rasvapitoinen / Keto",
     lowCalorie: "Vähäkalorinen",
     highEnergy: "Energiapitoinen",
     plantBased: "Kasvispohjainen",
+    meatFree: "Lihaton",
+    dairyFree: "Maidoton",
+    glutenFree: "Gluteeniton",
+    lowCarb: "Vähähiilihydraattinen",
 
     // Roles
     owner: "Omistaja",

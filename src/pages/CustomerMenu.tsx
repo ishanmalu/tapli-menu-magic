@@ -19,12 +19,10 @@ import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTag
 import type { AvailabilitySchedule } from "@/types/availability";
 import { trackMenuViewed } from "@/lib/posthog";
 import {
-  type CustomChip,
   type CustomTag,
   type SliderConfig,
   getSlidersFromSettings,
   getItemFieldValue,
-  matchCustomChip,
 } from "@/types/filterSettings";
 
 function isAvailableNow(schedule: AvailabilitySchedule | null | undefined): boolean {
@@ -117,7 +115,6 @@ export default function CustomerMenu() {
     () => rfSettings?.foodStyleChips ?? FOOD_STYLE_FILTERS.map((f) => f.id),
     [rfSettings]
   );
-  const customChips = useMemo<CustomChip[]>(() => rfSettings?.customChips ?? [], [rfSettings]);
   const customTags = useMemo<CustomTag[]>(() => rfSettings?.customTags ?? [], [rfSettings]);
 
   // Label lookup for manager-defined custom tags — passed to all customer components
@@ -174,19 +171,15 @@ export default function CustomerMenu() {
       // Availability schedule
       if (!isAvailableNow(item.availability_schedule as unknown as AvailabilitySchedule | null)) return false;
 
-      // Food style chips (built-in + custom)
+      // Food style chips
       if (selectedFoodStyles.length > 0) {
-        const activeBuiltIn = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));
-        const activeCustom = customChips.filter((c) => selectedFoodStyles.includes(c.id));
-
-        const builtInMatch = activeBuiltIn.some((f) => f.match(item));
-        const customMatch = activeCustom.some((c) => matchCustomChip(c, item));
-        if (!builtInMatch && !customMatch) return false;
+        const activeChips = FOOD_STYLE_FILTERS.filter((f) => selectedFoodStyles.includes(f.id));
+        if (!activeChips.some((f) => f.match(item))) return false;
       }
 
       return true;
     });
-  }, [items, excludedAllergens, selectedDietary, enabledSliders, sliderValues, selectedFoodStyles, customChips]);
+  }, [items, excludedAllergens, selectedDietary, enabledSliders, sliderValues, selectedFoodStyles]);
 
   const groupedItems = useMemo(() => {
     const groups: { category: Category | null; items: MenuItem[] }[] = [];
@@ -303,7 +296,6 @@ export default function CustomerMenu() {
             setSelected={setSelectedFoodStyles}
             slug={slug ?? ""}
             enabledIds={enabledChipIds}
-            customChips={customChips}
           />
           <MenuFilterBar
             slug={slug ?? ""}

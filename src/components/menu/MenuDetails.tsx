@@ -42,7 +42,7 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
     "no-pork": t("tagNoPork"),
     "no-alcohol": t("tagNoAlcohol"),
     "no-beef": t("tagNoBeef"),
-    "high-carb": t("highCarb"),
+    "low-carb": t("lowCarb"),
   };
 
   if (!item) return null;

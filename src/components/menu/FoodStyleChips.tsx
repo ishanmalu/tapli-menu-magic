@@ -4,69 +4,42 @@ import { trackFoodStyleToggled } from "@/lib/posthog";
 
 export interface FoodStyleFilter {
   id: string;
-  label: string;
   emoji: string;
-  match: (item: { calories?: number | null; protein?: number | null; dietary_tags?: string[] | null; allergens?: string[] | null }) => boolean;
+  match: (item: {
+    calories?: number | null;
+    protein?: number | null;
+    dietary_tags?: string[] | null;
+    allergens?: string[] | null;
+  }) => boolean;
 }
 
-// label field is an internal fallback only — displayed labels come from labelMap via t()
 export const FOOD_STYLE_FILTERS: FoodStyleFilter[] = [
   {
     id: "high-protein",
-    label: "highProtein",
     emoji: "🔥",
     match: (item) => item.protein != null && Number(item.protein) >= 25,
   },
   {
-    id: "low-calorie",
-    label: "lowCalorie",
-    emoji: "🥗",
-    match: (item) => item.calories != null && item.calories <= 300,
-  },
-  {
-    id: "high-energy",
-    label: "highEnergy",
-    emoji: "⚡",
-    match: (item) => item.calories != null && item.calories >= 600,
-  },
-  {
-    id: "plant-based",
-    label: "plantBased",
+    id: "vegan",
     emoji: "🌱",
-    match: (item) =>
-      item.dietary_tags?.some((t) =>
-        ["vegan", "vegetarian", "plant-based"].includes(t)
-      ) ?? false,
+    match: (item) => item.dietary_tags?.includes("vegan") ?? false,
   },
   {
-    id: "meat-free",
-    label: "meatFree",
-    emoji: "🥩",
+    id: "vegetarian",
+    emoji: "🥦",
+    // Vegetarian includes vegan items — vegan ⊂ vegetarian
     match: (item) =>
-      item.dietary_tags?.some((t) =>
-        ["vegan", "vegetarian", "plant-based", "no-pork", "no-beef"].includes(t)
-      ) ?? false,
+      item.dietary_tags?.some((t) => ["vegetarian", "vegan"].includes(t)) ?? false,
   },
   {
     id: "dairy-free",
-    label: "dairyFree",
     emoji: "🧀",
-    match: (item) =>
-      item.allergens?.includes("dairy-free") ?? false,
+    match: (item) => item.allergens?.includes("dairy-free") ?? false,
   },
   {
     id: "gluten-free",
-    label: "glutenFree",
     emoji: "🌾",
-    match: (item) =>
-      item.allergens?.includes("gluten-free") ?? false,
-  },
-  {
-    id: "low-carb",
-    label: "lowCarb",
-    emoji: "💊",
-    match: (item) =>
-      item.dietary_tags?.some((t) => ["low-carb", "keto"].includes(t)) ?? false,
+    match: (item) => item.allergens?.includes("gluten-free") ?? false,
   },
 ];
 
@@ -94,13 +67,10 @@ export function FoodStyleChips({
 
   const labelMap: Record<string, string> = {
     "high-protein": t("highProtein"),
-    "low-calorie":  t("lowCalorie"),
-    "high-energy":  t("highEnergy"),
-    "plant-based":  t("plantBased"),
-    "meat-free":    t("meatFree"),
+    "vegan":        t("tagVegan"),
+    "vegetarian":   t("tagVegetarian"),
     "dairy-free":   t("dairyFree"),
     "gluten-free":  t("glutenFree"),
-    "low-carb":     t("lowCarb"),
   };
 
   const visibleChips = enabledIds
@@ -118,7 +88,7 @@ export function FoodStyleChips({
           className="cursor-pointer px-3 py-1.5 text-sm"
           onClick={() => toggle(f.id)}
         >
-          {f.emoji} {labelMap[f.id] || f.label}
+          {f.emoji} {labelMap[f.id] ?? f.id}
         </Badge>
       ))}
     </div>

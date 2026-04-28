@@ -69,13 +69,10 @@ export function FoodStyleSettings({ restaurant, onUpdate }: Props) {
 
   const labelMap: Record<string, string> = {
     "high-protein": t("highProtein"),
-    "low-calorie":  t("lowCalorie"),
-    "high-energy":  t("highEnergy"),
-    "plant-based":  t("plantBased"),
-    "meat-free":    t("meatFree"),
+    "vegan":        t("tagVegan"),
+    "vegetarian":   t("tagVegetarian"),
     "dairy-free":   t("dairyFree"),
     "gluten-free":  t("glutenFree"),
-    "low-carb":     t("lowCarb"),
   };
 
   return (

@@ -153,9 +153,12 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
         </div>
       </div>
 
-      {/* Desktop: sticky sidebar */}
-      <div className="hidden lg:block sticky top-4 rounded-2xl border bg-card p-5 shadow-sm">
-        {content}
+      {/* Desktop: fixed right panel — no layout shift, X always visible */}
+      <div className="hidden lg:block">
+        <div className="fixed inset-0 bg-black/25 z-40" onClick={onClose} />
+        <div className="fixed top-0 right-0 h-full z-50 w-[420px] bg-card border-l shadow-2xl overflow-y-auto animate-in slide-in-from-right-4 duration-200">
+          <div className="p-6">{content}</div>
+        </div>
       </div>
     </>
   );

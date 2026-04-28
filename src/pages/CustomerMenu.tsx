@@ -282,14 +282,7 @@ export default function CustomerMenu() {
       </div>
 
       {/* Layout */}
-      <div
-        className={`mx-auto px-4 mt-4 transition-all duration-300 ${
-          selectedItem
-            ? "max-w-7xl grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6"
-            : "max-w-2xl"
-        }`}
-      >
-        {/* LEFT SIDE */}
+      <div className="max-w-2xl mx-auto px-4 mt-4">
         <div>
           <FoodStyleChips
             selected={selectedFoodStyles}
@@ -341,7 +334,7 @@ export default function CustomerMenu() {
           {restaurant && <DiscoverRestaurants currentRestaurantId={restaurant.id} />}
         </div>
 
-        {/* RIGHT PANEL (desktop) + BOTTOM SHEET (mobile) */}
+        {/* Detail panel — bottom sheet on mobile, fixed right panel on desktop */}
         {selectedItem && (
           <MenuDetails
             item={selectedItem}

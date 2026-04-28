@@ -50,6 +50,7 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
   const displayDescription =
     language === "en" && item.description_en ? item.description_en : item.description;
   const soldOut = item.is_sold_out ?? false;
+  const hasNutrition = item.calories != null || item.protein != null;
 
   const content = (
     <div className="space-y-4">
@@ -57,12 +58,14 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="text-lg font-semibold text-foreground leading-snug">{displayName}</h2>
-          <span className={`text-base font-bold ${soldOut ? "text-muted-foreground line-through" : "text-primary"}`}>
-            €{Number(item.price).toFixed(2)}
-          </span>
-          {soldOut && (
-            <span className="ml-2 text-xs font-semibold text-destructive">{t("soldOut")}</span>
-          )}
+          <div className="flex items-center gap-2 mt-0.5">
+            <span className={`text-base font-bold ${soldOut ? "text-muted-foreground line-through" : "text-primary"}`}>
+              €{Number(item.price).toFixed(2)}
+            </span>
+            {soldOut && (
+              <span className="text-xs font-semibold text-destructive">{t("soldOut")}</span>
+            )}
+          </div>
         </div>
         <button
           onClick={onClose}
@@ -76,7 +79,7 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
       {/* Photo */}
       {item.photo_url && (
         <div className="relative overflow-hidden rounded-xl">
-          <img src={item.photo_url} alt={displayName} className="w-full h-44 object-cover" />
+          <img src={item.photo_url} alt={displayName} className="w-full h-48 object-cover" />
           {soldOut && (
             <div className="absolute inset-0 bg-black/55 flex items-center justify-center rounded-xl">
               <span className="text-sm font-bold text-white uppercase tracking-widest">
@@ -93,20 +96,38 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
       )}
 
       {/* Nutrition */}
-      {(item.calories != null || item.protein != null) && (
-        <div className="flex gap-6 bg-muted/50 rounded-xl p-4">
+      {hasNutrition && (
+        <div className="grid grid-cols-2 gap-2">
           {item.calories != null && (
-            <div>
-              <div className="text-xl font-bold text-foreground">{item.calories}</div>
-              <div className="text-xs text-muted-foreground">{t("kcal")}</div>
+            <div className="flex items-center gap-3 bg-orange-500/10 rounded-xl px-4 py-3">
+              <span className="text-2xl">🔥</span>
+              <div>
+                <div className="text-lg font-bold text-foreground leading-none">{item.calories}</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{t("kcal")}</div>
+              </div>
             </div>
           )}
           {item.protein != null && (
-            <div>
-              <div className="text-xl font-bold text-foreground">{Number(item.protein)}g</div>
-              <div className="text-xs text-muted-foreground">{t("protein")}</div>
+            <div className="flex items-center gap-3 bg-blue-500/10 rounded-xl px-4 py-3">
+              <span className="text-2xl">💪</span>
+              <div>
+                <div className="text-lg font-bold text-foreground leading-none">{Number(item.protein)}g</div>
+                <div className="text-xs text-muted-foreground mt-0.5">{t("protein")}</div>
+              </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Ingredients */}
+      {(item.ingredients?.length ?? 0) > 0 && (
+        <div>
+          <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+            {t("ingredients")}
+          </h4>
+          <p className="text-sm text-foreground leading-relaxed">
+            {item.ingredients!.join(", ")}
+          </p>
         </div>
       )}
 
@@ -140,26 +161,25 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
     </div>
   );
 
+  // Shared bottom-sheet inner wrapper
+  const sheet = (
+    <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none">
+      <div className="pointer-events-auto w-full lg:max-w-xl bg-card rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto">
+        {/* Drag handle */}
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
+        </div>
+        <div className="px-5 pb-10 pt-2">{content}</div>
+      </div>
+    </div>
+  );
+
   return (
     <>
-      {/* Mobile: bottom sheet */}
-      <div className="lg:hidden">
-        <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
-        <div className="fixed bottom-0 left-0 right-0 z-50 bg-card rounded-t-2xl shadow-2xl max-h-[85vh] overflow-y-auto">
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1 rounded-full bg-muted-foreground/30" />
-          </div>
-          <div className="px-5 pb-8 pt-2">{content}</div>
-        </div>
-      </div>
-
-      {/* Desktop: fixed right panel — no layout shift, X always visible */}
-      <div className="hidden lg:block">
-        <div className="fixed inset-0 bg-black/25 z-40" onClick={onClose} />
-        <div className="fixed top-0 right-0 h-full z-50 w-[420px] bg-card border-l shadow-2xl overflow-y-auto animate-in slide-in-from-right-4 duration-200">
-          <div className="p-6">{content}</div>
-        </div>
-      </div>
+      {/* Backdrop */}
+      <div className="fixed inset-0 bg-black/40 z-40" onClick={onClose} />
+      {/* Bottom sheet — full width on mobile, centered max-w-xl on desktop */}
+      {sheet}
     </>
   );
 }

@@ -51,6 +51,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
   const [availabilitySchedule, setAvailabilitySchedule] = useState<AvailabilitySchedule | null>(
     (item?.availability_schedule as unknown as AvailabilitySchedule | null) ?? null
   );
+  const [ingredientsText, setIngredientsText] = useState(
+    (item?.ingredients ?? []).join(", ")
+  );
   const [submitting, setSubmitting] = useState(false);
   const [translatingName, setTranslatingName] = useState(false);
   const [translatingDesc, setTranslatingDesc] = useState(false);
@@ -142,6 +145,9 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
         protein: protein ? parseFloat(protein) : null,
         allergens,
         dietary_tags: dietaryTags,
+        ingredients: ingredientsText.trim()
+          ? ingredientsText.split(",").map((s) => s.trim()).filter(Boolean)
+          : null,
         is_available: isAvailable,
         availability_schedule: availabilitySchedule as any,
         photo_url: photoUrl,
@@ -246,6 +252,16 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
           <Label>{t("proteinG")}</Label>
           <Input type="number" step="0.1" min="0" value={protein} onChange={(e) => setProtein(e.target.value)} />
         </div>
+      </div>
+      <div>
+        <Label>{t("ingredients")}</Label>
+        <p className="text-xs text-muted-foreground mb-1">{t("ingredientsHint")}</p>
+        <Textarea
+          value={ingredientsText}
+          onChange={(e) => setIngredientsText(e.target.value)}
+          placeholder={t("ingredientsPlaceholder")}
+          rows={2}
+        />
       </div>
       <div>
         <Label>{t("photo")}</Label>

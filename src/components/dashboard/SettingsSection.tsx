@@ -89,6 +89,9 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   const { t } = useLanguage();
   const { toast } = useToast();
 
+  /* ── preferences (stored in filter_settings JSON) ── */
+  const fs = (restaurant.filter_settings as any) ?? {};
+
   /* ── profile (name stored in filter_settings — no profiles table needed) ── */
   const [firstName, setFirstName] = useState<string>(fs.firstName ?? "");
   const [lastName, setLastName] = useState<string>(fs.lastName ?? "");
@@ -105,9 +108,6 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   const [slug, setSlug] = useState(restaurant.slug);
   const [slugError, setSlugError] = useState("");
   const [savingSlug, setSavingSlug] = useState(false);
-
-  /* ── preferences (stored in filter_settings JSON) ── */
-  const fs = (restaurant.filter_settings as any) ?? {};
   const [menuVisible, setMenuVisible] = useState<boolean>(fs.menuVisible !== false);
   const [defaultLang, setDefaultLang] = useState<string>(fs.defaultLanguage ?? "fi");
   const [currency, setCurrency] = useState<string>(fs.currency ?? "€");

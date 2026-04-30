@@ -442,17 +442,16 @@ const translations = {
 
     // Settings — account
     accountInfo: "Account Information",
-    firstName: "First Name",
-    lastName: "Last Name",
     emailAddress: "Email Address",
-    saveChanges: "Save Changes",
-    saved: "Saved",
     changePassword: "Change Password",
-    newPassword: "New Password",
-    confirmPassword: "Confirm New Password",
     passwordMismatch: "Passwords do not match",
     passwordTooShort: "Password must be at least 8 characters",
     passwordChanged: "Password updated successfully",
+
+    // Menu item delete dialog
+    deleteItem: "Delete item",
+    deleteItemDesc: "This item will be permanently removed from your menu.",
+    delete: "Delete",
 
     // Settings — menu URL
     menuUrl: "Menu URL",
@@ -926,17 +925,16 @@ const translations = {
 
     // Settings — account
     accountInfo: "Käyttäjätiedot",
-    firstName: "Etunimi",
-    lastName: "Sukunimi",
     emailAddress: "Sähköpostiosoite",
-    saveChanges: "Tallenna muutokset",
-    saved: "Tallennettu",
     changePassword: "Vaihda salasana",
-    newPassword: "Uusi salasana",
-    confirmPassword: "Vahvista uusi salasana",
     passwordMismatch: "Salasanat eivät täsmää",
     passwordTooShort: "Salasanan on oltava vähintään 8 merkkiä",
     passwordChanged: "Salasana päivitetty onnistuneesti",
+
+    // Menu item delete dialog
+    deleteItem: "Poista tuote",
+    deleteItemDesc: "Tuote poistetaan pysyvästi ruokalistaltasi.",
+    delete: "Poista",
 
     // Settings — menu URL
     menuUrl: "Ruokalistan URL",

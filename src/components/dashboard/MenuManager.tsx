@@ -17,7 +17,7 @@ import {
   Plus, Pencil, Trash2, ImageIcon, X, Search,
   Undo2, Redo2, FolderInput, GripVertical, Copy,
   Eye, ChevronDown, SlidersHorizontal, ArrowUpDown,
-  ChevronLeft, ChevronRight, Rocket,
+  ChevronLeft, ChevronRight, BookCheck,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
@@ -693,7 +693,7 @@ export function MenuManager({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="sm" className="gap-1.5 h-9">
-                <Rocket className="h-4 w-4" />
+                <BookCheck className="h-4 w-4" />
                 {t("publishMenu")}
                 <ChevronDown className="h-3.5 w-3.5 ml-0.5" />
               </Button>

@@ -122,10 +122,10 @@ export default function Index() {
               scrolled
                 ? "border-foreground/[0.08] bg-background/90 backdrop-blur-xl shadow-lg"
                 : "border-transparent bg-transparent"
-            } px-5 h-14 flex items-center justify-between`}
+            } px-5 h-14 grid grid-cols-[1fr_auto_1fr] items-center`}
           >
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
+            {/* Logo — left col */}
+            <Link to="/" className="flex items-center gap-2 shrink-0 justify-self-start">
               <img
                 src={theme === "dark" ? tapliLogoDark : tapliLogo}
                 alt="Tapli"
@@ -133,7 +133,7 @@ export default function Index() {
               />
             </Link>
 
-            {/* Desktop links */}
+            {/* Desktop links — truly centered col */}
             <div className="hidden sm:flex items-center gap-0.5">
               <Link to="/why" onClick={() => trackNavClicked({ page: "why" })}>
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -151,9 +151,11 @@ export default function Index() {
                 </Button>
               </Link>
             </div>
+            {/* Spacer on mobile so right col aligns correctly */}
+            <div className="sm:hidden" />
 
-            {/* Right controls */}
-            <div className="flex items-center gap-2">
+            {/* Right controls — right col */}
+            <div className="flex items-center gap-2 justify-self-end">
               <div className="hidden sm:flex items-center gap-2">
                 <Link to="/auth" onClick={() => trackNavClicked({ page: "signin" })}>
                   <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">

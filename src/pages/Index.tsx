@@ -321,33 +321,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* ── CTA banner ── */}
-      <section className="px-4 pb-28 max-w-5xl mx-auto w-full">
-        <Reveal>
-          <GlassCard className="relative overflow-hidden p-10 sm:p-14 text-center">
-            {/* Subtle inner glow */}
-            <div className="absolute inset-0 pointer-events-none">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 rounded-full bg-foreground/[0.03] blur-2xl" />
-            </div>
-            <div className="relative z-10 space-y-5 max-w-xl mx-auto">
-              <h2 className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
-                {t("heroTitle")}
-              </h2>
-              <p className="text-muted-foreground">
-                {t("heroDesc")}
-              </p>
-              <Link to="/auth" onClick={() => trackSignupStarted({ button: "cta_banner" })}>
-                <Button
-                  size="lg"
-                  className="gap-2 text-base px-10 rounded-xl h-12 mt-2 transition-all duration-200 hover:scale-[1.03] hover:shadow-md active:scale-[0.98]"
-                >
-                  {t("startFree")} <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </div>
-          </GlassCard>
-        </Reveal>
-      </section>
 
       {/* ── Footer ── */}
       <footer className="border-t border-foreground/[0.06] py-8 px-4">

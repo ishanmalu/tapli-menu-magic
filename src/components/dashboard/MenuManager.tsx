@@ -39,6 +39,7 @@ import { Slider } from "@/components/ui/slider";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { compressImage, localPreview } from "@/lib/imageUtils";
 import { trackSoldOutToggled, trackPhotoUploaded } from "@/lib/posthog";
+import { SettingsSection } from "@/components/dashboard/SettingsSection";
 import type { DashboardSection } from "@/pages/Dashboard";
 
 type MenuItem = Tables<"menu_items">;
@@ -581,19 +582,11 @@ export function MenuManager({
   /* ── Settings ───────────────────────────────────────────────────────── */
   if (activeSection === "settings") {
     return (
-      <SectionShell title={t("settings")}>
-        <div className="rounded-xl border border-destructive/20 p-5 space-y-3">
-          <h2 className="text-base font-semibold text-destructive">{t("deleteAccountTitle")}</h2>
-          <p className="text-sm text-muted-foreground">{t("deleteAccountDesc")}</p>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={onShowDeleteAccount}
-          >
-            {t("deleteAccount")}
-          </Button>
-        </div>
-      </SectionShell>
+      <SettingsSection
+        restaurant={restaurant}
+        onRestaurantUpdate={onRestaurantUpdate}
+        onShowDeleteAccount={onShowDeleteAccount}
+      />
     );
   }
 

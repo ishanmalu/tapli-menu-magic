@@ -228,6 +228,18 @@ export default function CustomerMenu() {
     );
   }
 
+  // Menu visibility — owner can take the menu offline from Settings
+  const isOnline = (restaurant?.filter_settings as any)?.menuVisible !== false;
+  if (!loading && restaurant && !isOnline) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center bg-background">
+        <div className="h-14 w-14 rounded-2xl bg-muted flex items-center justify-center text-2xl">🔒</div>
+        <h1 className="text-xl font-semibold text-foreground">{t("menuOfflineTitle")}</h1>
+        <p className="text-sm text-muted-foreground max-w-xs">{t("menuOfflineDesc")}</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background pb-8">
 

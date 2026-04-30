@@ -439,6 +439,47 @@ const translations = {
     statusSoldOut: "Status: Sold out",
     itemDuplicated: "Item duplicated",
     duplicateItem: "Duplicate",
+
+    // Settings — account
+    accountInfo: "Account Information",
+    firstName: "First Name",
+    lastName: "Last Name",
+    emailAddress: "Email Address",
+    saveChanges: "Save Changes",
+    saved: "Saved",
+    changePassword: "Change Password",
+    newPassword: "New Password",
+    confirmPassword: "Confirm New Password",
+    passwordMismatch: "Passwords do not match",
+    passwordTooShort: "Password must be at least 8 characters",
+    passwordChanged: "Password updated successfully",
+
+    // Settings — menu URL
+    menuUrl: "Menu URL",
+    menuUrlDesc: "Your public menu link. Letters, numbers and hyphens only.",
+    menuUrlSaved: "Menu URL updated",
+    menuUrlTaken: "This URL is already taken — choose another.",
+    menuUrlInvalid: "Only lowercase letters, numbers and hyphens allowed.",
+
+    // Settings — menu preferences
+    menuVisibility: "Menu Visibility",
+    menuVisibilityDesc: "When off, customers see a temporary offline message instead of your menu.",
+    menuOnline: "Online",
+    menuOffline: "Offline",
+    defaultLanguage: "Default Customer Language",
+    defaultLanguageDesc: "Language your menu opens in when a customer first visits.",
+    currency: "Currency Symbol",
+    currencyDesc: "Shown next to prices on your public menu.",
+    timezoneLabel: "Timezone",
+    timezoneDesc: "Used for availability schedules and opening hours display.",
+
+    // Settings — notifications
+    notifEmail: "Notification Email",
+    notifEmailDesc: "Where to send future alerts and updates from Tapli.",
+
+    // CustomerMenu — offline
+    menuOfflineTitle: "Menu is temporarily offline",
+    menuOfflineDesc: "The restaurant is currently updating their menu. Check back soon!",
   },
   fi: {
     // Nav / Index
@@ -876,6 +917,47 @@ const translations = {
     statusSoldOut: "Tila: Loppunut",
     itemDuplicated: "Tuote kopioitu",
     duplicateItem: "Kopioi",
+
+    // Settings — account
+    accountInfo: "Käyttäjätiedot",
+    firstName: "Etunimi",
+    lastName: "Sukunimi",
+    emailAddress: "Sähköpostiosoite",
+    saveChanges: "Tallenna muutokset",
+    saved: "Tallennettu",
+    changePassword: "Vaihda salasana",
+    newPassword: "Uusi salasana",
+    confirmPassword: "Vahvista uusi salasana",
+    passwordMismatch: "Salasanat eivät täsmää",
+    passwordTooShort: "Salasanan on oltava vähintään 8 merkkiä",
+    passwordChanged: "Salasana päivitetty onnistuneesti",
+
+    // Settings — menu URL
+    menuUrl: "Ruokalistan URL",
+    menuUrlDesc: "Julkinen ruokalista-linkkisi. Vain pienet kirjaimet, numerot ja väliviivat.",
+    menuUrlSaved: "Ruokalistan URL päivitetty",
+    menuUrlTaken: "Tämä URL on jo käytössä — valitse toinen.",
+    menuUrlInvalid: "Vain pienet kirjaimet, numerot ja väliviivat sallittu.",
+
+    // Settings — menu preferences
+    menuVisibility: "Ruokalistan näkyvyys",
+    menuVisibilityDesc: "Kun pois päältä, asiakkaat näkevät väliaikaisen offline-viestin ruokalistan sijaan.",
+    menuOnline: "Online",
+    menuOffline: "Offline",
+    defaultLanguage: "Asiakkaan oletuskieli",
+    defaultLanguageDesc: "Kieli, jolla ruokalista avautuu asiakkaan ensimmäisellä käynnillä.",
+    currency: "Valuuttasymboli",
+    currencyDesc: "Näytetään hintojen vieressä julkisessa ruokalistassa.",
+    timezoneLabel: "Aikavyöhyke",
+    timezoneDesc: "Käytetään saatavuusaikatauluissa ja aukioloaikojen näyttämisessä.",
+
+    // Settings — notifications
+    notifEmail: "Ilmoitussähköposti",
+    notifEmailDesc: "Mihin lähetetään tulevat hälytykset ja päivitykset Taplilta.",
+
+    // CustomerMenu — offline
+    menuOfflineTitle: "Ruokalista on tilapäisesti offline",
+    menuOfflineDesc: "Ravintola päivittää ruokalistaansa. Tarkista pian uudelleen!",
   },
 } as const;
 

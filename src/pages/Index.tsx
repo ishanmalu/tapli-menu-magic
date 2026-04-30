@@ -222,7 +222,7 @@ export default function Index() {
             className="animate-in fade-in slide-in-from-bottom-6 duration-[1100ms]"
             style={{ animationFillMode: "both" }}
           >
-            <span className="font-garet text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-foreground select-none">
+            <span className="font-garet text-6xl sm:text-7xl lg:text-8xl font-normal tracking-tight text-foreground select-none">
               tapli
             </span>
           </div>

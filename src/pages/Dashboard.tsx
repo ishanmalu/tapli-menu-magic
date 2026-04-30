@@ -10,7 +10,7 @@ import { RestaurantSetup } from "@/components/dashboard/RestaurantSetup";
 import { MenuManager } from "@/components/dashboard/MenuManager";
 import {
   LogOut, QrCode, UtensilsCrossed, LayoutGrid,
-  SlidersHorizontal, Settings, Store, HelpCircle, ExternalLink,
+  SlidersHorizontal, Settings, Store, HelpCircle,
 } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -145,20 +145,15 @@ export default function Dashboard() {
 
         {/* Help card */}
         <div className="p-3 border-t border-border">
-          <div className="rounded-xl bg-muted/40 p-3 space-y-2">
-            <div className="flex items-center gap-2">
-              <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-                <HelpCircle className="h-4 w-4 text-primary" />
-              </div>
-              <p className="text-sm font-medium text-foreground">{t("needHelp")}</p>
+          <a
+            href="mailto:taplibusiness@gmail.com"
+            className="flex items-center gap-2 rounded-xl bg-muted/40 hover:bg-muted/60 transition-colors p-3"
+          >
+            <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <HelpCircle className="h-4 w-4 text-primary" />
             </div>
-            <a
-              href="/contact"
-              className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-            >
-              {t("visitHelpCenter")} <ExternalLink className="h-3 w-3" />
-            </a>
-          </div>
+            <p className="text-sm font-medium text-foreground">{t("needHelp")}</p>
+          </a>
         </div>
       </aside>
 

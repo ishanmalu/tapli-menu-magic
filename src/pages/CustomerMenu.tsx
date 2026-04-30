@@ -1,4 +1,6 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
+
+type HoursRow = { days: string; hours: string };
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
@@ -62,6 +64,11 @@ export default function CustomerMenu() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+
+  // Category navigation
+  const [activeCategory, setActiveCategory] = useState<string>("");
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const tabBarRef = useRef<HTMLDivElement>(null);
 
   // Filters
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
@@ -212,6 +219,39 @@ export default function CustomerMenu() {
     });
   }, [excludedAllergens, selectedDietary, selectedFoodStyles, enabledSliders, sliderValues]);
 
+  // IntersectionObserver — highlight active category tab while scrolling
+  useEffect(() => {
+    if (groupedItems.length === 0) return;
+    setActiveCategory(groupedItems[0].category?.id ?? "uncategorized");
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
+        if (visible.length > 0) setActiveCategory(visible[0].target.id);
+      },
+      { rootMargin: "-10% 0px -70% 0px", threshold: 0 }
+    );
+    Object.values(sectionRefs.current).forEach((el) => { if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, [groupedItems]);
+
+  // Scroll active tab into view when it changes
+  useEffect(() => {
+    if (!activeCategory || !tabBarRef.current) return;
+    const activeTab = tabBarRef.current.querySelector(`[data-cat="${activeCategory}"]`);
+    if (activeTab) activeTab.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+  }, [activeCategory]);
+
+  const scrollToSection = useCallback((catId: string) => {
+    setActiveCategory(catId);
+    const el = sectionRefs.current[catId];
+    if (!el) return;
+    const offset = (tabBarRef.current?.offsetHeight ?? 44) + 8;
+    window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - offset, behavior: "smooth" });
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
@@ -290,6 +330,21 @@ export default function CustomerMenu() {
                 : restaurant?.description}
             </p>
           )}
+          {/* Opening hours */}
+          {(() => {
+            const hours = (restaurant?.opening_hours as HoursRow[] | null) ?? [];
+            if (!hours.length) return null;
+            return (
+              <div className="mt-3 flex flex-wrap justify-center gap-x-5 gap-y-1">
+                {hours.map((row, i) => (
+                  <span key={i} className="text-xs text-muted-foreground">
+                    <span className="font-medium text-foreground/80">{row.days}</span>
+                    {" · "}{row.hours}
+                  </span>
+                ))}
+              </div>
+            );
+          })()}
         </div>
       </div>
 
@@ -316,16 +371,53 @@ export default function CustomerMenu() {
             extraTagLabels={extraTagLabels}
           />
 
+          {/* Sticky category tab bar */}
+          {groupedItems.length > 1 && (
+            <div
+              ref={tabBarRef}
+              className="sticky top-0 z-30 -mx-4 px-4 py-2.5 bg-background/95 backdrop-blur-sm border-b border-border/40 mb-4"
+            >
+              <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {groupedItems.map((group) => {
+                  const id = group.category?.id ?? "uncategorized";
+                  const label = group.category ? tCategory(group.category.name) : t("uncategorized");
+                  const isActive = activeCategory === id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      data-cat={id}
+                      onClick={() => scrollToSection(id)}
+                      className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all
+                        ${isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"}`}
+                    >
+                      {label}
+                      <span className="ml-1.5 opacity-60">{group.items.length}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {groupedItems.length === 0 && hasFilters ? (
             <p className="text-center text-muted-foreground py-12">{t("noMatchFilters")}</p>
           ) : groupedItems.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">{t("noMenuItems")}</p>
           ) : (
             groupedItems.map((group, i) => (
-              <div key={group.category?.id || `uncategorized-${i}`} className="mb-6">
+              <div
+                key={group.category?.id || `uncategorized-${i}`}
+                id={group.category?.id ?? "uncategorized"}
+                ref={(el) => { sectionRefs.current[group.category?.id ?? "uncategorized"] = el; }}
+                className="mb-8"
+              >
                 {group.category && (
-                  <h2 className="text-lg font-semibold text-foreground mb-3 sticky top-0 bg-background py-2 z-20 will-change-transform [transform:translateZ(0)]">
+                  <h2 className="text-base font-bold text-foreground mb-3 pt-1">
                     {tCategory(group.category.name)}
+                    <span className="ml-2 text-xs font-normal text-muted-foreground">{group.items.length}</span>
                   </h2>
                 )}
                 <div className="space-y-3">
@@ -352,6 +444,7 @@ export default function CustomerMenu() {
             item={selectedItem}
             onClose={() => setSelectedItem(null)}
             extraTagLabels={extraTagLabels}
+            excludedAllergens={excludedAllergens}
           />
         )}
       </div>

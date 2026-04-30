@@ -125,6 +125,17 @@ export function MenuItemCard({ item, onClick, isActive, extraTagLabels = {} }: M
                 {t("soldOut")}
               </span>
             )}
+            {/* Item badge */}
+            {item.badge === "bestseller" && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full px-2 py-0.5 shrink-0">
+                ★ {t("badgeBestseller")}
+              </span>
+            )}
+            {item.badge === "new" && (
+              <span className="inline-flex items-center gap-0.5 text-[10px] font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-full px-2 py-0.5 shrink-0">
+                ✦ {t("badgeNew")}
+              </span>
+            )}
           </div>
 
           <span

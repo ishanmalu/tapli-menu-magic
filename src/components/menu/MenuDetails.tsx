@@ -7,9 +7,10 @@ interface MenuDetailsProps {
   item: Tables<"menu_items"> | null;
   onClose: () => void;
   extraTagLabels?: Record<string, string>;
+  excludedAllergens?: string[];
 }
 
-export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsProps) {
+export function MenuDetails({ item, onClose, extraTagLabels = {}, excludedAllergens }: MenuDetailsProps) {
   const { t, language } = useLanguage();
 
   const tagLabels: Record<string, string> = {
@@ -69,6 +70,16 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
             {soldOut && (
               <span className="text-xs font-semibold text-destructive">{t("soldOut")}</span>
             )}
+            {item.badge === "bestseller" && (
+              <span className="inline-flex items-center gap-0.5 text-xs font-bold bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full px-2.5 py-0.5">
+                ★ {t("badgeBestseller")}
+              </span>
+            )}
+            {item.badge === "new" && (
+              <span className="inline-flex items-center gap-0.5 text-xs font-bold bg-blue-500/10 text-blue-500 border border-blue-500/20 rounded-full px-2.5 py-0.5">
+                ✦ {t("badgeNew")}
+              </span>
+            )}
           </div>
         </div>
         <button
@@ -93,6 +104,26 @@ export function MenuDetails({ item, onClose, extraTagLabels = {} }: MenuDetailsP
           )}
         </div>
       )}
+
+      {/* Allergen conflict warning */}
+      {(excludedAllergens?.length ?? 0) > 0 && (() => {
+        const missing = (excludedAllergens ?? []).filter(
+          (a) => !(item.allergens ?? []).includes(a)
+        );
+        if (missing.length === 0) return null;
+        return (
+          <div className="flex items-start gap-2 rounded-xl bg-destructive/10 border border-destructive/20 px-3 py-2.5">
+            <span className="text-destructive text-base leading-none mt-0.5">⚠️</span>
+            <div>
+              <p className="text-xs font-semibold text-destructive">{t("allergenWarningTitle")}</p>
+              <p className="text-xs text-destructive/80 mt-0.5">
+                {t("allergenWarningDesc")}{" "}
+                {missing.map((a) => tagLabels[a] || a).join(", ")}
+              </p>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Description */}
       {displayDescription && (

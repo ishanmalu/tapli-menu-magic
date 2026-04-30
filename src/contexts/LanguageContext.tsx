@@ -480,6 +480,12 @@ const translations = {
     // CustomerMenu — offline
     menuOfflineTitle: "Menu is temporarily offline",
     menuOfflineDesc: "The restaurant is currently updating their menu. Check back soon!",
+    badgeBestseller: "Bestseller",
+    badgeNew: "New",
+    badgeLabel: "Item Badge",
+    badgeNone: "None",
+    allergenWarningTitle: "Allergen notice",
+    allergenWarningDesc: "This item has not been certified free from:",
   },
   fi: {
     // Nav / Index
@@ -958,6 +964,12 @@ const translations = {
     // CustomerMenu — offline
     menuOfflineTitle: "Ruokalista on tilapäisesti offline",
     menuOfflineDesc: "Ravintola päivittää ruokalistaansa. Tarkista pian uudelleen!",
+    badgeBestseller: "Myydyin",
+    badgeNew: "Uusi",
+    badgeLabel: "Tuotemerkki",
+    badgeNone: "Ei mitään",
+    allergenWarningTitle: "Allergeenihuomio",
+    allergenWarningDesc: "Tätä tuotetta ei ole sertifioitu vapaaksi seuraavista:",
   },
 } as const;
 

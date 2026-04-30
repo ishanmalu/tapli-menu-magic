@@ -50,6 +50,7 @@ export type Database = {
         Row: {
           allergens: string[] | null
           availability_schedule: Json | null
+          badge: string | null
           calories: number | null
           category_id: string | null
           created_at: string
@@ -73,6 +74,7 @@ export type Database = {
         Insert: {
           allergens?: string[] | null
           availability_schedule?: Json | null
+          badge?: string | null
           calories?: number | null
           category_id?: string | null
           created_at?: string
@@ -96,6 +98,7 @@ export type Database = {
         Update: {
           allergens?: string[] | null
           availability_schedule?: Json | null
+          badge?: string | null
           calories?: number | null
           category_id?: string | null
           created_at?: string

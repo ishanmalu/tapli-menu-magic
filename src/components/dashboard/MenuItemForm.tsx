@@ -57,6 +57,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
   const [ingredientsTextEn, setIngredientsTextEn] = useState(
     (item?.ingredients_en ?? []).join(", ")
   );
+  const [badge, setBadge] = useState<string>(item?.badge || "");
   const [submitting, setSubmitting] = useState(false);
   const [translatingName, setTranslatingName] = useState(false);
   const [translatingDesc, setTranslatingDesc] = useState(false);
@@ -158,6 +159,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
         is_available: isAvailable,
         availability_schedule: availabilitySchedule as any,
         photo_url: photoUrl,
+        badge: badge || null,
         restaurant_id: restaurantId,
       };
 
@@ -408,6 +410,21 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
       </div>
 
       <AvailabilityEditor value={availabilitySchedule} onChange={setAvailabilitySchedule} />
+
+      {/* Badge */}
+      <div className="space-y-1.5">
+        <Label>{t("badgeLabel")}</Label>
+        <Select value={badge} onValueChange={setBadge}>
+          <SelectTrigger>
+            <SelectValue placeholder={t("badgeNone")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">{t("badgeNone")}</SelectItem>
+            <SelectItem value="bestseller">★ {t("badgeBestseller")}</SelectItem>
+            <SelectItem value="new">✦ {t("badgeNew")}</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" className="flex-1" disabled={submitting}>{submitting ? t("saving") : item ? t("update") : t("addItem")}</Button>

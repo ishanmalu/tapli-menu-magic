@@ -18,6 +18,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun } from "lucide-react";
 
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
+import { FONT_OPTIONS } from "@/constants/menuCustomization";
 import type { AvailabilitySchedule } from "@/types/availability";
 import { trackMenuViewed } from "@/lib/posthog";
 import {
@@ -123,6 +124,26 @@ export default function CustomerMenu() {
     [rfSettings]
   );
   const customTags = useMemo<CustomTag[]>(() => rfSettings?.customTags ?? [], [rfSettings]);
+
+  // Customization
+  const accentColor   = rfSettings.accentColor   as string | undefined;
+  const accentMode    = (rfSettings.accentMode   as string) || "accent";
+  const headingFont   = (rfSettings.headingFont  as string) || "default";
+  const menuLayout    = (rfSettings.menuLayout   as string) || "list";
+  const cardStyle     = (rfSettings.cardStyle    as string) || "minimal";
+  const headingFontFamily = FONT_OPTIONS.find((f) => f.id === headingFont)?.family ?? "Inter, sans-serif";
+
+  // Load heading font from Google Fonts
+  useEffect(() => {
+    const fontOpt = FONT_OPTIONS.find((f) => f.id === headingFont);
+    if (!fontOpt?.googleFont) return;
+    const linkId = `tapli-font-${headingFont}`;
+    if (document.getElementById(linkId)) return;
+    const link = document.createElement("link");
+    link.id = linkId; link.rel = "stylesheet";
+    link.href = `https://fonts.googleapis.com/css2?family=${fontOpt.googleFont}&display=swap`;
+    document.head.appendChild(link);
+  }, [headingFont]);
 
   // Label lookup for manager-defined custom tags — passed to all customer components
   const extraTagLabels = useMemo<Record<string, string>>(() => {
@@ -317,9 +338,16 @@ export default function CustomerMenu() {
           </div>
         )}
         <div className={restaurant?.logo_url ? "mt-3" : "mt-4"}>
-          <h1 className="text-xl font-semibold text-foreground">{restaurant?.name}</h1>
+          <h1 className="text-xl font-semibold" style={{
+            fontFamily: headingFontFamily,
+            color: accentMode === "full" && accentColor ? accentColor : undefined,
+          }}>
+            {restaurant?.name}
+          </h1>
           {restaurant?.slogan && (
-            <p className="text-sm text-primary font-medium mt-0.5">{restaurant.slogan}</p>
+            <p className="text-sm font-medium mt-0.5" style={{ color: accentColor || undefined }}>
+              {restaurant.slogan}
+            </p>
           )}
           {(language === "en" && restaurant?.description_en
             ? restaurant.description_en
@@ -388,9 +416,10 @@ export default function CustomerMenu() {
                       type="button"
                       data-cat={id}
                       onClick={() => scrollToSection(id)}
+                      style={isActive && accentColor ? { backgroundColor: accentColor, color: "#fff" } : undefined}
                       className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all
                         ${isActive
-                          ? "bg-primary text-primary-foreground shadow-sm"
+                          ? accentColor ? "shadow-sm" : "bg-primary text-primary-foreground shadow-sm"
                           : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"}`}
                     >
                       {label}
@@ -415,12 +444,15 @@ export default function CustomerMenu() {
                 className="mb-8"
               >
                 {group.category && (
-                  <h2 className="text-base font-bold text-foreground mb-3 pt-1">
+                  <h2 className="text-base font-bold mb-3 pt-1" style={{
+                    fontFamily: headingFontFamily,
+                    color: accentMode === "full" && accentColor ? accentColor : undefined,
+                  }}>
                     {tCategory(group.category.name)}
-                    <span className="ml-2 text-xs font-normal text-muted-foreground">{group.items.length}</span>
+                    <span className="ml-2 text-xs font-normal text-muted-foreground" style={{ fontFamily: "Inter, sans-serif", color: undefined }}>{group.items.length}</span>
                   </h2>
                 )}
-                <div className="space-y-3">
+                <div className={menuLayout === "grid" ? "grid grid-cols-2 gap-3" : "space-y-3"}>
                   {group.items.map((item) => (
                     <MenuItemCard
                       key={item.id}
@@ -428,6 +460,9 @@ export default function CustomerMenu() {
                       onClick={() => setSelectedItem(item)}
                       isActive={selectedItem?.id === item.id}
                       extraTagLabels={extraTagLabels}
+                      accentColor={accentColor}
+                      accentMode={accentMode}
+                      cardStyle={cardStyle}
                     />
                   ))}
                 </div>

@@ -10,7 +10,7 @@ import { RestaurantSetup } from "@/components/dashboard/RestaurantSetup";
 import { MenuManager } from "@/components/dashboard/MenuManager";
 import {
   LogOut, QrCode, UtensilsCrossed, LayoutGrid,
-  SlidersHorizontal, Settings, Store, HelpCircle,
+  SlidersHorizontal, Settings, Store, HelpCircle, Palette,
 } from "lucide-react";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
@@ -28,7 +28,7 @@ export type DashboardSection =
   | "tags"
   | "restaurant"
   | "qr"
-  | "settings";
+  | "settings" | "customize";
 
 export default function Dashboard() {
   const { user, loading, signOut } = useAuth();
@@ -99,6 +99,7 @@ export default function Dashboard() {
     { id: "tags",       icon: SlidersHorizontal, label: t("tagsAndFilters") },
     { id: "restaurant", icon: Store,             label: t("restaurant") },
     { id: "qr",         icon: QrCode,            label: t("qrCode") },
+    { id: "customize",  icon: Palette,           label: t("customize") },
     { id: "settings",   icon: Settings,          label: t("settings") },
   ];
 

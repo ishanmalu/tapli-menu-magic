@@ -40,6 +40,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { compressImage, localPreview } from "@/lib/imageUtils";
 import { trackSoldOutToggled, trackPhotoUploaded } from "@/lib/posthog";
 import { SettingsSection } from "@/components/dashboard/SettingsSection";
+import { CustomizeSection } from "@/components/dashboard/CustomizeSection";
 import type { DashboardSection } from "@/pages/Dashboard";
 
 type MenuItem = Tables<"menu_items">;
@@ -570,11 +571,21 @@ export function MenuManager({
     );
   }
 
+  /* ── Customize ──────────────────────────────────────────────────────── */
+  if (activeSection === "customize") {
+    return (
+      <CustomizeSection
+        restaurant={restaurant}
+        onRestaurantUpdate={onRestaurantUpdate}
+      />
+    );
+  }
+
   /* ── QR Code ────────────────────────────────────────────────────────── */
   if (activeSection === "qr") {
     return (
       <SectionShell title={t("qrCode")} description={t("qrCodeDesc")}>
-        <QRCodeCard slug={restaurant.slug} restaurantName={restaurant.name} />
+        <QRCodeCard restaurant={restaurant} />
       </SectionShell>
     );
   }

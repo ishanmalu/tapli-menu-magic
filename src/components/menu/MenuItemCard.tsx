@@ -9,9 +9,12 @@ interface MenuItemCardProps {
   onClick?: () => void;
   isActive?: boolean;
   extraTagLabels?: Record<string, string>;
+  accentColor?: string;
+  accentMode?: string;
+  cardStyle?: string;
 }
 
-export function MenuItemCard({ item, onClick, isActive, extraTagLabels = {} }: MenuItemCardProps) {
+export function MenuItemCard({ item, onClick, isActive, extraTagLabels = {}, accentColor, accentMode, cardStyle }: MenuItemCardProps) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
 
@@ -78,18 +81,21 @@ export function MenuItemCard({ item, onClick, isActive, extraTagLabels = {} }: M
   return (
     <div
       onClick={handleClick}
+      style={
+        cardStyle === "bordered" && accentColor
+          ? { border: `1.5px solid ${accentColor}30` }
+          : undefined
+      }
       className={`
         flex gap-3 rounded-xl border p-3 transition-all duration-200
-        ${
-          soldOut
-            ? "cursor-default select-none opacity-70"
-            : "cursor-pointer"
-        }
-        ${
-          isActive
-            ? "bg-muted/60 border-primary/50 ring-1 ring-primary/40 shadow-lg"
-            : "bg-card border-transparent hover:bg-muted/50 hover:shadow-md hover:scale-[1.01]"
-        }
+        ${soldOut ? "cursor-default select-none opacity-70" : "cursor-pointer"}
+        ${isActive
+          ? "bg-muted/60 border-primary/50 ring-1 ring-primary/40 shadow-lg"
+          : cardStyle === "elevated"
+          ? "bg-card border-transparent shadow-md hover:shadow-lg hover:scale-[1.01]"
+          : cardStyle === "bordered"
+          ? "bg-card hover:bg-muted/30 hover:scale-[1.01]"
+          : "bg-card border-transparent hover:bg-muted/50 hover:shadow-md hover:scale-[1.01]"}
       `}
     >
       {/* Image */}
@@ -140,10 +146,9 @@ export function MenuItemCard({ item, onClick, isActive, extraTagLabels = {} }: M
 
           <span
             className={`font-bold text-sm whitespace-nowrap ${
-              soldOut
-                ? "text-muted-foreground line-through"
-                : "text-primary"
+              soldOut ? "text-muted-foreground line-through" : accentMode === "full" && accentColor ? "" : "text-primary"
             }`}
+            style={!soldOut && accentMode === "full" && accentColor ? { color: accentColor } : undefined}
           >
             €{Number(item.price).toFixed(2)}
           </span>

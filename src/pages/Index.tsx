@@ -66,16 +66,6 @@ function GlassCard({ children, className = "" }: { children: React.ReactNode; cl
   );
 }
 
-/* ── Pill badge ────────────────────────────────────────────────────────────── */
-function PillBadge({ children, icon: Icon }: { children: React.ReactNode; icon?: React.ElementType }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-foreground/15 bg-foreground/5 px-3.5 py-1 text-xs font-medium text-foreground/60 tracking-wide uppercase">
-      {Icon && <Icon className="h-3 w-3" />}
-      {children}
-    </span>
-  );
-}
-
 /* ════════════════════════════════════════════════════════════════════════════ */
 export default function Index() {
   const { t } = useLanguage();
@@ -227,18 +217,28 @@ export default function Index() {
 
         <div className="relative z-10 max-w-4xl mx-auto space-y-6">
 
-          {/* Pill chip */}
+          {/* Tapli wordmark — slow rise */}
           <div
-            className="animate-in fade-in slide-in-from-bottom-4 duration-700"
+            className="animate-in fade-in slide-in-from-bottom-6 duration-[1100ms]"
             style={{ animationFillMode: "both" }}
           >
-            <PillBadge icon={QrCode}>{t("heroChip")}</PillBadge>
+            <span className="font-garet text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-foreground select-none">
+              tapli
+            </span>
           </div>
+
+          {/* Tagline — fades in just after */}
+          <p
+            className="text-sm sm:text-base font-medium tracking-widest uppercase text-muted-foreground/60 animate-in fade-in slide-in-from-bottom-3 duration-[1000ms]"
+            style={{ animationDelay: "200ms", animationFillMode: "both" }}
+          >
+            {t("heroChip")}
+          </p>
 
           {/* Headline */}
           <h1
-            className="text-5xl sm:text-6xl lg:text-7xl font-bold text-foreground leading-[1.05] tracking-tight animate-in fade-in slide-in-from-bottom-6 duration-700"
-            style={{ animationDelay: "80ms", animationFillMode: "both" }}
+            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground leading-[1.08] tracking-tight animate-in fade-in slide-in-from-bottom-4 duration-700"
+            style={{ animationDelay: "350ms", animationFillMode: "both" }}
           >
             {t("heroTitle")}
           </h1>
@@ -246,7 +246,7 @@ export default function Index() {
           {/* Description */}
           <p
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-700"
-            style={{ animationDelay: "160ms", animationFillMode: "both" }}
+            style={{ animationDelay: "460ms", animationFillMode: "both" }}
           >
             {t("heroDesc")}
           </p>
@@ -254,7 +254,7 @@ export default function Index() {
           {/* CTAs */}
           <div
             className="flex flex-wrap items-center justify-center gap-3 pt-2 animate-in fade-in slide-in-from-bottom-4 duration-700"
-            style={{ animationDelay: "240ms", animationFillMode: "both" }}
+            style={{ animationDelay: "560ms", animationFillMode: "both" }}
           >
             <Link to="/auth" onClick={() => trackSignupStarted({ button: "start_for_free" })}>
               <Button
@@ -283,7 +283,7 @@ export default function Index() {
           {/* Trust badges */}
           <div
             className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 pt-4 animate-in fade-in duration-700"
-            style={{ animationDelay: "360ms", animationFillMode: "both" }}
+            style={{ animationDelay: "680ms", animationFillMode: "both" }}
           >
             {trustBadges.map((badge) => (
               <span key={badge} className="flex items-center gap-1.5 text-sm text-muted-foreground/70">

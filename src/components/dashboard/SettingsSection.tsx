@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import { useAuth } from "@/contexts/AuthContext";
@@ -89,10 +89,10 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   const { t } = useLanguage();
   const { toast } = useToast();
 
-  /* ── profile ── */
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [email, setEmail] = useState(user?.email ?? "");
+  /* ── profile (name stored in filter_settings — no profiles table needed) ── */
+  const [firstName, setFirstName] = useState<string>(fs.firstName ?? "");
+  const [lastName, setLastName] = useState<string>(fs.lastName ?? "");
+  const [email] = useState(user?.email ?? "");
   const [savingProfile, setSavingProfile] = useState(false);
 
   /* ── password ── */
@@ -118,32 +118,19 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   const [notifEmail, setNotifEmail] = useState<string>(fs.notificationEmail ?? "");
   const [savingNotif, setSavingNotif] = useState(false);
 
-  /* ── load profile ── */
-  useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("first_name, last_name")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        if (data) {
-          setFirstName(data.first_name ?? "");
-          setLastName(data.last_name ?? "");
-        }
-      });
-  }, [user]);
-
-  /* ── save profile ── */
+  /* ── save profile (name stored in filter_settings) ── */
   const saveProfile = async () => {
-    if (!user) return;
     setSavingProfile(true);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ first_name: firstName, last_name: lastName })
-        .eq("user_id", user.id);
+      const existing = (restaurant.filter_settings as any) ?? {};
+      const { data, error } = await supabase
+        .from("restaurants")
+        .update({ filter_settings: { ...existing, firstName, lastName } })
+        .eq("id", restaurant.id)
+        .select()
+        .single();
       if (error) throw error;
+      if (data) onRestaurantUpdate(data);
       toast({ title: t("saved") });
     } catch (err: any) {
       toast({ title: t("error"), description: err.message, variant: "destructive" });

@@ -1,12 +1,10 @@
-import { supabase } from "@/integrations/supabase/client";
 import { ALL_LANGUAGES } from "@/constants/languages";
 
-// All translation requests go through our Supabase Edge Function
+// Translation requests go through a Cloudflare Pages Function at /api/translate
 // so the DeepL API key stays server-side and CORS is never an issue.
-// We use supabase.functions.invoke() so the URL + auth are handled
-// automatically by the already-configured Supabase client.
+// The function runs on the same domain as the app — no cross-origin requests.
 
-async function callEdgeFunction(
+async function callTranslateAPI(
   texts: string[],
   targetLangCode: string,
   sourceLangCode?: string
@@ -20,11 +18,20 @@ async function callEdgeFunction(
     if (src) body.sourceLang = src.deeplCode.split("-")[0];
   }
 
-  const { data, error } = await supabase.functions.invoke("translate", { body });
+  const res = await fetch("/api/translate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-  if (error) throw new Error(error.message);
-  if (data?.error) throw new Error(data.error);
-  return data.translations as string[];
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Translation failed (${res.status}): ${err}`);
+  }
+
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  return json.translations as string[];
 }
 
 /**
@@ -37,7 +44,7 @@ export async function translateText(
   sourceLangCode?: string
 ): Promise<string> {
   if (!text.trim()) return "";
-  const results = await callEdgeFunction([text], targetLangCode, sourceLangCode);
+  const results = await callTranslateAPI([text], targetLangCode, sourceLangCode);
   return results[0] ?? "";
 }
 
@@ -51,7 +58,7 @@ export async function translateBatch(
   sourceLangCode?: string
 ): Promise<string[]> {
   if (texts.every((t) => !t.trim())) return texts.map(() => "");
-  return callEdgeFunction(texts, targetLangCode, sourceLangCode);
+  return callTranslateAPI(texts, targetLangCode, sourceLangCode);
 }
 
 /**

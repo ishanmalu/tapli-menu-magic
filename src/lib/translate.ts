@@ -1,10 +1,10 @@
+import { supabase } from "@/integrations/supabase/client";
 import { ALL_LANGUAGES } from "@/constants/languages";
 
 // All translation requests go through our Supabase Edge Function
-// so the DeepL API key stays server-side and CORS is never an issue
-const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
-const EDGE_FN_URL = `${SUPABASE_URL}/functions/v1/translate`;
+// so the DeepL API key stays server-side and CORS is never an issue.
+// We use supabase.functions.invoke() so the URL + auth are handled
+// automatically by the already-configured Supabase client.
 
 async function callEdgeFunction(
   texts: string[],
@@ -20,24 +20,11 @@ async function callEdgeFunction(
     if (src) body.sourceLang = src.deeplCode.split("-")[0];
   }
 
-  const res = await fetch(EDGE_FN_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-    },
-    body: JSON.stringify(body),
-  });
+  const { data, error } = await supabase.functions.invoke("translate", { body });
 
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Translation failed (${res.status}): ${err}`);
-  }
-
-  const json = await res.json();
-  if (json.error) throw new Error(json.error);
-  return json.translations as string[];
+  if (error) throw new Error(error.message);
+  if (data?.error) throw new Error(data.error);
+  return data.translations as string[];
 }
 
 /**

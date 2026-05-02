@@ -94,10 +94,10 @@ export default function Index() {
 
       {/* ───────── HERO ───────── */}
       <section className="min-h-screen flex items-center px-5 pt-20 pb-14 sm:pt-28 sm:pb-20 overflow-hidden">
-        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_1.1fr] gap-8 items-center w-full">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_1.1fr] gap-6 items-center w-full">
 
           {/* LEFT */}
-          <div className="space-y-5 sm:space-y-6">
+          <div className="space-y-5 sm:space-y-6 lg:ml-auto lg:max-w-[500px] w-full">
             <p className="inline-block text-xs px-3 py-1 rounded-full
               bg-foreground/5 border border-foreground/10
               uppercase tracking-widest text-muted-foreground">

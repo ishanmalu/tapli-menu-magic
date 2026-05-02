@@ -867,6 +867,7 @@ export function MenuManager({
                 activeAllergens={(restaurant.filter_settings as any)?.activeAllergens}
                 activeDietaryTags={(restaurant.filter_settings as any)?.activeDietaryTags}
                 customTags={(restaurant.filter_settings as any)?.customTags}
+                enabledLanguages={(restaurant.filter_settings as any)?.enabledLanguages ?? ["fi", "en"]}
               />
             </DialogContent>
           </Dialog>
@@ -927,6 +928,7 @@ export function MenuManager({
                   activeAllergens={(restaurant.filter_settings as any)?.activeAllergens}
                   activeDietaryTags={(restaurant.filter_settings as any)?.activeDietaryTags}
                   customTags={(restaurant.filter_settings as any)?.customTags}
+                  enabledLanguages={(restaurant.filter_settings as any)?.enabledLanguages ?? ["fi", "en"]}
                 />
               </DialogContent>
             </Dialog>

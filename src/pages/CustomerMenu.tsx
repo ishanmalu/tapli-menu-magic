@@ -14,6 +14,7 @@ import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun } from "lucide-react";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { FONT_OPTIONS } from "@/constants/menuCustomization";
+import { ALL_LANGUAGES, getLang } from "@/constants/languages";
 import type { AvailabilitySchedule } from "@/types/availability";
 import { trackMenuViewed } from "@/lib/posthog";
 import {
@@ -63,6 +64,9 @@ export default function CustomerMenu() {
   const [notFound, setNotFound] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
+  // Menu display language — starts at restaurant default, can be switched by customer
+  const [menuLang, setMenuLang] = useState<string>("fi");
+
   // Category navigation
   const [activeCategory, setActiveCategory] = useState<string>("");
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -90,6 +94,10 @@ export default function CustomerMenu() {
         setRestaurant(rest);
         document.title = `Tapli — ${rest.name}`;
         trackMenuViewed({ slug: rest.slug, restaurantName: rest.name });
+
+        // Set initial menu language from restaurant default setting
+        const defaultLang = (rest.filter_settings as any)?.defaultLanguage ?? "fi";
+        setMenuLang(defaultLang);
 
         // Initialise slider values from restaurant settings
         const sliders = getSlidersFromSettings(rest.filter_settings as any);
@@ -121,6 +129,45 @@ export default function CustomerMenu() {
     [rfSettings]
   );
   const customTags = useMemo<CustomTag[]>(() => rfSettings?.customTags ?? [], [rfSettings]);
+
+  // Multi-language support
+  const enabledLanguages = useMemo<string[]>(
+    () => (rfSettings?.enabledLanguages as string[] | undefined) ?? ["fi", "en"],
+    [rfSettings]
+  );
+  const availableLangs = useMemo(
+    () => ALL_LANGUAGES.filter((l) => enabledLanguages.includes(l.code)),
+    [enabledLanguages]
+  );
+
+  // Helper: get the best available text for an item in the current menuLang
+  const getItemText = useCallback((item: MenuItem, field: "name" | "description" | "ingredients"): string | string[] | null => {
+    if (menuLang === "fi") {
+      if (field === "name") return item.name;
+      if (field === "description") return item.description ?? null;
+      if (field === "ingredients") return item.ingredients ?? null;
+    }
+    if (menuLang === "en") {
+      if (field === "name") return (item.name_en ?? item.name);
+      if (field === "description") return (item.description_en ?? item.description ?? null);
+      if (field === "ingredients") return (item.ingredients_en ?? item.ingredients ?? null);
+    }
+    // Extra language — read from translations JSONB
+    const translations = (item.translations as Record<string, { name?: string; description?: string; ingredients?: string[] }> | null) ?? {};
+    const tr = translations[menuLang];
+    if (field === "name") return tr?.name || item.name_en || item.name;
+    if (field === "description") return tr?.description || item.description_en || item.description || null;
+    if (field === "ingredients") return tr?.ingredients || item.ingredients_en || item.ingredients || null;
+    return null;
+  }, [menuLang]);
+
+  // Helper: get category name in current menuLang
+  const getCategoryName = useCallback((cat: Category): string => {
+    if (menuLang === "fi") return cat.name;
+    if (menuLang === "en") return (cat as any).name_en || cat.name;
+    const tr = (cat.translations as Record<string, string> | null) ?? {};
+    return tr[menuLang] || (cat as any).name_en || cat.name;
+  }, [menuLang]);
 
   // Customization
   const accentColor   = rfSettings.accentColor   as string | undefined;
@@ -303,8 +350,27 @@ export default function CustomerMenu() {
 
       {/* Top controls */}
       <div className="fixed top-3 right-3 z-50 flex items-center gap-1.5">
+        {/* Menu language switcher — only shown when more than 2 languages are enabled */}
+        {availableLangs.length > 1 && (
+          <div className="flex items-center gap-0.5 bg-background/80 backdrop-blur-md border border-foreground/10 rounded-xl px-1.5 py-1 shadow-sm">
+            {availableLangs.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => setMenuLang(lang.code)}
+                title={lang.label}
+                className={`px-2 py-0.5 rounded-lg text-xs font-semibold transition-all ${
+                  menuLang === lang.code
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {lang.flag} {lang.code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
         <LanguageToggle />
-        <button onClick={toggleTheme}>
+        <button onClick={toggleTheme} className="p-1.5 rounded-lg bg-background/80 backdrop-blur-md border border-foreground/10 shadow-sm">
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>
       </div>

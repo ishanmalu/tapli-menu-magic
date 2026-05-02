@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Eye, EyeOff, ExternalLink, Loader2 } from "lucide-react";
+import { Eye, EyeOff, ExternalLink, Loader2, Plus, X, Globe } from "lucide-react";
+import { CORE_LANGUAGES, EXTRA_LANGUAGES } from "@/constants/languages";
 
 /* ── constants ─────────────────────────────────────────────────────────────── */
 const CURRENCIES = [
@@ -117,6 +118,11 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   /* ── notification email ── */
   const [notifEmail, setNotifEmail] = useState<string>(fs.notificationEmail ?? "");
   const [savingNotif, setSavingNotif] = useState(false);
+
+  /* ── enabled menu languages ── */
+  const [enabledLangs, setEnabledLangs] = useState<string[]>(
+    (fs.enabledLanguages as string[] | undefined) ?? ["fi", "en"]
+  );
 
   /* ── save profile (name stored in filter_settings) ── */
   const saveProfile = async () => {
@@ -471,6 +477,103 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
               {t("saveChanges")}
             </Button>
           </div>
+        </Card>
+
+        {/* ── Menu Languages ── */}
+        <Card title={t("menuLanguages")} description={t("menuLanguagesDesc")}>
+          {/* Core languages — always on */}
+          <div className="space-y-2">
+            {CORE_LANGUAGES.map((lang) => (
+              <div key={lang.code} className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/30">
+                <div className="flex items-center gap-2.5">
+                  <span className="text-lg">{lang.flag}</span>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{lang.label}</p>
+                    <p className="text-xs text-muted-foreground">{lang.nativeName}</p>
+                  </div>
+                </div>
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+                  {t("alwaysEnabled")}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Extra enabled languages */}
+          {enabledLangs.filter((c) => !["fi", "en"].includes(c)).length > 0 && (
+            <div className="space-y-2 mt-1">
+              {enabledLangs
+                .filter((c) => !["fi", "en"].includes(c))
+                .map((code) => {
+                  const lang = EXTRA_LANGUAGES.find((l) => l.code === code);
+                  if (!lang) return null;
+                  return (
+                    <div key={code} className="flex items-center justify-between py-2 px-3 rounded-lg border border-border">
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-lg">{lang.flag}</span>
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{lang.label}</p>
+                          <p className="text-xs text-muted-foreground">{lang.nativeName}</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const next = enabledLangs.filter((c) => c !== code);
+                          setEnabledLangs(next);
+                          const existing = (restaurant.filter_settings as any) ?? {};
+                          const { data, error } = await supabase
+                            .from("restaurants")
+                            .update({ filter_settings: { ...existing, enabledLanguages: next } })
+                            .eq("id", restaurant.id)
+                            .select()
+                            .single();
+                          if (!error && data) { onRestaurantUpdate(data); toast({ title: t("languageRemoved") }); }
+                        }}
+                        className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
+          )}
+
+          {/* Add a new language */}
+          {EXTRA_LANGUAGES.filter((l) => !enabledLangs.includes(l.code)).length > 0 && (
+            <div className="mt-2">
+              <p className="text-xs text-muted-foreground mb-2">{t("addLanguageHint")}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {EXTRA_LANGUAGES.filter((l) => !enabledLangs.includes(l.code)).map((lang) => (
+                  <button
+                    key={lang.code}
+                    type="button"
+                    onClick={async () => {
+                      const next = [...enabledLangs, lang.code];
+                      setEnabledLangs(next);
+                      const existing = (restaurant.filter_settings as any) ?? {};
+                      const { data, error } = await supabase
+                        .from("restaurants")
+                        .update({ filter_settings: { ...existing, enabledLanguages: next } })
+                        .eq("id", restaurant.id)
+                        .select()
+                        .single();
+                      if (!error && data) { onRestaurantUpdate(data); toast({ title: t("languageAdded") }); }
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-foreground/20 hover:border-primary hover:bg-primary/5 transition-colors text-left"
+                  >
+                    <span>{lang.flag}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-medium text-foreground truncate">{lang.label}</p>
+                      <p className="text-xs text-muted-foreground truncate">{lang.nativeName}</p>
+                    </div>
+                    <Plus className="h-3.5 w-3.5 text-muted-foreground ml-auto shrink-0" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </Card>
 
         {/* ── Danger Zone ── */}

@@ -327,6 +327,22 @@ const translations = {
     translating: "Translating…",
     translateError: "Translation failed",
 
+    // Multi-language settings
+    menuLanguages: "Menu Languages",
+    menuLanguagesDesc: "Choose which languages your menu is available in. Finnish and English are always enabled.",
+    alwaysEnabled: "Always enabled",
+    enabledLanguages: "Enabled languages",
+    addLanguageHint: "Add a language — customers will see a language switcher on your menu",
+    translateAllDeepL: "Translate all with DeepL",
+    translatingAll: "Translating…",
+    translationFor: "Translation for",
+    noTranslationYet: "No translation yet — click Translate to fill automatically",
+    translationsSaved: "Translations saved",
+    translateFromFi: "Translate from Finnish",
+    languageAdded: "Language added",
+    languageRemoved: "Language removed",
+    translationComplete: "Translation complete",
+
     // Free From allergen tags (item is free from this allergen)
     tagGlutenFree: "Gluten-free",
     tagDairyFree: "Dairy-free",
@@ -841,6 +857,22 @@ const translations = {
     translateToFi: "Käännä suomeksi",
     translating: "Käännetään…",
     translateError: "Käännös epäonnistui",
+
+    // Multi-language settings
+    menuLanguages: "Ruokalistan kielet",
+    menuLanguagesDesc: "Valitse kielet, joilla ruokalista on saatavilla. Suomi ja englanti ovat aina käytössä.",
+    alwaysEnabled: "Aina käytössä",
+    enabledLanguages: "Käytössä olevat kielet",
+    addLanguageHint: "Lisää kieli — asiakkaat näkevät kielivalitsimen ruokalistallasi",
+    translateAllDeepL: "Käännä kaikki DeepL:llä",
+    translatingAll: "Käännetään…",
+    translationFor: "Käännös kielelle",
+    noTranslationYet: "Ei käännöstä vielä — klikkaa Käännä täyttääksesi automaattisesti",
+    translationsSaved: "Käännökset tallennettu",
+    translateFromFi: "Käännä suomesta",
+    languageAdded: "Kieli lisätty",
+    languageRemoved: "Kieli poistettu",
+    translationComplete: "Käännös valmis",
 
     // Free From allergen tags — "vapaa ainesosista" style Finnish
     tagGlutenFree: "Gluteeniton",

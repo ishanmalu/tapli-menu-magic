@@ -8,16 +8,16 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { X } from "lucide-react";
+import { X, Languages, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import type { CustomTag } from "@/types/filterSettings";
 import { compressImage } from "@/lib/imageUtils";
-import { translate } from "@/lib/translate";
-import { Languages } from "lucide-react";
+import { translate, translateBatch } from "@/lib/translate";
 import { AvailabilityEditor } from "@/components/dashboard/AvailabilityEditor";
 import type { AvailabilitySchedule } from "@/types/availability";
+import { EXTRA_LANGUAGES, getLang } from "@/constants/languages";
 
 interface Props {
   restaurantId: string;
@@ -31,10 +31,41 @@ interface Props {
   activeDietaryTags?: string[];
   /** Custom tags defined by the restaurant manager */
   customTags?: CustomTag[];
+  /** Extra language codes enabled for this restaurant (e.g. ["sv", "de"]) */
+  enabledLanguages?: string[];
 }
 
-export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel, activeAllergens, activeDietaryTags, customTags = [] }: Props) {
+// Shape of one extra-language translation block
+interface LangTranslation {
+  name: string;
+  description: string;
+  ingredients: string;
+}
+
+export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel, activeAllergens, activeDietaryTags, customTags = [], enabledLanguages = [] }: Props) {
   const { t } = useLanguage();
+
+  // Extra languages (beyond FI + EN) that are enabled for this restaurant
+  const extraLangs = EXTRA_LANGUAGES.filter((l) => enabledLanguages.includes(l.code));
+
+  // State for extra language translations, keyed by language code
+  const existingTranslations = (item?.translations as Record<string, { name?: string; description?: string; ingredients?: string[] }> | null) ?? {};
+  const [extraTranslations, setExtraTranslations] = useState<Record<string, LangTranslation>>(() => {
+    const init: Record<string, LangTranslation> = {};
+    extraLangs.forEach((lang) => {
+      const existing = existingTranslations[lang.code];
+      init[lang.code] = {
+        name: existing?.name ?? "",
+        description: existing?.description ?? "",
+        ingredients: (existing?.ingredients ?? []).join(", "),
+      };
+    });
+    return init;
+  });
+
+  // Which extra language panels are expanded
+  const [expandedLangs, setExpandedLangs] = useState<Record<string, boolean>>({});
+  const [translatingLang, setTranslatingLang] = useState<Record<string, boolean>>({});
   const [name, setName] = useState(item?.name || "");
   const [nameEn, setNameEn] = useState(item?.name_en || "");
   const [description, setDescription] = useState(item?.description || "");
@@ -80,6 +111,39 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
       toast({ title: t("translateError"), variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Translate all fields for an extra language in one batched DeepL request
+  const translateAllForLang = async (langCode: string) => {
+    const sourceName = name.trim() || nameEn.trim();
+    const sourceDesc = description.trim() || descriptionEn.trim();
+    const sourceIngr = ingredientsText.trim() || ingredientsTextEn.trim();
+    const sourceLang = name.trim() ? "fi" : "en";
+
+    const texts = [sourceName, sourceDesc, sourceIngr].filter(Boolean);
+    if (texts.length === 0) return;
+
+    setTranslatingLang((prev) => ({ ...prev, [langCode]: true }));
+    try {
+      const results = await translateBatch(
+        [sourceName, sourceDesc, sourceIngr],
+        langCode,
+        sourceLang
+      );
+      setExtraTranslations((prev) => ({
+        ...prev,
+        [langCode]: {
+          name: results[0] ?? "",
+          description: results[1] ?? "",
+          ingredients: results[2] ?? "",
+        },
+      }));
+      toast({ title: t("translationComplete") });
+    } catch {
+      toast({ title: t("translateError"), variant: "destructive" });
+    } finally {
+      setTranslatingLang((prev) => ({ ...prev, [langCode]: false }));
     }
   };
 
@@ -139,6 +203,19 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
         photoUrl = `${publicUrl}?t=${Date.now()}`;
       }
 
+      // Build translations JSONB for extra languages
+      const translationsJson: Record<string, { name: string; description: string; ingredients: string[] }> = {};
+      extraLangs.forEach((lang) => {
+        const tr = extraTranslations[lang.code];
+        if (tr?.name || tr?.description || tr?.ingredients) {
+          translationsJson[lang.code] = {
+            name: tr.name ?? "",
+            description: tr.description ?? "",
+            ingredients: tr.ingredients ? tr.ingredients.split(",").map((s) => s.trim()).filter(Boolean) : [],
+          };
+        }
+      });
+
       const payload = {
         name: name.trim(),
         name_en: nameEn.trim() || null,
@@ -156,6 +233,7 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
         ingredients_en: ingredientsTextEn.trim()
           ? ingredientsTextEn.split(",").map((s) => s.trim()).filter(Boolean)
           : null,
+        translations: translationsJson,
         is_available: isAvailable,
         availability_schedule: availabilitySchedule as any,
         photo_url: photoUrl,
@@ -300,6 +378,92 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
           rows={2}
         />
       </div>
+      {/* ── Extra language translations ── */}
+      {extraLangs.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-center gap-2 pt-1">
+            <Languages className="h-4 w-4 text-muted-foreground" />
+            <Label className="text-sm font-semibold">Additional Languages</Label>
+          </div>
+          {extraLangs.map((lang) => {
+            const tr = extraTranslations[lang.code] ?? { name: "", description: "", ingredients: "" };
+            const isExpanded = expandedLangs[lang.code] ?? false;
+            const isTranslating = translatingLang[lang.code] ?? false;
+            const hasContent = tr.name || tr.description || tr.ingredients;
+            return (
+              <div key={lang.code} className="rounded-xl border border-border overflow-hidden">
+                {/* Header */}
+                <button
+                  type="button"
+                  onClick={() => setExpandedLangs((prev) => ({ ...prev, [lang.code]: !isExpanded }))}
+                  className="w-full flex items-center justify-between px-4 py-3 bg-muted/30 hover:bg-muted/50 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-base">{lang.flag}</span>
+                    <span className="text-sm font-medium text-foreground">{lang.label}</span>
+                    {hasContent && (
+                      <span className="text-xs bg-green-500/15 text-green-600 dark:text-green-400 px-1.5 py-0.5 rounded-full">
+                        Translated
+                      </span>
+                    )}
+                  </div>
+                  {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                </button>
+
+                {/* Content */}
+                {isExpanded && (
+                  <div className="p-4 space-y-3">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      disabled={isTranslating || (!name.trim() && !nameEn.trim())}
+                      onClick={() => translateAllForLang(lang.code)}
+                      className="gap-1.5 w-full"
+                    >
+                      {isTranslating
+                        ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {t("translatingAll")}</>
+                        : <><Languages className="h-3.5 w-3.5" /> {t("translateAllDeepL")} ({lang.nativeName})</>
+                      }
+                    </Button>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Name ({lang.label})</Label>
+                      <Input
+                        value={tr.name}
+                        onChange={(e) => setExtraTranslations((prev) => ({ ...prev, [lang.code]: { ...tr, name: e.target.value } }))}
+                        placeholder={`${lang.nativeName}…`}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Description ({lang.label})</Label>
+                      <Textarea
+                        value={tr.description}
+                        onChange={(e) => setExtraTranslations((prev) => ({ ...prev, [lang.code]: { ...tr, description: e.target.value } }))}
+                        placeholder={`${lang.nativeName}…`}
+                        rows={2}
+                        className="text-sm"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label className="text-xs text-muted-foreground">Ingredients ({lang.label})</Label>
+                      <Textarea
+                        value={tr.ingredients}
+                        onChange={(e) => setExtraTranslations((prev) => ({ ...prev, [lang.code]: { ...tr, ingredients: e.target.value } }))}
+                        placeholder="comma separated…"
+                        rows={2}
+                        className="text-sm"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
       <div>
         <Label>{t("photo")}</Label>
         {item?.photo_url && !photo && !removePhoto ? (

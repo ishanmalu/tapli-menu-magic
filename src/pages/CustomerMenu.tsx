@@ -8,7 +8,6 @@ import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { DiscoverRestaurants } from "@/components/menu/DiscoverRestaurants";
 import { MenuDetails } from "@/components/menu/MenuDetails";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun } from "lucide-react";
@@ -369,7 +368,6 @@ export default function CustomerMenu() {
             ))}
           </div>
         )}
-        <LanguageToggle />
         <button onClick={toggleTheme} className="p-1.5 rounded-lg bg-background/80 backdrop-blur-md border border-foreground/10 shadow-sm">
           {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
         </button>

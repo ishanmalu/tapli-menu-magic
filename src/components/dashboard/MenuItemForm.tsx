@@ -107,8 +107,12 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
     try {
       const result = await translate(text, from, to);
       setTarget(result);
-    } catch {
-      toast({ title: t("translateError"), variant: "destructive" });
+    } catch (err: any) {
+      toast({
+        title: t("translateError"),
+        description: err?.message ?? "Check your DeepL API key in Cloudflare environment variables",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -116,32 +120,37 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
 
   // Translate all fields for an extra language in one batched DeepL request
   const translateAllForLang = async (langCode: string) => {
+    const sourceLang = name.trim() ? "fi" : "en";
     const sourceName = name.trim() || nameEn.trim();
     const sourceDesc = description.trim() || descriptionEn.trim();
     const sourceIngr = ingredientsText.trim() || ingredientsTextEn.trim();
-    const sourceLang = name.trim() ? "fi" : "en";
 
-    const texts = [sourceName, sourceDesc, sourceIngr].filter(Boolean);
-    if (texts.length === 0) return;
+    if (!sourceName) return;
+
+    // Only send non-empty strings to DeepL — track which indices have content
+    const toTranslate: { text: string; key: "name" | "description" | "ingredients" }[] = [];
+    if (sourceName) toTranslate.push({ text: sourceName, key: "name" });
+    if (sourceDesc) toTranslate.push({ text: sourceDesc, key: "description" });
+    if (sourceIngr) toTranslate.push({ text: sourceIngr, key: "ingredients" });
 
     setTranslatingLang((prev) => ({ ...prev, [langCode]: true }));
     try {
       const results = await translateBatch(
-        [sourceName, sourceDesc, sourceIngr],
+        toTranslate.map((x) => x.text),
         langCode,
         sourceLang
       );
-      setExtraTranslations((prev) => ({
-        ...prev,
-        [langCode]: {
-          name: results[0] ?? "",
-          description: results[1] ?? "",
-          ingredients: results[2] ?? "",
-        },
-      }));
+      const patch: LangTranslation = { name: "", description: "", ingredients: "" };
+      toTranslate.forEach((item, i) => { patch[item.key] = results[i] ?? ""; });
+
+      setExtraTranslations((prev) => ({ ...prev, [langCode]: patch }));
       toast({ title: t("translationComplete") });
-    } catch {
-      toast({ title: t("translateError"), variant: "destructive" });
+    } catch (err: any) {
+      toast({
+        title: t("translateError"),
+        description: err?.message ?? "Check your DeepL API key in Cloudflare environment variables",
+        variant: "destructive",
+      });
     } finally {
       setTranslatingLang((prev) => ({ ...prev, [langCode]: false }));
     }

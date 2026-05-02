@@ -21,6 +21,7 @@ import { useState } from "react";
 import tapliLogo from "@/assets/tapli-logo.png";
 import tapliLogoDark from "@/assets/tapli-logo-dark.png";
 import { useTheme } from "@/components/ThemeProvider";
+import { trackSignupStarted, trackDemoClicked } from "@/lib/posthog";
 
 export default function Index() {
   const { theme } = useTheme();
@@ -114,7 +115,7 @@ export default function Index() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <Link to="/auth" className="w-full sm:w-auto">
+              <Link to="/auth" className="w-full sm:w-auto" onClick={() => trackSignupStarted({ button: "hero_start_free" })}>
                 <Button size="lg" className="w-full sm:w-auto px-6 rounded-xl shadow-md hover:shadow-lg transition">
                   Start for free
                   <ArrowRight className="ml-2 w-4 h-4" />
@@ -125,6 +126,7 @@ export default function Index() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full sm:w-auto"
+                onClick={trackDemoClicked}
               >
                 <Button size="lg" variant="outline" className="w-full sm:w-auto px-6 rounded-xl border-foreground/20 hover:bg-foreground/5">
                   <ExternalLink className="mr-2 w-4 h-4" />
@@ -367,13 +369,13 @@ export default function Index() {
           </div>
           <div className="flex flex-col items-center gap-2 flex-shrink-0 w-full lg:w-auto">
             <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-              <Link to="/auth" className="w-full sm:w-auto">
+              <Link to="/auth" className="w-full sm:w-auto" onClick={() => trackSignupStarted({ button: "cta_start_free" })}>
                 <Button size="lg" className="w-full sm:w-auto px-8 rounded-xl">
                   Start for free
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </Link>
-              <a href="https://tapliapp.com/menu/tapli-demo" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+              <a href="https://tapliapp.com/menu/tapli-demo" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto" onClick={trackDemoClicked}>
                 <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 rounded-xl">
                   <ExternalLink className="mr-2 w-4 h-4" />
                   View live demo

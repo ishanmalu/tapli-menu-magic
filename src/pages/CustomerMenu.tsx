@@ -1,22 +1,17 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
-
-type HoursRow = { days: string; hours: string };
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-
 import { FoodStyleChips, FOOD_STYLE_FILTERS } from "@/components/menu/FoodStyleChips";
 import { MenuFilterBar } from "@/components/menu/MenuFilterBar";
 import { MenuItemCard } from "@/components/menu/MenuItemCard";
 import { DiscoverRestaurants } from "@/components/menu/DiscoverRestaurants";
 import { MenuDetails } from "@/components/menu/MenuDetails";
-
 import { Skeleton } from "@/components/ui/skeleton";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
 import { Moon, Sun } from "lucide-react";
-
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { FONT_OPTIONS } from "@/constants/menuCustomization";
 import type { AvailabilitySchedule } from "@/types/availability";
@@ -27,6 +22,8 @@ import {
   getSlidersFromSettings,
   getItemFieldValue,
 } from "@/types/filterSettings";
+
+type HoursRow = { days: string; hours: string };
 
 function isAvailableNow(schedule: AvailabilitySchedule | null | undefined): boolean {
   if (!schedule || !schedule.enabled) return true;

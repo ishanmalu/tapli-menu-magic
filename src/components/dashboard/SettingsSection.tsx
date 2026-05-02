@@ -11,8 +11,9 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Eye, EyeOff, ExternalLink, Loader2, Plus, X, Globe } from "lucide-react";
-import { CORE_LANGUAGES, EXTRA_LANGUAGES } from "@/constants/languages";
+import { Eye, EyeOff, ExternalLink, Loader2, Plus, X, Globe, Languages } from "lucide-react";
+import { CORE_LANGUAGES, EXTRA_LANGUAGES, getLang } from "@/constants/languages";
+import { translateBatch } from "@/lib/translate";
 
 /* ── constants ─────────────────────────────────────────────────────────────── */
 const CURRENCIES = [
@@ -123,6 +124,80 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   const [enabledLangs, setEnabledLangs] = useState<string[]>(
     (fs.enabledLanguages as string[] | undefined) ?? ["fi", "en"]
   );
+  // langCode → { done, total } while bulk-translating
+  const [bulkProgress, setBulkProgress] = useState<Record<string, { done: number; total: number } | "done" | null>>({});
+
+  /* ── bulk-translate ALL menu items to a given language ── */
+  const translateAllItems = async (langCode: string) => {
+    const lang = getLang(langCode);
+    if (!lang) return;
+
+    setBulkProgress((p) => ({ ...p, [langCode]: { done: 0, total: 0 } }));
+    try {
+      // 1. Fetch all items for this restaurant
+      const { data: items, error } = await supabase
+        .from("menu_items")
+        .select("id, name, name_en, description, description_en, ingredients, ingredients_en, translations")
+        .eq("restaurant_id", restaurant.id);
+      if (error) throw error;
+      if (!items?.length) { toast({ title: "No menu items to translate." }); return; }
+
+      // 2. Collect all texts with their item + field metadata
+      type TextJob = { itemId: string; field: "name" | "description" | "ingredients"; text: string };
+      const jobs: TextJob[] = [];
+      for (const item of items) {
+        const srcName = (item.name || item.name_en || "").trim();
+        const srcDesc = (item.description || item.description_en || "").trim();
+        const srcIngr = ((item.ingredients ?? item.ingredients_en ?? []) as string[]).join(", ").trim();
+        if (srcName) jobs.push({ itemId: item.id, field: "name", text: srcName });
+        if (srcDesc) jobs.push({ itemId: item.id, field: "description", text: srcDesc });
+        if (srcIngr) jobs.push({ itemId: item.id, field: "ingredients", text: srcIngr });
+      }
+
+      setBulkProgress((p) => ({ ...p, [langCode]: { done: 0, total: jobs.length } }));
+
+      // 3. Translate in batches of 50 (DeepL limit)
+      const CHUNK = 50;
+      const translated: string[] = [];
+      for (let i = 0; i < jobs.length; i += CHUNK) {
+        const chunk = jobs.slice(i, i + CHUNK);
+        const results = await translateBatch(chunk.map((j) => j.text), langCode);
+        translated.push(...results);
+        setBulkProgress((p) => ({ ...p, [langCode]: { done: Math.min(i + CHUNK, jobs.length), total: jobs.length } }));
+      }
+
+      // 4. Group translated text back by itemId
+      const byItem: Record<string, { name?: string; description?: string; ingredients?: string[] }> = {};
+      jobs.forEach((job, i) => {
+        if (!byItem[job.itemId]) byItem[job.itemId] = {};
+        if (job.field === "ingredients") {
+          byItem[job.itemId].ingredients = translated[i].split(",").map((s) => s.trim()).filter(Boolean);
+        } else {
+          byItem[job.itemId][job.field] = translated[i];
+        }
+      });
+
+      // 5. Save translations back to DB (parallel updates)
+      await Promise.all(
+        items.map(async (item) => {
+          const patch = byItem[item.id];
+          if (!patch) return;
+          const existing = (typeof item.translations === "object" && item.translations && !Array.isArray(item.translations)
+            ? item.translations
+            : {}) as Record<string, unknown>;
+          const updated = { ...existing, [langCode]: { ...(existing[langCode] as object ?? {}), ...patch } };
+          await supabase.from("menu_items").update({ translations: updated }).eq("id", item.id);
+        })
+      );
+
+      setBulkProgress((p) => ({ ...p, [langCode]: "done" }));
+      toast({ title: `✓ All ${items.length} items translated to ${lang.label}!` });
+      setTimeout(() => setBulkProgress((p) => ({ ...p, [langCode]: null })), 3000);
+    } catch (err: any) {
+      toast({ title: "Bulk translation failed", description: err.message, variant: "destructive" });
+      setBulkProgress((p) => ({ ...p, [langCode]: null }));
+    }
+  };
 
   /* ── save profile (name stored in filter_settings) ── */
   const saveProfile = async () => {
@@ -508,32 +583,53 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
                   const lang = EXTRA_LANGUAGES.find((l) => l.code === code);
                   if (!lang) return null;
                   return (
-                    <div key={code} className="flex items-center justify-between py-2 px-3 rounded-lg border border-border">
-                      <div className="flex items-center gap-2.5">
-                        <span className="text-lg">{lang.flag}</span>
-                        <div>
-                          <p className="text-sm font-medium text-foreground">{lang.label}</p>
-                          <p className="text-xs text-muted-foreground">{lang.nativeName}</p>
+                    <div key={code} className="rounded-lg border border-border overflow-hidden">
+                      <div className="flex items-center justify-between py-2 px-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-lg">{lang.flag}</span>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{lang.label}</p>
+                            <p className="text-xs text-muted-foreground">{lang.nativeName}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <button
+                            type="button"
+                            onClick={() => translateAllItems(code)}
+                            disabled={!!bulkProgress[code]}
+                            className="flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                          >
+                            {bulkProgress[code] && bulkProgress[code] !== "done" ? (
+                              <><Loader2 className="h-3 w-3 animate-spin" />
+                              {typeof bulkProgress[code] === "object"
+                                ? `${(bulkProgress[code] as any).done}/${(bulkProgress[code] as any).total}`
+                                : "…"}</>
+                            ) : bulkProgress[code] === "done" ? (
+                              <>✓ Done</>
+                            ) : (
+                              <><Languages className="h-3 w-3" /> Translate all</>
+                            )}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              const next = enabledLangs.filter((c) => c !== code);
+                              setEnabledLangs(next);
+                              const existing = (restaurant.filter_settings as any) ?? {};
+                              const { data, error } = await supabase
+                                .from("restaurants")
+                                .update({ filter_settings: { ...existing, enabledLanguages: next } })
+                                .eq("id", restaurant.id)
+                                .select()
+                                .single();
+                              if (!error && data) { onRestaurantUpdate(data); toast({ title: t("languageRemoved") }); }
+                            }}
+                            className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
                         </div>
                       </div>
-                      <button
-                        type="button"
-                        onClick={async () => {
-                          const next = enabledLangs.filter((c) => c !== code);
-                          setEnabledLangs(next);
-                          const existing = (restaurant.filter_settings as any) ?? {};
-                          const { data, error } = await supabase
-                            .from("restaurants")
-                            .update({ filter_settings: { ...existing, enabledLanguages: next } })
-                            .eq("id", restaurant.id)
-                            .select()
-                            .single();
-                          if (!error && data) { onRestaurantUpdate(data); toast({ title: t("languageRemoved") }); }
-                        }}
-                        className="p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                      >
-                        <X className="h-4 w-4" />
-                      </button>
                     </div>
                   );
                 })}

@@ -31,8 +31,8 @@ export default function Index() {
 
       {/* ───────── NAV ───────── */}
       <nav className="fixed top-0 w-full z-50 px-4 pt-3">
-        <div className="max-w-6xl mx-auto rounded-2xl px-6 h-14 flex items-center justify-between
-          bg-background/80 backdrop-blur-md border border-white/10">
+        <div className="max-w-4xl mx-auto rounded-2xl px-5 h-14 flex items-center justify-between
+          bg-background/80 backdrop-blur-md border border-foreground/10">
 
           <img
             src={theme === "dark" ? tapliLogoDark : tapliLogo}
@@ -51,64 +51,90 @@ export default function Index() {
                 <Button variant="ghost" size="sm">Sign In</Button>
               </Link>
               <Link to="/auth">
-                <Button size="sm">Get Started</Button>
+                <Button size="sm" className="rounded-xl">Get Started</Button>
               </Link>
             </div>
             <LanguageToggle />
             <ThemeToggle />
-            <button className="sm:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
-              {mobileOpen ? <X /> : <Menu />}
+            <button
+              className="sm:hidden p-1.5 rounded-lg hover:bg-foreground/5 transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {mobileOpen && (
-          <div className="sm:hidden mt-2 bg-background border rounded-xl p-4 space-y-2">
-            <Link to="/why" className="block py-1">Why Tapli</Link>
-            <Link to="/pricing" className="block py-1">Pricing</Link>
-            <Link to="/contact" className="block py-1">Contact Us</Link>
-            <Link to="/auth">
-              <Button className="w-full mt-2">Get Started</Button>
-            </Link>
+          <div className="sm:hidden max-w-4xl mx-auto mt-2 bg-background/95 backdrop-blur-xl border border-foreground/10 rounded-2xl p-4 space-y-1 shadow-xl">
+            {[
+              { to: "/why", label: "Why Tapli" },
+              { to: "/pricing", label: "Pricing" },
+              { to: "/contact", label: "Contact Us" },
+              { to: "/auth", label: "Sign In" },
+            ].map(({ to, label }) => (
+              <Link
+                key={label}
+                to={to}
+                onClick={() => setMobileOpen(false)}
+                className="block px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+              >
+                {label}
+              </Link>
+            ))}
+            <div className="pt-2 border-t border-foreground/[0.06]">
+              <Link to="/auth" onClick={() => setMobileOpen(false)}>
+                <Button className="w-full rounded-xl mt-1">Get Started</Button>
+              </Link>
+            </div>
           </div>
         )}
       </nav>
 
       {/* ───────── HERO ───────── */}
-      <section className="min-h-screen flex items-center px-6 pt-28 pb-20 overflow-hidden">
+      <section className="min-h-screen flex items-center px-5 pt-20 pb-14 sm:pt-28 sm:pb-20 overflow-hidden">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-[1fr_1.1fr] gap-8 items-center w-full">
 
           {/* LEFT */}
-          <div className="space-y-6">
+          <div className="space-y-5 sm:space-y-6">
             <p className="inline-block text-xs px-3 py-1 rounded-full
               bg-foreground/5 border border-foreground/10
               uppercase tracking-widest text-muted-foreground">
               Digital menus for modern restaurants
             </p>
 
-            <h1 className="text-5xl lg:text-6xl font-semibold leading-[1.05] tracking-tight">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold leading-[1.05] tracking-tight">
               Your menu,<br />one scan away
             </h1>
 
-            <p className="text-lg text-muted-foreground max-w-sm">
+            <p className="text-base sm:text-lg text-muted-foreground max-w-sm">
               Create beautiful digital menus with NFC and QR codes.
               Show allergens, calories, and dietary info.
               Update in real time.
             </p>
 
-            <div className="flex gap-4 flex-wrap">
-              <Button size="lg" className="px-6 rounded-xl shadow-md hover:shadow-lg transition">
-                Start for free
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-              <Button size="lg" variant="outline" className="px-6 rounded-xl border-white/20 hover:bg-white/5">
-                <ExternalLink className="mr-2 w-4 h-4" />
-                View live demo
-              </Button>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+              <Link to="/auth" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto px-6 rounded-xl shadow-md hover:shadow-lg transition">
+                  Start for free
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+              <a
+                href="https://tapliapp.com/menu/tapli-demo"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full sm:w-auto"
+              >
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-6 rounded-xl border-foreground/20 hover:bg-foreground/5">
+                  <ExternalLink className="mr-2 w-4 h-4" />
+                  View live demo
+                </Button>
+              </a>
             </div>
 
-            {/* Features row */}
-            <div className="flex gap-6 text-sm text-muted-foreground pt-4 flex-wrap">
+            {/* Features row — hidden on mobile to keep hero clean */}
+            <div className="hidden sm:flex gap-6 text-sm text-muted-foreground pt-2 flex-wrap">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-lg bg-foreground/5 border border-foreground/10 flex items-center justify-center">
                   <QrCode className="w-4 h-4" />
@@ -139,26 +165,22 @@ export default function Index() {
             </div>
           </div>
 
-          {/* RIGHT — image assets */}
-          <div className="relative flex justify-center items-center min-h-[640px] lg:min-h-[740px]">
+          {/* RIGHT — phone image, only visible on large screens */}
+          <div className="hidden lg:flex relative justify-center items-center min-h-[740px]">
 
             {/* Ambient glow */}
             <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[600px] rounded-full pointer-events-none"
               style={{ background: "radial-gradient(circle, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 55%, transparent 75%)", filter: "blur(50px)" }} />
 
-            {/* Phone — taller, shifted left to make room for QR stand */}
             <img
               src="/phone.png"
               alt="Tapli menu app"
-              className="relative z-10 w-[280px] lg:w-[320px] xl:w-[360px]"
+              className="relative z-10 w-[320px] xl:w-[360px]"
               style={{
                 filter: "drop-shadow(0 50px 90px rgba(0,0,0,0.65))",
                 transform: "translateY(-10px)",
               }}
             />
-
-
-
           </div>
         </div>
       </section>
@@ -232,8 +254,8 @@ export default function Index() {
               </ul>
             </div>
 
-            {/* RIGHT dashboard mockup */}
-            <div className="relative p-6 flex gap-4 items-start overflow-hidden">
+            {/* RIGHT dashboard mockup — hidden on mobile, too dense */}
+            <div className="hidden sm:flex relative p-6 gap-4 items-start overflow-hidden">
               {/* Dashboard card */}
               <div className="flex-1 rounded-2xl border bg-background/60 backdrop-blur p-4 space-y-4 text-xs min-w-0">
                 {/* Top bar */}
@@ -313,7 +335,7 @@ export default function Index() {
       <section className="py-24 px-6 max-w-6xl mx-auto text-center">
         <h2 className="text-3xl font-bold mb-16">How it works</h2>
 
-        <div className="grid sm:grid-cols-4 gap-6 text-sm relative">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-sm relative">
           {/* Connector lines */}
           <div className="hidden sm:block absolute top-10 left-[12.5%] right-[12.5%] border-t border-dashed border-foreground/20 z-0" />
 
@@ -343,16 +365,20 @@ export default function Index() {
               Join restaurants that use Tapli to create better experiences and increase their sales.
             </p>
           </div>
-          <div className="flex flex-col items-center gap-2 flex-shrink-0">
-            <div className="flex gap-3">
-              <Button size="lg" className="px-8 rounded-xl">
-                Start for free
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Button>
-              <Button size="lg" variant="outline" className="px-8 rounded-xl">
-                <ExternalLink className="mr-2 w-4 h-4" />
-                View live demo
-              </Button>
+          <div className="flex flex-col items-center gap-2 flex-shrink-0 w-full lg:w-auto">
+            <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+              <Link to="/auth" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto px-8 rounded-xl">
+                  Start for free
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+              <a href="https://tapliapp.com/menu/tapli-demo" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto px-8 rounded-xl">
+                  <ExternalLink className="mr-2 w-4 h-4" />
+                  View live demo
+                </Button>
+              </a>
             </div>
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" /> No credit card required

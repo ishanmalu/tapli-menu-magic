@@ -21,6 +21,7 @@ export type Database = {
           name: string
           restaurant_id: string
           sort_order: number
+          translations: Json | null
         }
         Insert: {
           created_at?: string
@@ -28,6 +29,7 @@ export type Database = {
           name: string
           restaurant_id: string
           sort_order?: number
+          translations?: Json | null
         }
         Update: {
           created_at?: string
@@ -35,6 +37,7 @@ export type Database = {
           name?: string
           restaurant_id?: string
           sort_order?: number
+          translations?: Json | null
         }
         Relationships: [
           {
@@ -69,6 +72,7 @@ export type Database = {
           protein: number | null
           restaurant_id: string
           sort_order: number
+          translations: Json | null
           updated_at: string
         }
         Insert: {
@@ -93,6 +97,7 @@ export type Database = {
           protein?: number | null
           restaurant_id: string
           sort_order?: number
+          translations?: Json | null
           updated_at?: string
         }
         Update: {
@@ -117,6 +122,7 @@ export type Database = {
           protein?: number | null
           restaurant_id?: string
           sort_order?: number
+          translations?: Json | null
           updated_at?: string
         }
         Relationships: [

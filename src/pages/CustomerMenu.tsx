@@ -53,7 +53,7 @@ function buildSliderValues(sliders: SliderConfig[]): Record<string, [number, num
 
 export default function CustomerMenu() {
   const { slug } = useParams<{ slug: string }>();
-  const { t, tCategory, language } = useLanguage();
+  const { t, tCategory, language, setLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
 
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
@@ -63,8 +63,15 @@ export default function CustomerMenu() {
   const [notFound, setNotFound] = useState(false);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
-  // Menu display language — starts at restaurant default, can be switched by customer
-  const [menuLang, setMenuLang] = useState<string>("fi");
+  // Menu display language — starts at restaurant default, can be switched by customer.
+  // For core langs (fi/en) we also sync the language context so MenuItemCard / MenuDetails
+  // automatically show the right columns. For extra langs we localize items ourselves.
+  const [menuLang, setMenuLangState] = useState<string>("fi");
+
+  const setMenuLang = useCallback((code: string) => {
+    setMenuLangState(code);
+    if (code === "fi" || code === "en") setLanguage(code as "fi" | "en");
+  }, [setLanguage]);
 
   // Category navigation
   const [activeCategory, setActiveCategory] = useState<string>("");
@@ -96,7 +103,8 @@ export default function CustomerMenu() {
 
         // Set initial menu language from restaurant default setting
         const defaultLang = (rest.filter_settings as any)?.defaultLanguage ?? "fi";
-        setMenuLang(defaultLang);
+        setMenuLangState(defaultLang);
+        if (defaultLang === "fi" || defaultLang === "en") setLanguage(defaultLang as "fi" | "en");
 
         // Initialise slider values from restaurant settings
         const sliders = getSlidersFromSettings(rest.filter_settings as any);
@@ -139,29 +147,24 @@ export default function CustomerMenu() {
     [enabledLanguages]
   );
 
-  // Helper: get the best available text for an item in the current menuLang
-  const getItemText = useCallback((item: MenuItem, field: "name" | "description" | "ingredients"): string | string[] | null => {
-    if (menuLang === "fi") {
-      if (field === "name") return item.name;
-      if (field === "description") return item.description ?? null;
-      if (field === "ingredients") return item.ingredients ?? null;
-    }
-    if (menuLang === "en") {
-      if (field === "name") return (item.name_en ?? item.name);
-      if (field === "description") return (item.description_en ?? item.description ?? null);
-      if (field === "ingredients") return (item.ingredients_en ?? item.ingredients ?? null);
-    }
-    // Extra language — read from translations JSONB
-    const translations = (item.translations as Record<string, { name?: string; description?: string; ingredients?: string[] }> | null) ?? {};
-    const tr = translations[menuLang];
-    if (field === "name") return tr?.name || item.name_en || item.name;
-    if (field === "description") return tr?.description || item.description_en || item.description || null;
-    if (field === "ingredients") return tr?.ingredients || item.ingredients_en || item.ingredients || null;
-    return null;
+  // For extra languages (not fi/en), override the item's core fields with translated text
+  // so that MenuItemCard and MenuDetails display the right language without needing changes.
+  const localizeItem = useCallback((item: MenuItem): MenuItem => {
+    if (menuLang === "fi" || menuLang === "en") return item; // handled by context
+    const tr = (item.translations as Record<string, { name?: string; description?: string; ingredients?: string[] }> | null ?? {})[menuLang] ?? {};
+    return {
+      ...item,
+      name:          tr.name        || item.name_en    || item.name,
+      name_en:       tr.name        || item.name_en,
+      description:   tr.description || item.description_en || item.description,
+      description_en: tr.description || item.description_en,
+      ingredients:   (tr.ingredients?.length ? tr.ingredients : null) ?? item.ingredients_en ?? item.ingredients,
+      ingredients_en: (tr.ingredients?.length ? tr.ingredients : null) ?? item.ingredients_en,
+    };
   }, [menuLang]);
 
-  // Helper: get category name in current menuLang
-  const getCategoryName = useCallback((cat: Category): string => {
+  // Helper: get category display name in current menuLang
+  const getCategoryDisplayName = useCallback((cat: Category): string => {
     if (menuLang === "fi") return cat.name;
     if (menuLang === "en") return (cat as any).name_en || cat.name;
     const tr = (cat.translations as Record<string, string> | null) ?? {};
@@ -509,7 +512,7 @@ export default function CustomerMenu() {
                     fontFamily: headingFontFamily,
                     color: accentMode === "full" && accentColor ? accentColor : undefined,
                   }}>
-                    {tCategory(group.category.name)}
+                    {getCategoryDisplayName(group.category)}
                     <span className="ml-2 text-xs font-normal text-muted-foreground" style={{ fontFamily: "Inter, sans-serif", color: undefined }}>{group.items.length}</span>
                   </h2>
                 )}
@@ -517,7 +520,7 @@ export default function CustomerMenu() {
                   {group.items.map((item) => (
                     <MenuItemCard
                       key={item.id}
-                      item={item}
+                      item={localizeItem(item)}
                       onClick={() => setSelectedItem(item)}
                       isActive={selectedItem?.id === item.id}
                       extraTagLabels={extraTagLabels}
@@ -537,7 +540,7 @@ export default function CustomerMenu() {
         {/* Detail panel — bottom sheet on mobile, fixed right panel on desktop */}
         {selectedItem && (
           <MenuDetails
-            item={selectedItem}
+            item={localizeItem(selectedItem)}
             onClose={() => setSelectedItem(null)}
             extraTagLabels={extraTagLabels}
             excludedAllergens={excludedAllergens}

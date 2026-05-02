@@ -49,15 +49,21 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
   const extraLangs = EXTRA_LANGUAGES.filter((l) => enabledLanguages.includes(l.code));
 
   // State for extra language translations, keyed by language code
-  const existingTranslations = (item?.translations as Record<string, { name?: string; description?: string; ingredients?: string[] }> | null) ?? {};
   const [extraTranslations, setExtraTranslations] = useState<Record<string, LangTranslation>>(() => {
     const init: Record<string, LangTranslation> = {};
+    let existingTranslations: Record<string, { name?: string; description?: string; ingredients?: string[] }> = {};
+    try {
+      const raw = item?.translations;
+      if (raw && typeof raw === "object" && !Array.isArray(raw)) {
+        existingTranslations = raw as Record<string, { name?: string; description?: string; ingredients?: string[] }>;
+      }
+    } catch { /* ignore */ }
     extraLangs.forEach((lang) => {
       const existing = existingTranslations[lang.code];
       init[lang.code] = {
         name: existing?.name ?? "",
         description: existing?.description ?? "",
-        ingredients: (existing?.ingredients ?? []).join(", "),
+        ingredients: Array.isArray(existing?.ingredients) ? existing.ingredients.join(", ") : "",
       };
     });
     return init;

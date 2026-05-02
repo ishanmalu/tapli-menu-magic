@@ -593,12 +593,12 @@ export function MenuItemForm({ restaurantId, categories, item, onSave, onCancel,
       {/* Badge */}
       <div className="space-y-1.5">
         <Label>{t("badgeLabel")}</Label>
-        <Select value={badge} onValueChange={setBadge}>
+        <Select value={badge || "none"} onValueChange={(v) => setBadge(v === "none" ? "" : v)}>
           <SelectTrigger>
             <SelectValue placeholder={t("badgeNone")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t("badgeNone")}</SelectItem>
+            <SelectItem value="none">{t("badgeNone")}</SelectItem>
             <SelectItem value="bestseller">★ {t("badgeBestseller")}</SelectItem>
             <SelectItem value="new">✦ {t("badgeNew")}</SelectItem>
           </SelectContent>

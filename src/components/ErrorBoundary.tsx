@@ -29,9 +29,14 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="flex min-h-screen items-center justify-center bg-background px-4">
           <div className="text-center max-w-sm">
             <h1 className="text-xl font-bold text-foreground mb-2">Something went wrong</h1>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-2">
               The page crashed unexpectedly. Please try refreshing.
             </p>
+            {this.state.message && (
+              <p className="text-xs font-mono bg-muted rounded px-3 py-2 mb-4 text-left break-all">
+                {this.state.message}
+              </p>
+            )}
             <button
               onClick={() => window.location.reload()}
               className="text-sm text-primary hover:underline"

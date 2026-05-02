@@ -859,6 +859,7 @@ export function MenuManager({
                 <DialogTitle>{editingItem ? t("editItem") : t("addMenuItem")}</DialogTitle>
               </DialogHeader>
               <MenuItemForm
+                key={editingItem?.id ?? "new"}
                 restaurantId={restaurant.id}
                 categories={categories}
                 item={editingItem}

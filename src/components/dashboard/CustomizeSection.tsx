@@ -7,13 +7,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Check, LayoutList, LayoutGrid } from "lucide-react";
+import { Loader2, Check, LayoutList, LayoutGrid, Palette, X } from "lucide-react";
 import { FONT_OPTIONS, ACCENT_PRESETS, ALL_GOOGLE_FONTS_URL } from "@/constants/menuCustomization";
 import { QRCodeCanvas } from "qrcode.react";
 
 interface Props {
   restaurant: Tables<"restaurants">;
   onRestaurantUpdate: (r: Tables<"restaurants">) => void;
+}
+
+function buildGradientStyle(colors: string[], dark: boolean): React.CSSProperties {
+  const base = dark ? "#0f0f11" : "#ffffff";
+  if (!colors.length) return { background: base };
+  const stops = [base, ...colors, base];
+  const style = stops.map((c, i) => `${c} ${Math.round((i / (stops.length - 1)) * 100)}%`).join(", ");
+  return { background: `linear-gradient(135deg, ${style})` };
 }
 
 function Card({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
@@ -47,6 +55,11 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
   const [qrBgColor,  setQrBgColor]  = useState<string>(fs.qrBgColor  ?? "#ffffff");
   const [qrShowLogo, setQrShowLogo] = useState<boolean>(fs.qrShowLogo ?? false);
   const [savingQr, setSavingQr] = useState(false);
+
+  const [gradientColors, setGradientColors] = useState<string[]>(
+    (fs.gradientColors as string[] | undefined) ?? []
+  );
+  const [savingGradient, setSavingGradient] = useState(false);
 
   // Load all Google Fonts so the font cards render correctly in the dashboard
   useEffect(() => {
@@ -100,6 +113,13 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
     finally { setSavingQr(false); }
   };
 
+  const saveGradientColors = async (colors: string[]) => {
+    setSavingGradient(true);
+    try { await savePatch({ gradientColors: colors }); }
+    catch (err: any) { toast({ title: t("error"), description: err.message, variant: "destructive" }); }
+    finally { setSavingGradient(false); }
+  };
+
   const menuUrl = `${window.location.origin}/menu/${restaurant.slug}`;
 
   return (
@@ -111,8 +131,8 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
 
       <div className="p-6 space-y-5 max-w-2xl">
 
-        {/* ── Brand Colors ── */}
-        <Card title={t("brandColors")} description={t("brandColorsDesc")}>
+        {/* ── Accent Colour ── */}
+        <Card title="Accent Colour" description="Choose your restaurant's accent colour — applied live to your public menu.">
           {/* Mode toggle */}
           <div className="flex gap-2">
             {([
@@ -169,12 +189,6 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
                 onChange={(e) => { const v = e.target.value; if (/^#[0-9A-Fa-f]{0,6}$/.test(v)) setAccentColor(v); }}
                 className="font-mono w-28 text-sm" maxLength={7}
               />
-              <div
-                className="flex-1 rounded-lg px-4 py-2.5 text-sm font-semibold text-white text-center shadow-sm"
-                style={{ backgroundColor: accentColor }}
-              >
-                {t("preview")}
-              </div>
             </div>
           </div>
 
@@ -182,6 +196,74 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
             {savingColors && <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />}
             {t("saveColors")}
           </Button>
+        </Card>
+
+        {/* ── Menu Background Gradient ── */}
+        <Card title="Menu Background" description="Add gradient colours to your customer-facing menu. In dark mode the base is black, in light mode it's white.">
+
+          {/* Live previews */}
+          <div className="flex gap-3">
+            <div className="flex-1 rounded-lg overflow-hidden border border-border">
+              <p className="text-[10px] text-center text-muted-foreground py-0.5 bg-muted/40 font-medium tracking-wide uppercase">Light</p>
+              <div className="h-16" style={buildGradientStyle(gradientColors, false)} />
+            </div>
+            <div className="flex-1 rounded-lg overflow-hidden border border-border">
+              <p className="text-[10px] text-center text-muted-foreground py-0.5 bg-muted/40 font-medium tracking-wide uppercase">Dark</p>
+              <div className="h-16" style={buildGradientStyle(gradientColors, true)} />
+            </div>
+          </div>
+
+          {/* Added colour swatches */}
+          {gradientColors.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {gradientColors.map((color, i) => (
+                <div key={i} className="flex items-center gap-1.5 bg-muted/40 rounded-lg px-2 py-1.5 border border-border">
+                  <div className="w-5 h-5 rounded-md border border-border/50 shrink-0" style={{ background: color }} />
+                  <span className="text-xs font-mono text-muted-foreground">{color}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = gradientColors.filter((_, j) => j !== i);
+                      setGradientColors(next);
+                      saveGradientColors(next);
+                    }}
+                    className="text-muted-foreground hover:text-destructive transition-colors ml-0.5"
+                    aria-label="Remove colour"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add colour button + clear */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-foreground/20 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer">
+              <Palette className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Add colour</span>
+              <input
+                type="color"
+                className="sr-only"
+                value="#000000"
+                onChange={(e) => {
+                  const next = [...gradientColors, e.target.value];
+                  setGradientColors(next);
+                  saveGradientColors(next);
+                }}
+              />
+            </label>
+            {gradientColors.length > 0 && (
+              <button
+                type="button"
+                onClick={() => { setGradientColors([]); saveGradientColors([]); }}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                Clear all
+              </button>
+            )}
+            {savingGradient && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+          </div>
         </Card>
 
         {/* ── Typography ── */}

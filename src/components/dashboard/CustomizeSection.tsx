@@ -59,6 +59,7 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
   const [gradientColors, setGradientColors] = useState<string[]>(
     (fs.gradientColors as string[] | undefined) ?? []
   );
+  const [stagedColor, setStagedColor] = useState("#E63946");
   const [savingGradient, setSavingGradient] = useState(false);
 
   // Load all Google Fonts so the font cards render correctly in the dashboard
@@ -237,22 +238,29 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
             </div>
           )}
 
-          {/* Add colour button + clear */}
-          <div className="flex items-center gap-3 flex-wrap">
-            <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-foreground/20 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer">
-              <Palette className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Add colour</span>
+          {/* Add colour — pick then confirm */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-muted/20">
               <input
                 type="color"
-                className="sr-only"
-                value="#000000"
-                onChange={(e) => {
-                  const next = [...gradientColors, e.target.value];
-                  setGradientColors(next);
-                  saveGradientColors(next);
-                }}
+                value={stagedColor}
+                onChange={(e) => setStagedColor(e.target.value)}
+                className="h-7 w-7 cursor-pointer rounded border-0 bg-transparent p-0 shrink-0"
+                title="Pick a colour"
               />
-            </label>
+              <span className="text-xs font-mono text-muted-foreground w-16">{stagedColor}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const next = [...gradientColors, stagedColor];
+                setGradientColors(next);
+                saveGradientColors(next);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg border border-dashed border-foreground/20 hover:border-primary hover:bg-primary/5 transition-colors text-sm text-muted-foreground"
+            >
+              <Palette className="h-3.5 w-3.5" /> Add colour
+            </button>
             {gradientColors.length > 0 && (
               <button
                 type="button"

@@ -178,7 +178,7 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
         }
       });
 
-      // 5. Save translations back to DB (parallel updates)
+      // 5. Save item translations back to DB (parallel updates)
       await Promise.all(
         items.map(async (item) => {
           const patch = byItem[item.id];
@@ -191,8 +191,31 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
         })
       );
 
+      // 6. Also translate category names
+      const { data: cats } = await supabase
+        .from("categories")
+        .select("id, name, name_en, translations")
+        .eq("restaurant_id", restaurant.id);
+
+      if (cats?.length) {
+        const catSrcTexts = cats.map((c) => ((c.name || (c as any).name_en || "")).trim());
+        const nonEmpty = catSrcTexts.filter(Boolean);
+        if (nonEmpty.length) {
+          const catTranslated = await translateBatch(nonEmpty, langCode);
+          let tIdx = 0;
+          await Promise.all(cats.map(async (cat, i) => {
+            const src = catSrcTexts[i];
+            if (!src) return;
+            const translated = catTranslated[tIdx++];
+            const existing = (typeof cat.translations === "object" && cat.translations && !Array.isArray(cat.translations)
+              ? cat.translations : {}) as Record<string, unknown>;
+            await supabase.from("categories").update({ translations: { ...existing, [langCode]: translated } }).eq("id", cat.id);
+          }));
+        }
+      }
+
       setBulkProgress((p) => ({ ...p, [langCode]: "done" }));
-      toast({ title: `✓ All ${items.length} items translated to ${lang.label}!` });
+      toast({ title: `✓ All items & categories translated to ${lang.label}!` });
       setTimeout(() => setBulkProgress((p) => ({ ...p, [langCode]: null })), 3000);
     } catch (err: any) {
       toast({ title: "Bulk translation failed", description: err.message, variant: "destructive" });

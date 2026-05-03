@@ -70,7 +70,10 @@ export default function CustomerMenu() {
 
   const setMenuLang = useCallback((code: string) => {
     setMenuLangState(code);
+    // For fi/en use the context directly; for extra langs fall back to English
+    // so all UI strings (filters, chips, labels) show in English instead of Finnish.
     if (code === "fi" || code === "en") setLanguage(code as "fi" | "en");
+    else setLanguage("en");
   }, [setLanguage]);
 
   // Category navigation
@@ -106,6 +109,7 @@ export default function CustomerMenu() {
         const defaultLang = (rest.filter_settings as any)?.defaultLanguage ?? "fi";
         setMenuLangState(defaultLang);
         if (defaultLang === "fi" || defaultLang === "en") setLanguage(defaultLang as "fi" | "en");
+        else setLanguage("en");
 
         // Initialise slider values from restaurant settings
         const sliders = getSlidersFromSettings(rest.filter_settings as any);
@@ -529,7 +533,7 @@ export default function CustomerMenu() {
               <div className="flex gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {groupedItems.map((group) => {
                   const id = group.category?.id ?? "uncategorized";
-                  const label = group.category ? tCategory(group.category.name) : t("uncategorized");
+                  const label = group.category ? getCategoryDisplayName(group.category) : t("uncategorized");
                   const isActive = activeCategory === id;
                   return (
                     <button

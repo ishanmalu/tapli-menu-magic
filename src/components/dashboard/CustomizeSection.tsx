@@ -220,7 +220,7 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
               {gradientColors.map((color, i) => (
                 <div key={i} className="flex items-center gap-1.5 bg-muted/40 rounded-lg px-2 py-1.5 border border-border">
                   <div className="w-5 h-5 rounded-md border border-border/50 shrink-0" style={{ background: color }} />
-                  <span className="text-xs font-mono text-muted-foreground">{color}</span>
+                  <span className="text-xs font-mono text-foreground">{color}</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -228,10 +228,10 @@ export function CustomizeSection({ restaurant, onRestaurantUpdate }: Props) {
                       setGradientColors(next);
                       saveGradientColors(next);
                     }}
-                    className="text-muted-foreground hover:text-destructive transition-colors ml-0.5"
+                    className="ml-1 flex items-center justify-center h-4 w-4 rounded-full bg-foreground/10 hover:bg-destructive hover:text-white text-foreground transition-colors shrink-0"
                     aria-label="Remove colour"
                   >
-                    <X className="h-3.5 w-3.5" />
+                    <X className="h-2.5 w-2.5" />
                   </button>
                 </div>
               ))}

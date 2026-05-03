@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Eye, EyeOff, ExternalLink, Loader2, Plus, X, Globe, Languages } from "lucide-react";
+import { Eye, EyeOff, ExternalLink, Loader2, Plus, X, Globe, Languages, Palette } from "lucide-react";
 import { CORE_LANGUAGES, EXTRA_LANGUAGES, getLang } from "@/constants/languages";
 import { translateBatch } from "@/lib/translate";
 
@@ -78,6 +78,15 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
   );
 }
 
+/* ── Gradient helpers ──────────────────────────────────────────────────────── */
+function buildGradientStyle(colors: string[], dark: boolean): React.CSSProperties {
+  const base = dark ? "#0f0f11" : "#ffffff";
+  if (!colors.length) return { background: base };
+  const stops = [base, ...colors, base];
+  const style = stops.map((c, i) => `${c} ${Math.round((i / (stops.length - 1)) * 100)}%`).join(", ");
+  return { background: `linear-gradient(135deg, ${style})` };
+}
+
 /* ── Props ─────────────────────────────────────────────────────────────────── */
 interface Props {
   restaurant: Tables<"restaurants">;
@@ -126,6 +135,31 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
   );
   // langCode → { done, total } while bulk-translating
   const [bulkProgress, setBulkProgress] = useState<Record<string, { done: number; total: number } | "done" | null>>({});
+
+  /* ── gradient colours ── */
+  const [gradientColors, setGradientColors] = useState<string[]>(
+    (fs.gradientColors as string[] | undefined) ?? []
+  );
+  const [savingGradient, setSavingGradient] = useState(false);
+
+  const saveGradientColors = async (colors: string[]) => {
+    setSavingGradient(true);
+    try {
+      const existing = (restaurant.filter_settings as any) ?? {};
+      const { data, error } = await supabase
+        .from("restaurants")
+        .update({ filter_settings: { ...existing, gradientColors: colors } })
+        .eq("id", restaurant.id)
+        .select()
+        .single();
+      if (error) throw error;
+      if (data) onRestaurantUpdate(data);
+    } catch (err: any) {
+      toast({ title: t("error"), description: err.message, variant: "destructive" });
+    } finally {
+      setSavingGradient(false);
+    }
+  };
 
   /* ── bulk-translate ALL menu items to a given language ── */
   const translateAllItems = async (langCode: string) => {
@@ -670,6 +704,74 @@ export function SettingsSection({ restaurant, onRestaurantUpdate, onShowDeleteAc
               </div>
             </div>
           )}
+        </Card>
+
+        {/* ── Menu Background Gradient ── */}
+        <Card title="Menu Background" description="Choose gradient colours for your customer-facing menu. In dark mode the base is black, in light mode it's white.">
+
+          {/* Live previews */}
+          <div className="flex gap-3">
+            <div className="flex-1 rounded-lg overflow-hidden border border-border">
+              <p className="text-[10px] text-center text-muted-foreground py-0.5 bg-muted/40 font-medium tracking-wide uppercase">Light</p>
+              <div className="h-16" style={buildGradientStyle(gradientColors, false)} />
+            </div>
+            <div className="flex-1 rounded-lg overflow-hidden border border-border">
+              <p className="text-[10px] text-center text-muted-foreground py-0.5 bg-muted/40 font-medium tracking-wide uppercase">Dark</p>
+              <div className="h-16" style={buildGradientStyle(gradientColors, true)} />
+            </div>
+          </div>
+
+          {/* Added colour swatches */}
+          {gradientColors.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {gradientColors.map((color, i) => (
+                <div key={i} className="flex items-center gap-1.5 bg-muted/40 rounded-lg px-2 py-1.5 border border-border">
+                  <div className="w-5 h-5 rounded-md border border-border/50 shrink-0" style={{ background: color }} />
+                  <span className="text-xs font-mono text-muted-foreground">{color}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = gradientColors.filter((_, j) => j !== i);
+                      setGradientColors(next);
+                      saveGradientColors(next);
+                    }}
+                    className="text-muted-foreground hover:text-destructive transition-colors ml-0.5"
+                    aria-label="Remove colour"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Add colour button + clear */}
+          <div className="flex items-center gap-3 flex-wrap">
+            <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-foreground/20 hover:border-primary hover:bg-primary/5 transition-colors cursor-pointer">
+              <Palette className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Add colour</span>
+              <input
+                type="color"
+                className="sr-only"
+                value="#000000"
+                onChange={(e) => {
+                  const next = [...gradientColors, e.target.value];
+                  setGradientColors(next);
+                  saveGradientColors(next);
+                }}
+              />
+            </label>
+            {gradientColors.length > 0 && (
+              <button
+                type="button"
+                onClick={() => { setGradientColors([]); saveGradientColors([]); }}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+              >
+                Clear all
+              </button>
+            )}
+            {savingGradient && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+          </div>
         </Card>
 
         {/* ── Danger Zone ── */}

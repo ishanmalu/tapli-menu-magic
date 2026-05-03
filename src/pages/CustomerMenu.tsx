@@ -179,6 +179,20 @@ export default function CustomerMenu() {
   const cardStyle     = (rfSettings.cardStyle    as string) || "minimal";
   const headingFontFamily = FONT_OPTIONS.find((f) => f.id === headingFont)?.family ?? "Inter, sans-serif";
 
+  // Background gradient
+  const gradientColors = useMemo<string[]>(
+    () => (rfSettings.gradientColors as string[] | undefined) ?? [],
+    [rfSettings]
+  );
+  const backgroundStyle = useMemo((): React.CSSProperties => {
+    if (!gradientColors.length) return {};
+    const isDark = theme === "dark";
+    const base = isDark ? "#0f0f11" : "#ffffff";
+    const stops = [base, ...gradientColors, base];
+    const gradient = stops.map((c, i) => `${c} ${Math.round((i / (stops.length - 1)) * 100)}%`).join(", ");
+    return { background: `linear-gradient(135deg, ${gradient})` };
+  }, [gradientColors, theme]);
+
   // Load heading font from Google Fonts
   useEffect(() => {
     const fontOpt = FONT_OPTIONS.find((f) => f.id === headingFont);
@@ -348,7 +362,10 @@ export default function CustomerMenu() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-8">
+    <div
+      className={`min-h-screen pb-8 ${gradientColors.length ? "" : "bg-background"}`}
+      style={backgroundStyle}
+    >
 
       {/* Top controls */}
       <div className="fixed top-3 right-3 z-50 flex items-center gap-1.5">

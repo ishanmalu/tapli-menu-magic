@@ -10,7 +10,7 @@ import { MenuDetails } from "@/components/menu/MenuDetails";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/components/ThemeProvider";
-import { Moon, Sun } from "lucide-react";
+import { Moon, Sun, Search, X } from "lucide-react";
 import { FREE_FROM_ALLERGENS, DIETARY_LIFESTYLE_TAGS } from "@/constants/menuTags";
 import { FONT_OPTIONS } from "@/constants/menuCustomization";
 import { ALL_LANGUAGES, getLang } from "@/constants/languages";
@@ -79,6 +79,7 @@ export default function CustomerMenu() {
   const tabBarRef = useRef<HTMLDivElement>(null);
 
   // Filters
+  const [searchQuery, setSearchQuery] = useState("");
   const [excludedAllergens, setExcludedAllergens] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [selectedFoodStyles, setSelectedFoodStyles] = useState<string[]>([]);
@@ -235,7 +236,23 @@ export default function CustomerMenu() {
   }, [items, customTags]);
 
   const filteredItems = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
     return items.filter((item) => {
+      // Search query — checks name, description, ingredients, category, tags across all languages
+      if (q) {
+        const cat = categories.find((c) => c.id === item.category_id);
+        const catName = cat ? getCategoryDisplayName(cat).toLowerCase() : "";
+        const tr = (item.translations as Record<string, { name?: string; description?: string; ingredients?: string[] }> | null) ?? {};
+        const allNames = [item.name, item.name_en, ...Object.values(tr).map((t) => t.name ?? "")].filter(Boolean).join(" ").toLowerCase();
+        const allDescs = [item.description, item.description_en, ...Object.values(tr).map((t) => t.description ?? "")].filter(Boolean).join(" ").toLowerCase();
+        const allIngr = [...(item.ingredients ?? []), ...(item.ingredients_en ?? []), ...Object.values(tr).flatMap((t) => t.ingredients ?? [])].join(" ").toLowerCase();
+        const allTags = [...(item.dietary_tags ?? []), ...(item.allergens ?? [])].join(" ").toLowerCase();
+        // Also match food-style chip IDs that apply to this item
+        const chipIds = FOOD_STYLE_FILTERS.filter((f) => f.match(item)).map((f) => f.id).join(" ").toLowerCase();
+        const fullText = `${allNames} ${allDescs} ${allIngr} ${allTags} ${catName} ${chipIds}`;
+        if (!fullText.includes(q)) return false;
+      }
+
       // Allergen exclusions
       if (
         excludedAllergens.length > 0 &&
@@ -267,7 +284,7 @@ export default function CustomerMenu() {
 
       return true;
     });
-  }, [items, excludedAllergens, selectedDietary, enabledSliders, sliderValues, selectedFoodStyles]);
+  }, [items, searchQuery, excludedAllergens, selectedDietary, enabledSliders, sliderValues, selectedFoodStyles, categories, getCategoryDisplayName]);
 
   const groupedItems = useMemo(() => {
     const groups: { category: Category | null; items: MenuItem[] }[] = [];
@@ -293,12 +310,13 @@ export default function CustomerMenu() {
   }, [filteredItems, categories]);
 
   const hasFilters = useMemo(() => {
+    if (searchQuery.trim()) return true;
     if (excludedAllergens.length > 0 || selectedDietary.length > 0 || selectedFoodStyles.length > 0) return true;
     return enabledSliders.some((s) => {
       const range = sliderValues[s.id];
       return range ? (range[0] > s.min || range[1] < s.max) : false;
     });
-  }, [excludedAllergens, selectedDietary, selectedFoodStyles, enabledSliders, sliderValues]);
+  }, [searchQuery, excludedAllergens, selectedDietary, selectedFoodStyles, enabledSliders, sliderValues]);
 
   // IntersectionObserver — highlight active category tab while scrolling
   useEffect(() => {
@@ -460,6 +478,28 @@ export default function CustomerMenu() {
       {/* Layout */}
       <div className="max-w-2xl mx-auto px-4 mt-4">
         <div>
+          {/* Search bar */}
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search menu…"
+              className="w-full h-9 pl-8.5 pr-8 rounded-full border border-border/60 bg-background/70 backdrop-blur-sm text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 focus:border-primary/40 transition-all"
+              style={{ paddingLeft: "2.1rem" }}
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
           <FoodStyleChips
             selected={selectedFoodStyles}
             setSelected={setSelectedFoodStyles}
@@ -480,8 +520,8 @@ export default function CustomerMenu() {
             extraTagLabels={extraTagLabels}
           />
 
-          {/* Sticky category tab bar */}
-          {groupedItems.length > 1 && (
+          {/* Sticky category tab bar — hidden during search */}
+          {groupedItems.length > 1 && !searchQuery.trim() && (
             <div
               ref={tabBarRef}
               className="sticky top-0 z-30 -mx-4 px-4 py-2.5 bg-background/95 backdrop-blur-sm border-b border-border/40 mb-4"
@@ -513,7 +553,16 @@ export default function CustomerMenu() {
           )}
 
           {groupedItems.length === 0 && hasFilters ? (
-            <p className="text-center text-muted-foreground py-12">{t("noMatchFilters")}</p>
+            <div className="text-center py-12">
+              <p className="text-muted-foreground text-sm">
+                {searchQuery.trim() ? `No results for "${searchQuery.trim()}"` : t("noMatchFilters")}
+              </p>
+              {searchQuery.trim() && (
+                <button onClick={() => setSearchQuery("")} className="mt-2 text-xs text-primary hover:underline">
+                  Clear search
+                </button>
+              )}
+            </div>
           ) : groupedItems.length === 0 ? (
             <p className="text-center text-muted-foreground py-12">{t("noMenuItems")}</p>
           ) : (

@@ -77,6 +77,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch {
       // Sign out errors are non-critical — session is cleared locally regardless
     }
+    // Full page reload so the browser fetches fresh HTML/JS after any deployment.
+    // Prevents "Failed to fetch dynamically imported module" errors on stale chunks.
+    window.location.href = "/auth";
   };
 
   return (
